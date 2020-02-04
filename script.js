@@ -1,0 +1,312 @@
+const CCAE = (() => {
+	"use strict";
+	
+	////////////
+	// Fields //
+	////////////
+	const CANVAS = document.getElementById("canvas");
+	const PENCIL = CANVAS.getContext("2d");
+	const CONTAINER = document.getElementById("container");
+	const PALETTE = ['000000'];
+	const INVERT = {
+		'0': 'f',
+		'1': 'e',
+		'2': 'd',
+		'3': 'c',
+		'4': 'b',
+		'5': 'a',
+		'6': '9',
+		'7': '8',
+		'8': '7',
+		'9': '6',
+		'a': '5',
+		'b': '4',
+		'c': '3',
+		'd': '2',
+		'e': '1',
+		'f': '0'
+	};
+	const MODE = {
+		LOAD: 1,
+		ISOLATE: 2,
+		BOX: 3
+	};
+	const PIXELS = 8;
+	let width = 10;
+	let height = 10;
+	let factor = 1;
+	let data = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,1,1,0,0,1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,0,0,1,1,1,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,0,1,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,1,1,1,0,1,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,1,0,1,0,1,1,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,1,1,0,0,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,0,0,1,0,1,0,1,1,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+	let mouse = null;
+	let tpos = {x: 0, y: 0};
+	let pos1 = null;
+	let pos2 = null;
+	let isMouseDown = false;
+	
+	////////////////////
+	// Initialization //
+	////////////////////
+	generateTiles(MODE.LOAD);
+	
+	// left click = individual tiling
+	// right click = boxing
+	CANVAS.addEventListener("mousedown", () => {
+		if(event.button === 0) // left click
+		{
+			if(!mouse)
+				mouse = setInterval(() => {
+					clickPrimary(tpos.x, tpos.y);
+				}, 10);
+		}
+		else if(event.button === 2) // right click
+			clickSecondary(event.offsetX, event.offsetY);
+		
+		isMouseDown = true;
+	});
+	
+	window.addEventListener("mouseup", () => {
+		isMouseDown = false;
+	});
+	
+	CANVAS.addEventListener("mousemove", () => {
+		tpos = {x: event.offsetX, y: event.offsetY};
+	});
+	
+	CANVAS.addEventListener("mouseup", clear);
+	// The function will loop continuously if you let go off of the canvas.
+	CANVAS.addEventListener("mouseenter", () => {
+		if(!isMouseDown)
+			clear();
+	});
+	
+	CANVAS.oncontextmenu = disable;
+	
+	// throw an error if width is not the same
+	
+	///////////////////
+	// Usable Object //
+	///////////////////
+	return {
+		update: update,
+		system:
+		{
+			input: input
+		},
+		debug:
+		{
+			setTile: setTile,
+			setSize: setSize,
+			generateTiles: generateTiles
+		}
+	};
+	
+	/////////////////////////////////
+	// Document-Specific Functions //
+	/////////////////////////////////
+	
+	function update()
+	{
+		generateTiles();
+		generateButtons(CONTAINER);
+	}
+	
+	function setTile(x, y, color = '000000')
+	{
+		PENCIL.fillStyle = '#' + color;
+		PENCIL.fillRect(x * PIXELS * factor, y * PIXELS * factor, PIXELS * factor, PIXELS * factor);
+	}
+	
+	function setSize(x, y, f)
+	{
+		width = x || width;
+		height = y || height;
+		factor = f || factor;
+		
+		CANVAS.width = width * PIXELS * factor;
+		CANVAS.height = height * PIXELS * factor;
+	}
+	
+	function generateTiles(mode, ...args)
+	{
+		setSize(data[0].length, data.length);
+		
+		for(var i = 0; i < data.length; i++)
+		{
+			for(var j = 0; j < data[i].length; j++)
+			{
+				let color = getColor(data[i][j]);
+				
+				if(mode === MODE.LOAD)
+					color = data[i][j] === 0 ? '000000' : 'ffffff';
+				else if(mode === MODE.ISOLATE)
+					color = data[i][j] === args[0] ? 'ffffff' : '000000';
+				else if(mode === MODE.BOX)
+					color = inBounds(j, i, pos1, pos2) ? 'ff0000' : getColor(data[i][j]);
+				
+				setTile(j, i, color);
+			}
+		}
+	}
+	
+	function input(e)
+	{
+		try
+		{
+			let input = JSON.parse(e.value);
+			
+			if(input.constructor === Array && input[0].constructor === Array)
+			{
+				data = input;
+				generateTiles();
+				update();
+			}
+			else
+				throw "Your object must be a matrix of at least one row and one column!";
+		}
+		catch(error)
+		{
+			e.value = error + '\n\nCheck the console for details.';
+			console.error(error);
+		}
+	}
+	
+	function clickPrimary(x = 0, y = 0)
+	{
+		//console.log('primary', x, y);
+		setTile(Math.floor(x/8), Math.floor(y/8), '0000ff');
+	}
+	
+	function clickSecondary(x = 0, y = 0)
+	{
+		//console.log('secondary', x, y);
+		if(!pos1)
+		{
+			pos1 = {x: Math.floor(x/8), y: Math.floor(y/8)};
+			setTile(pos1.x, pos1.y, 'ff0000');
+		}
+		else
+		{
+			pos2 = {x: Math.floor(x/8), y: Math.floor(y/8)};
+			generateTiles(MODE.BOX);
+			pos1 = null;
+			pos2 = null;
+		}
+	}
+	
+	function inBounds(x, y, start, end)
+	{
+		// If start is to the left of or the same as end
+		if(start.x <= end.x)
+		{
+			if(!(x >= start.x && x <= end.x))
+				return false;
+			
+			// If start is above or the same as end
+			if(start.y <= end.y)
+				return y >= start.y && y <= end.y;
+			// If start is below end
+			else if(start.y > end.y)
+				return y >= end.y && y <= start.y;
+		}
+		// If start is to the right of end
+		else if(start.x > end.x)
+		{
+			if(!(x >= end.x && x <= start.x))
+				return false;
+			
+			// If start is above or the same as end
+			if(start.y <= end.y)
+				return y >= start.y && y <= end.y;
+			// If start is below end
+			else if(start.y > end.y)
+				return y >= end.y && y <= start.y;
+		}
+		else
+			return false;
+	}
+	
+	function clear()
+	{
+		if(mouse)
+		{
+			clearInterval(mouse);
+			mouse = null;
+		}
+	}
+	
+	function disable() {event.preventDefault();}
+	
+	function generateButtons(e)
+	{
+		e.innerHTML = '';
+		
+		for(let i = 0; i < PALETTE.length; i++)
+		{
+			let button = document.createElement('button');
+			
+			button.innerText = i;
+			button.style.backgroundColor = '#' + PALETTE[i];
+			button.style.color = '#' + inverseColor(PALETTE[i]);
+			button.oncontextmenu = disable;
+			button.onmousedown = () => {
+				if(event.button === 2)
+					generateTiles(MODE.ISOLATE, i);
+				else
+					console.log('palette', i);
+			};
+			button.onmouseup = () => {
+				if(event.button === 2)
+					generateTiles();
+			};
+			/*button.onmouseleave = () => {
+				generateTiles();
+			};*/
+			
+			e.appendChild(button);
+		}
+		
+		return e;
+	}
+	
+	function select(index)
+	{
+		console.log('color is now', index);
+	}
+	
+	///////////////////////
+	// Utility Functions //
+	///////////////////////
+	
+	function getColor(value)
+	{
+		if(!PALETTE[value])
+			PALETTE[value] = getRandom(0, 16777216).toString(16).padStart(6, '000000');
+		
+		return PALETTE[value];
+	}
+	
+	// Get random integer between min (inclusive) and max (exclusive).
+	function getRandom(min, max)
+	{
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+	
+	// To get the inverse of a hex color, get the difference of each digit. For example, if you have F (15), you'd get 0.
+	function inverseColor(hex)
+	{
+		if(hex.length !== 6)
+			throw "Hex numbers need to have a length of exactly 6.";
+		
+		hex = hex.toLowerCase();
+		let result = '';
+		
+		for(let c of hex)
+		{
+			result += INVERT[c];
+			
+			if(!INVERT[c])
+				throw "Digit " + c + " is not valid.";
+		}
+		
+		return result;
+	}
+})();

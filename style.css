@@ -1,0 +1,49 @@
+body
+{
+	background-color: linen;
+	text-align: center;
+}
+
+input
+{
+	text-align: center;
+}
+
+h1,h2,h3,h4,h5,h6
+{
+	padding: 0px;
+	margin: 0px;
+}
+
+.small
+{
+	width: 32px;
+}
+
+table
+{
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+tr
+{
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	border-collapse: collapse;
+}
+
+/* This code block is from antonj's answer to https://stackoverflow.com/questions/3790935/can-i-hide-the-html5-number-input-s-spin-box */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button
+{
+	/* display: none; <- Crashes Chrome on hover */
+	-webkit-appearance: none;
+	margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number]
+{
+	-moz-appearance:textfield; /* Firefox */
+}
+/* This code block ends. */
