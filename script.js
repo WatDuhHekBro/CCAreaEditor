@@ -7,6 +7,8 @@ const CCAE = (() => {
 	const CANVAS = document.getElementById("canvas");
 	const PENCIL = CANVAS.getContext("2d");
 	const CONTAINER = document.getElementById("container");
+	const CURSOR = document.getElementById("cursor");
+	const INPUT = document.getElementById("input");
 	const PALETTE = ['000000'];
 	const INVERT = {
 		'0': 'f',
@@ -41,6 +43,7 @@ const CCAE = (() => {
 	let pos1 = null;
 	let pos2 = null;
 	let isMouseDown = false;
+	let cursor = 0;
 	
 	////////////////////
 	// Initialization //
@@ -89,13 +92,17 @@ const CCAE = (() => {
 		update: update,
 		system:
 		{
-			input: input
+			input: input,
+			output: output
 		},
 		debug:
 		{
 			setTile: setTile,
 			setSize: setSize,
-			generateTiles: generateTiles
+			generateTiles: generateTiles,
+			palette: PALETTE,
+			data: data,
+			getColor: getColor
 		}
 	};
 	
@@ -107,12 +114,16 @@ const CCAE = (() => {
 	{
 		generateTiles();
 		generateButtons(CONTAINER);
+		select(0);
 	}
 	
-	function setTile(x, y, color = '000000')
+	function setTile(x, y, value, modify = false)
 	{
-		PENCIL.fillStyle = '#' + color;
+		PENCIL.fillStyle = typeof value === 'number' ? getColor(value) : value;
 		PENCIL.fillRect(x * PIXELS * factor, y * PIXELS * factor, PIXELS * factor, PIXELS * factor);
+		
+		if(modify)
+			data[y][x] = value;
 	}
 	
 	function setSize(x, y, f)
@@ -136,13 +147,13 @@ const CCAE = (() => {
 				let color = getColor(data[i][j]);
 				
 				if(mode === MODE.LOAD)
-					color = data[i][j] === 0 ? '000000' : 'ffffff';
+					setTile(j, i, data[i][j] === 0 ? '#000000' : '#ffffff');
 				else if(mode === MODE.ISOLATE)
-					color = data[i][j] === args[0] ? 'ffffff' : '000000';
+					setTile(j, i, data[i][j] === args[0] ? '#ffffff' : '#000000');
 				else if(mode === MODE.BOX)
-					color = inBounds(j, i, pos1, pos2) ? 'ff0000' : getColor(data[i][j]);
-				
-				setTile(j, i, color);
+					setTile(j, i, inBounds(j, i, pos1, pos2) ? '#ff0000' : getColor(data[i][j]));
+				else
+					setTile(j, i, data[i][j], true);
 			}
 		}
 	}
@@ -169,10 +180,15 @@ const CCAE = (() => {
 		}
 	}
 	
+	function output()
+	{
+		INPUT.value = JSON.stringify(data);
+	}
+	
 	function clickPrimary(x = 0, y = 0)
 	{
 		//console.log('primary', x, y);
-		setTile(Math.floor(x/8), Math.floor(y/8), '0000ff');
+		setTile(Math.floor(x/8), Math.floor(y/8), cursor, true);
 	}
 	
 	function clickSecondary(x = 0, y = 0)
@@ -181,7 +197,7 @@ const CCAE = (() => {
 		if(!pos1)
 		{
 			pos1 = {x: Math.floor(x/8), y: Math.floor(y/8)};
-			setTile(pos1.x, pos1.y, 'ff0000');
+			setTile(pos1.x, pos1.y, cursor, true);
 		}
 		else
 		{
@@ -244,14 +260,14 @@ const CCAE = (() => {
 			let button = document.createElement('button');
 			
 			button.innerText = i;
-			button.style.backgroundColor = '#' + PALETTE[i];
-			button.style.color = '#' + inverseColor(PALETTE[i]);
+			button.style.backgroundColor = getColor(i);
+			button.style.color = getColor(i, true);
 			button.oncontextmenu = disable;
 			button.onmousedown = () => {
 				if(event.button === 2)
 					generateTiles(MODE.ISOLATE, i);
 				else
-					console.log('palette', i);
+					select(i);
 			};
 			button.onmouseup = () => {
 				if(event.button === 2)
@@ -269,19 +285,20 @@ const CCAE = (() => {
 	
 	function select(index)
 	{
-		console.log('color is now', index);
+		cursor = index;
+		CURSOR.innerHTML = `Your cursor is: <span style="background-color:${getColor(index)}; color:${getColor(index, true)};">&nbsp; ${index} &nbsp;</span>`;
 	}
 	
 	///////////////////////
 	// Utility Functions //
 	///////////////////////
 	
-	function getColor(value)
+	function getColor(value, invert = false)
 	{
 		if(!PALETTE[value])
 			PALETTE[value] = getRandom(0, 16777216).toString(16).padStart(6, '000000');
 		
-		return PALETTE[value];
+		return '#' + (invert ? inverseColor(PALETTE[value]) : PALETTE[value]);
 	}
 	
 	// Get random integer between min (inclusive) and max (exclusive).

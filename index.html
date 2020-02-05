@@ -8,8 +8,9 @@
 	<body style="text-align:center;">
 		<div><canvas id="canvas" style="border:1px solid #000000;"></canvas></div>
 		<div id="container"></div>
-		<div id="cursor">Your cursor is: <span style="background-color:#000000; color:#ffffff;">12</span></div>
-		<div><textarea oninput="CCAE.system.input(this)" cols="100" rows="10" placeholder="[[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17,18,19,20],[21,22,23,24,25]]"></textarea></div>
+		<div id="cursor"></div>
+		<div><textarea id="input" oninput="CCAE.system.input(this)" cols="100" rows="10" placeholder="[[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17,18,19,20],[21,22,23,24,25]]"></textarea></div>
+		<div><button onclick="CCAE.system.output()">Get Changes</button></div>
 		<script src="script.js"></script>
 	</body>
 </html>
