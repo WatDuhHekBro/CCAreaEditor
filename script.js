@@ -57,10 +57,40 @@
 	let isMouseDown = false;
 	let cursor = 0;
 	let currentFloor = 0;
+	let settings = {
+		defaultLanguage: 'en_US',
+		languages:
+		{
+			en_US: 'English',
+			de_DE: 'German',
+			zh_CN: 'Chinese',
+			ja_JP: 'Japanese',
+			ko_KR: 'Korean'
+		}
+	};
 	
 	////////////////////
 	// Initialization //
 	////////////////////
+	try
+	{
+		if(!window.localStorage.getItem('CCAE'))
+			throw "No settings detected! Generating default values.";
+		
+		let config = JSON.parse(window.localStorage.getItem('CCAE'));
+		
+		for(let key in settings)
+			if(!config[key])
+				config[key] = settings[key];
+		
+		settings = config;
+	}
+	catch(error)
+	{
+		console.log(error);
+		window.localStorage.setItem('CCAE', JSON.stringify(settings));
+	}
+	
 	generateTiles(MODE.LOAD);
 	
 	// left click = individual tiling
@@ -244,6 +274,9 @@
 	function pushChanges()
 	{
 		data.floors[currentFloor].tiles = floor;
+		
+		if(CURSOR.children[1] && data.floors[currentFloor].maps[cursor-1])
+			data.floors[currentFloor].maps[cursor-1].name = getLangLabel(CURSOR.children[1]);
 	}
 	
 	function download()
@@ -263,17 +296,129 @@
 		dlink.remove();
 	}
 	
-	function setLang(e)
-	{
-		let parent = e.parentNode;
-		console.log(e.value);
-	}
-	
 	function setText(e)
 	{
 		let parent = e.parentNode;
-		parent.dataset.en_US = 'hon hon';
-		console.log(parent);
+		
+		if(e.value === '')
+			delete parent.dataset[parent.children[1].value];
+		else
+			parent.dataset[parent.children[1].value] = e.value;
+	}
+	
+	function setLang(e)
+	{
+		let parent = e.parentNode;
+		parent.children[0].value = parent.dataset[e.value] || '';
+	}
+	
+	function setLangUid(e)
+	{
+		let parent = e.parentNode;
+		
+		if(e.value === '')
+			delete parent.dataset.langUid;
+		else
+			parent.dataset.langUid = e.value;
+	}
+	
+	// div with class LangLabel
+	function setLangLabel(e, description, data)
+	{
+		e.innerHTML = '';
+		
+		if(data)
+			for(let key in data)
+				e.dataset[key] = data[key];
+		
+		// Text Field //
+		let add = document.createElement('input');
+		add.type = 'text';
+		add.setAttribute('oninput', 'setText(this)');
+		
+		if(description)
+			add.placeholder = description;
+		
+		if(data)
+			add.value = data[settings.defaultLanguage] || '';
+		
+		e.appendChild(add);
+		
+		// Language Options //
+		add = document.createElement('select');
+		add.setAttribute('onchange', 'setLang(this)');
+		
+		let tmp = [];
+		
+		if(data)
+		{
+			for(let key in data)
+			{
+				if(key !== 'langUid')
+				{
+					let choice = document.createElement('option');
+					choice.value = key;
+					choice.innerText = settings.languages[key] || key;
+					
+					if(key === settings.defaultLanguage)
+						choice.selected = true;
+					
+					add.appendChild(choice);
+					tmp.push(key);
+				}
+			}
+		}
+		
+		for(let lang in settings.languages)
+		{
+			if(!tmp.includes(lang))
+			{
+				let choice = document.createElement('option');
+				choice.value = lang;
+				choice.innerText = settings.languages[lang];
+				
+				if(lang === settings.defaultLanguage)
+					choice.selected = true;
+				
+				add.appendChild(choice);
+			}
+		}
+		
+		e.appendChild(add);
+		
+		// LangUid //
+		add = document.createElement('input');
+		add.type = 'number';
+		add.setAttribute('oninput', 'setLangUid(this)');
+		add.style.width = '50px';
+		add.placeholder = 'langUid';
+		
+		if(data)
+			add.value = data.langUid || '';
+		
+		e.appendChild(add);
+		
+		return e;
+	}
+	
+	function getLangLabel(e)
+	{
+		let label = {};
+		
+		for(let key in e.dataset)
+		{
+			if(key === 'langUid')
+				label.langUid = Number(e.dataset.langUid);
+			else if(e.dataset[key] !== '')
+				label[key] = e.dataset[key];
+		}
+		
+		return label;
+	}
+	
+	function setOverlay(setting = false)
+	{
+		document.getElementById("overlay").style.display = setting ? "block" : "none";
 	}
 	
 	function output()
@@ -419,8 +564,14 @@
 	
 	function select(index)
 	{
+		if(CURSOR.children[1] && data.floors[currentFloor].maps[cursor-1])
+			data.floors[currentFloor].maps[cursor-1].name = getLangLabel(CURSOR.children[1]);
+		
 		cursor = index;
-		CURSOR.innerHTML = `Your cursor is: <span style="background-color:${getColor(index)}; color:${getColor(index, true)};">&nbsp; ${index} &nbsp;</span>`;
+		CURSOR.innerHTML = `<div>Your cursor is: <span style="background-color:${getColor(index)}; color:${getColor(index, true)};">&nbsp; ${index} &nbsp;</span></div>`;
+		
+		if(index !== 0)
+			CURSOR.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floors[currentFloor].maps[index-1] && data.floors[currentFloor].maps[index-1].name) || null));
 	}
 	
 	///////////////////////

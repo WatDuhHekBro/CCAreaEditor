@@ -6,19 +6,11 @@
 		<link rel="stylesheet" type="text/css" href="style.css">
 	</head>
 	<body>
-		<!-- The class will auto-generate the HTML from a template. Maybe. But especially considering that adding a language will have a button and langUid will be a number. And adding a language will actually be stored in your localStorage so you don't have to add it per element, though language keys from the file itself won't auto add it to localStorage (you have to add fr_FR yourself, though a LangLabel with fr_FR will still be shown). -->
-		<div id="name" class="LangLabel">
-			<input type="text" oninput="setText(this)" placeholder="Name of Area">
-			<select onchange="setLang(this)">
-				<option value="en_US">English</option>
-				<option value="de_DE">German</option>
-				<option value="zh_CN">Chinese</option>
-				<option value="ja_JP">Japanese</option>
-				<option value="ko_KR">Korean</option>
-				<option value="ADD">(Add Language)</option>
-				<option value="langUid">langUid</option>
-			</select>
+		<div id="overlay" onclick="setOverlay(false)">
+			
 		</div>
+		<!-- The class will auto-generate the HTML from a template. Maybe. But especially considering that adding a language will have a button and langUid will be a number. And adding a language will actually be stored in your localStorage so you don't have to add it per element, though language keys from the file itself won't auto add it to localStorage (you have to add fr_FR yourself, though a LangLabel with fr_FR will still be shown). -->
+		<div id="name" class="LangLabel"></div>
 		<div class="container">
 			<div class="button-group">
 				<canvas id="canvas" style="border:1px solid #000000;"></canvas>
@@ -32,6 +24,7 @@
 		<div><button onclick="generateNewPalette()">Generate New Palette</button></div>
 		<div><input type="file" onchange="upload(this.files[0])"></div>
 		<div><button onclick="download()">Download Changes</button></div>
+		<div><button onclick="setOverlay(true)">Settings</button></div>
 		<!-- Figure out how to get modes on the left and floors on the right (right-align this block), and also how to keep canvas centered. -->
 		<!--<div>
 			<button onclick="">Edit Rooms</button>
