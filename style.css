@@ -2,6 +2,7 @@ body
 {
 	background-color: linen;
 	text-align: center;
+	clear: both;
 }
 
 input
@@ -9,7 +10,19 @@ input
 	text-align: center;
 }
 
-.vertical
+.container
+{
+	margin: auto;
+	font-size: 0;
+}
+
+.button-group
+{
+	vertical-align: top;
+	display: inline-block;
+}
+
+.button-group button
 {
 	display: block;
 }
