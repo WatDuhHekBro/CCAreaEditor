@@ -24,14 +24,13 @@
 		<div><button onclick="generateNewPalette()">Generate New Palette</button></div>
 		<div><input type="file" onchange="upload(this.files[0])"></div>
 		<div><button onclick="download()">Download Changes</button></div>
-		<div><button onclick="setOverlay(true)">Settings</button></div>
 		<!-- Figure out how to get modes on the left and floors on the right (right-align this block), and also how to keep canvas centered. -->
-		<!--<div>
-			<button onclick="">Edit Rooms</button>
-			<button onclick="">Edit Connections</button>
-			<button onclick="">Edit Icons &amp; Landmarks</button>
-			<button onclick="">View Final</button>
-		</div>-->
+		<p>Warning: As of right now, the buttons below might break stuff.</p>
+		<div>
+			<button onclick="setViewMode(false)">Edit Rooms / Edit Connections</button>
+			<button onclick="setViewMode(true)">View Result / Edit Icons &amp; Landmarks</button>
+		</div>
+		<div><button onclick="setOverlay(true)">Settings</button></div>
 		<script src="script.js"></script>
 	</body>
 </html>

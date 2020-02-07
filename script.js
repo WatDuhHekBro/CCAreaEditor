@@ -35,6 +35,47 @@
 		BOX: 3
 	};
 	const PIXELS = 8;
+	const TILES = new Image();
+	// [x, y, size-x, size-y, offset-x, offset-y]
+	const TILEMAP = {
+		enclosed: [40,0],
+		open: [20,4],
+		corner:
+		{
+			nw: [16,0],
+			ne: [24,0],
+			sw: [16,8],
+			se: [24,8]
+		},
+		edge:
+		{
+			north: [20,0],
+			east: [24,4],
+			south: [20,8],
+			west: [16,4]
+		},
+		tunnel:
+		{
+			horizontal: [[20,0,8,4],[20,12,8,4,0,4]],
+			vertical: [[16,4,4,8],[28,4,4,8,4,0]]
+		},
+		// Cul-De-Sac opening in <direction>
+		culdesac:
+		{
+			north: [[16,8,4,8],[28,8,4,8,4,0]],
+			east: [[16,0,8,4],[16,12,8,4,0,4]],
+			south: [[16,0,4,8],[28,0,4,8,4,0]],
+			west: [[24,0,8,4],[24,12,8,4,0,4]]
+		},
+		// This section will be used in addition to the main set to fine-tune the look of the map.
+		vertex:
+		{
+			nw: [32,0,4,4,0,0],
+			ne: [36,0,4,4,4,0],
+			sw: [32,4,4,4,0,4],
+			se: [36,4,4,4,4,4]
+		}
+	};
 	// Possibly eliminate width and height in favor of updating the template data, esp. for creating new maps without editing an existing one.
 	let width = 10;
 	let height = 10;
@@ -90,6 +131,8 @@
 		console.log(error);
 		window.localStorage.setItem('CCAE', JSON.stringify(settings));
 	}
+	
+	TILES.src = 'tiles.png';
 	
 	generateTiles(MODE.LOAD);
 	
@@ -206,6 +249,181 @@
 		}
 		
 		return highest;
+	}
+	
+	function generateTilesAdvanced()
+	{
+		for(let i = 0; i < floor.length; i++)
+		{
+			for(let j = 0; j < floor[i].length; j++)
+			{
+				if(floor[i][j] === 0)
+					PENCIL.drawImage(TILES, 0, 0, 8, 8, j * PIXELS * factor, i * PIXELS * factor, 8, 8);
+				else
+				{
+					let selected = floor[i][j];
+					let directions = [];
+					
+					// If y is upmost, assume N is closed.
+					directions[0] = i !== 0 && floor[i-1][j] === selected;
+					// If y is downmost, assume S is closed.
+					directions[1] = i !== floor.length-1 && floor[i+1][j] === selected;
+					// If x is leftmost, assume W is closed.
+					directions[2] = j !== 0 && floor[i][j-1] === selected;
+					// If x is rightmost, assume E is closed.
+					directions[3] = j !== floor[i].length-1 && floor[i][j+1] === selected;
+					
+					drawTile(j, i, directions);
+					
+					// Get extra directions for adding vertices. Since these CAN be compounded on each other, false = no vertex and true = has vertex.
+					// Also note that tiles with vertices cannot be on the edge, because for a tile to have a vertex NW, sides N and W have to be open.
+					// NW Corner if y is upmost and x is leftmost.
+					directions[7] = i !== 0 && j !== 0 && floor[i-1][j-1] !== selected;
+					// NE Corner if y is upmost and x is rightmost.
+					directions[4] = i !== 0 && j !== floor[i].length-1 && floor[i-1][j+1] !== selected;
+					// SW Corner if y is downmost and x is leftmost.
+					directions[6] = i !== floor.length-1 && j !== 0 && floor[i+1][j-1] !== selected;
+					// SE Corner if y is downmost and x is rightmost.
+					directions[5] = i !== floor.length-1 && j !== floor[i].length-1 && floor[i+1][j+1] !== selected;
+					
+					drawTile2(j, i, directions);
+				}
+			}
+		}
+	}
+	
+	// [N,S,W,E] (false/0 = closed, true/1 = open), extended would be [N,S,W,E,NE,SE,SW,NW] (in the order of cardinal/intercardinal directions as per Wikipedia)
+	/* [0,0,0,0] - TILEMAP.enclosed
+	 * [1,1,1,1] - TILEMAP.open
+	 * [0,1,0,1] - TILEMAP.corner.nw
+	 * [0,1,1,0] - TILEMAP.corner.ne
+	 * [1,0,0,1] - TILEMAP.corner.sw
+	 * [1,0,1,0] - TILEMAP.corner.se
+	 * [0,1,1,1] - TILEMAP.edge.north
+	 * [1,0,1,1] - TILEMAP.edge.south
+	 * [1,1,0,1] - TILEMAP.edge.west
+	 * [1,1,1,0] - TILEMAP.edge.east
+	 * [0,0,1,1] - TILEMAP.tunnel.horizontal
+	 * [1,1,0,0] - TILEMAP.tunnel.vertical
+	 * [1,0,0,0] - TILEMAP.culdesac.north
+	 * [0,1,0,0] - TILEMAP.culdesac.south
+	 * [0,0,1,0] - TILEMAP.culdesac.west
+	 * [0,0,0,1] - TILEMAP.culdesac.east
+	 * Vertices (* means that that direction isn't checked)
+	 * [1,*,1,*,*,*,*,0] - TILEMAP.vertex.nw
+	 * [1,*,*,1,0,*,*,*] - TILEMAP.vertex.ne
+	 * [*,1,1,*,*,*,0,*] - TILEMAP.vertex.sw
+	 * [*,1,*,1,*,0,*,*] - TILEMAP.vertex.se
+	 */
+	function drawTile(x, y, info)
+	{
+		let tm = [0,0];
+		let composite = false;
+		
+		// octo-directional up here, though actually, octo-directional is probably for fine tuning (vertex on top of open tiles) so that'll be concurrent.
+		if(!info[0] && !info[1] && !info[2] && !info[3])
+			tm = TILEMAP.enclosed;
+		else if(info[0] && info[1] && info[2] && info[3])
+			tm = TILEMAP.open;
+		else if(!info[0] && info[1] && !info[2] && info[3])
+			tm = TILEMAP.corner.nw;
+		else if(!info[0] && info[1] && info[2] && !info[3])
+			tm = TILEMAP.corner.ne;
+		else if(info[0] && !info[1] && !info[2] && info[3])
+			tm = TILEMAP.corner.sw;
+		else if(info[0] && !info[1] && info[2] && !info[3])
+			tm = TILEMAP.corner.se;
+		else if(!info[0] && info[1] && info[2] && info[3])
+			tm = TILEMAP.edge.north;
+		else if(info[0] && !info[1] && info[2] && info[3])
+			tm = TILEMAP.edge.south;
+		else if(info[0] && info[1] && !info[2] && info[3])
+			tm = TILEMAP.edge.west;
+		else if(info[0] && info[1] && info[2] && !info[3])
+			tm = TILEMAP.edge.east;
+		else if(!info[0] && !info[1] && info[2] && info[3])
+		{
+			tm = TILEMAP.tunnel.horizontal;
+			composite = true;
+		}
+		else if(info[0] && info[1] && !info[2] && !info[3])
+		{
+			tm = TILEMAP.tunnel.vertical;
+			composite = true;
+		}
+		else if(info[0] && !info[1] && !info[2] && !info[3])
+		{
+			tm = TILEMAP.culdesac.north;
+			composite = true;
+		}
+		else if(!info[0] && info[1] && !info[2] && !info[3])
+		{
+			tm = TILEMAP.culdesac.south;
+			composite = true;
+		}
+		else if(!info[0] && !info[1] && info[2] && !info[3])
+		{
+			tm = TILEMAP.culdesac.west;
+			composite = true;
+		}
+		else if(!info[0] && !info[1] && !info[2] && info[3])
+		{
+			tm = TILEMAP.culdesac.east;
+			composite = true;
+		}
+		
+		if(composite)
+		{
+			PENCIL.drawImage(TILES, tm[0][0], tm[0][1], tm[0][2], tm[0][3], x * PIXELS * factor, y * PIXELS * factor, tm[0][2], tm[0][3]);
+			PENCIL.drawImage(TILES, tm[1][0], tm[1][1], tm[1][2], tm[1][3], x * PIXELS * factor + tm[1][4], y * PIXELS * factor + tm[1][5], tm[1][2], tm[1][3]);
+		}
+		else
+			PENCIL.drawImage(TILES, tm[0], tm[1], 8, 8, x * PIXELS * factor, y * PIXELS * factor, 8, 8);
+	}
+	
+	// Merge with the above when cleaning up the code, and account for the multiple merging going on which can happen. If all sides are open but all corners are taken, apply vertices 4 times (per intercardinal direction).
+	function drawTile2(x, y, info)
+	{
+		let tm = [0,0];
+		
+		if(info[0] && info[2] && info[7])
+		{
+			tm = TILEMAP.vertex.nw;
+			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3]);
+		}
+		
+		if(info[0] && info[3] && info[4])
+		{
+			tm = TILEMAP.vertex.ne;
+			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3]);
+		}
+		
+		if(info[1] && info[2] && info[6])
+		{
+			tm = TILEMAP.vertex.sw;
+			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3]);
+		}
+		
+		if(info[1] && info[3] && info[5])
+		{
+			tm = TILEMAP.vertex.se;
+			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3]);
+		}
+	}
+	
+	// This is going to break with update(). Integrate this into update() later.
+	function setViewMode(viewResult = false)
+	{
+		if(viewResult)
+		{
+			generateTilesAdvanced();
+			//generateButtons(CONTAINER, 0);
+		}
+		else
+		{
+			generateTiles();
+			//generateButtons(CONTAINER);
+		}
 	}
 	
 	function input(e)
@@ -492,10 +710,9 @@
 	
 	function disable() {event.preventDefault();}
 	
-	function generateButtons(e, limit)
+	function generateButtons(e, limit = PALETTE.length)
 	{
 		e.innerHTML = '';
-		limit = limit || PALETTE.length;
 		
 		for(let i = 0; i < limit; i++)
 		{
@@ -522,12 +739,15 @@
 			e.appendChild(button);
 		}
 		
-		let button = document.createElement('button');
-		button.innerText = '+';
-		button.onclick = () => {
-			generateButtons(e, limit + 1);
-		};
-		e.appendChild(button);
+		if(limit !== 0)
+		{
+			let button = document.createElement('button');
+			button.innerText = '+';
+			button.onclick = () => {
+				generateButtons(e, limit + 1);
+			};
+			e.appendChild(button);
+		}
 		
 		return e;
 	}
