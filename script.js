@@ -74,30 +74,30 @@
 			ne: [36,0,4,4,4,0],
 			sw: [32,4,4,4,0,4],
 			se: [36,4,4,4,4,4]
-		}/*,
+		},
 		connection:
 		{
 			vertical:
 			{
-				top: [40,8,8,2,0,6],
-				bottom: [40,10,8,3,0,8],
+				first: [40,8,8,2,0,6],
+				second: [40,10,8,3,0,8],
 				extend:
 				{
-					top: [17,3,8,2,4,6],
-					bottom: [17,3,8,3,4,8]
+					first: [17,3,8,2,4,6],
+					second: [17,3,8,3,4,8]
 				}
 			},
 			horizontal:
 			{
-				left: [],
-				right: [],
+				first: [32,8,3,8,5,0],
+				second: [35,8,2,8,8,0],
 				extend:
 				{
-					left: [],
-					right: []
+					first: [17,3,3,8,5,4],
+					second: [17,3,2,8,8,4]
 				}
 			}
-		}*/
+		}
 	};
 	// Possibly eliminate width and height in favor of updating the template data, esp. for creating new maps without editing an existing one.
 	let width = 10;
@@ -235,6 +235,21 @@
 			floor[y][x] = value;
 	}
 	
+	function drawTile(x, y, info = [])
+	{
+		PENCIL.drawImage(
+			TILES,
+			info[0] || 0,
+			info[1] || 0,
+			info[2] || PIXELS,
+			info[3] || PIXELS,
+			(x * PIXELS * factor) + (info[4] || 0),
+			(y * PIXELS * factor) + (info[5] || 0),
+			info[2] || PIXELS,
+			info[3] || PIXELS
+		);
+	}
+	
 	function setSize(x, y, f)
 	{
 		width = x || width;
@@ -281,7 +296,7 @@
 			for(let j = 0; j < floor[i].length; j++)
 			{
 				if(floor[i][j] === 0)
-					PENCIL.drawImage(TILES, 0, 0, 8, 8, j * PIXELS * factor, i * PIXELS * factor, 8, 8);
+					drawTile(j, i);
 				else
 				{
 					let selected = floor[i][j];
@@ -296,8 +311,6 @@
 					// If x is rightmost, assume E is closed.
 					directions[3] = j !== floor[i].length-1 && floor[i][j+1] === selected;
 					
-					drawTile(j, i, directions);
-					
 					// Get extra directions for adding vertices. Since these CAN be compounded on each other, false = no vertex and true = has vertex.
 					// Also note that tiles with vertices cannot be on the edge, because for a tile to have a vertex NW, sides N and W have to be open.
 					// NW Corner if y is upmost and x is leftmost.
@@ -309,13 +322,14 @@
 					// SE Corner if y is downmost and x is rightmost.
 					directions[5] = i !== floor.length-1 && j !== floor[i].length-1 && floor[i+1][j+1] !== selected;
 					
-					drawTile2(j, i, directions);
+					drawTiles(j, i, directions);
 				}
 			}
 		}
 	}
 	
 	// [N,S,W,E] (false/0 = closed, true/1 = open), extended would be [N,S,W,E,NE,SE,SW,NW] (in the order of cardinal/intercardinal directions as per Wikipedia)
+	// Accounts for the multiple merging going on which can happen. If all sides are open but all corners are taken, apply vertices 4 times (per intercardinal direction).
 	/* [0,0,0,0] - TILEMAP.enclosed
 	 * [1,1,1,1] - TILEMAP.open
 	 * [0,1,0,1] - TILEMAP.corner.nw
@@ -338,104 +352,97 @@
 	 * [*,1,1,*,*,*,0,*] - TILEMAP.vertex.sw
 	 * [*,1,*,1,*,0,*,*] - TILEMAP.vertex.se
 	 */
-	function drawTile(x, y, info)
+	function drawTiles(x, y, dir)
 	{
-		let tm = [0,0];
-		let composite = false;
-		
-		// octo-directional up here, though actually, octo-directional is probably for fine tuning (vertex on top of open tiles) so that'll be concurrent.
-		if(!info[0] && !info[1] && !info[2] && !info[3])
-			tm = TILEMAP.enclosed;
-		else if(info[0] && info[1] && info[2] && info[3])
-			tm = TILEMAP.open;
-		else if(!info[0] && info[1] && !info[2] && info[3])
-			tm = TILEMAP.corner.nw;
-		else if(!info[0] && info[1] && info[2] && !info[3])
-			tm = TILEMAP.corner.ne;
-		else if(info[0] && !info[1] && !info[2] && info[3])
-			tm = TILEMAP.corner.sw;
-		else if(info[0] && !info[1] && info[2] && !info[3])
-			tm = TILEMAP.corner.se;
-		else if(!info[0] && info[1] && info[2] && info[3])
-			tm = TILEMAP.edge.north;
-		else if(info[0] && !info[1] && info[2] && info[3])
-			tm = TILEMAP.edge.south;
-		else if(info[0] && info[1] && !info[2] && info[3])
-			tm = TILEMAP.edge.west;
-		else if(info[0] && info[1] && info[2] && !info[3])
-			tm = TILEMAP.edge.east;
-		else if(!info[0] && !info[1] && info[2] && info[3])
+		if(!dir[0] && !dir[1] && !dir[2] && !dir[3])
+			drawTile(x, y, TILEMAP.enclosed);
+		else if(dir[0] && dir[1] && dir[2] && dir[3])
+			drawTile(x, y, TILEMAP.open);
+		else if(!dir[0] && dir[1] && !dir[2] && dir[3])
+			drawTile(x, y, TILEMAP.corner.nw);
+		else if(!dir[0] && dir[1] && dir[2] && !dir[3])
+			drawTile(x, y, TILEMAP.corner.ne);
+		else if(dir[0] && !dir[1] && !dir[2] && dir[3])
+			drawTile(x, y, TILEMAP.corner.sw);
+		else if(dir[0] && !dir[1] && dir[2] && !dir[3])
+			drawTile(x, y, TILEMAP.corner.se);
+		else if(!dir[0] && dir[1] && dir[2] && dir[3])
+			drawTile(x, y, TILEMAP.edge.north);
+		else if(dir[0] && !dir[1] && dir[2] && dir[3])
+			drawTile(x, y, TILEMAP.edge.south);
+		else if(dir[0] && dir[1] && !dir[2] && dir[3])
+			drawTile(x, y, TILEMAP.edge.west);
+		else if(dir[0] && dir[1] && dir[2] && !dir[3])
+			drawTile(x, y, TILEMAP.edge.east);
+		else if(!dir[0] && !dir[1] && dir[2] && dir[3])
 		{
-			tm = TILEMAP.tunnel.horizontal;
-			composite = true;
+			drawTile(x, y, TILEMAP.tunnel.horizontal[0]);
+			drawTile(x, y, TILEMAP.tunnel.horizontal[1]);
 		}
-		else if(info[0] && info[1] && !info[2] && !info[3])
+		else if(dir[0] && dir[1] && !dir[2] && !dir[3])
 		{
-			tm = TILEMAP.tunnel.vertical;
-			composite = true;
+			drawTile(x, y, TILEMAP.tunnel.vertical[0]);
+			drawTile(x, y, TILEMAP.tunnel.vertical[1]);
 		}
-		else if(info[0] && !info[1] && !info[2] && !info[3])
+		else if(dir[0] && !dir[1] && !dir[2] && !dir[3])
 		{
-			tm = TILEMAP.culdesac.north;
-			composite = true;
+			drawTile(x, y, TILEMAP.culdesac.north[0]);
+			drawTile(x, y, TILEMAP.culdesac.north[1]);
 		}
-		else if(!info[0] && info[1] && !info[2] && !info[3])
+		else if(!dir[0] && dir[1] && !dir[2] && !dir[3])
 		{
-			tm = TILEMAP.culdesac.south;
-			composite = true;
+			drawTile(x, y, TILEMAP.culdesac.south[0]);
+			drawTile(x, y, TILEMAP.culdesac.south[1]);
 		}
-		else if(!info[0] && !info[1] && info[2] && !info[3])
+		else if(!dir[0] && !dir[1] && dir[2] && !dir[3])
 		{
-			tm = TILEMAP.culdesac.west;
-			composite = true;
+			drawTile(x, y, TILEMAP.culdesac.west[0]);
+			drawTile(x, y, TILEMAP.culdesac.west[1]);
 		}
-		else if(!info[0] && !info[1] && !info[2] && info[3])
+		else if(!dir[0] && !dir[1] && !dir[2] && dir[3])
 		{
-			tm = TILEMAP.culdesac.east;
-			composite = true;
-		}
-		
-		if(composite)
-		{
-			PENCIL.drawImage(TILES, tm[0][0], tm[0][1], tm[0][2], tm[0][3], x * PIXELS * factor, y * PIXELS * factor, tm[0][2], tm[0][3]);
-			PENCIL.drawImage(TILES, tm[1][0], tm[1][1], tm[1][2], tm[1][3], x * PIXELS * factor + tm[1][4], y * PIXELS * factor + tm[1][5], tm[1][2], tm[1][3]);
+			drawTile(x, y, TILEMAP.culdesac.east[0]);
+			drawTile(x, y, TILEMAP.culdesac.east[1]);
 		}
 		else
-			PENCIL.drawImage(TILES, tm[0], tm[1], 8, 8, x * PIXELS * factor, y * PIXELS * factor, 8, 8);
+			drawTile(x, y, [0,0]);
+		
+		// Octo-Directional //
+		
+		if(dir[0] && dir[2] && dir[7])
+			drawTile(x, y, TILEMAP.vertex.nw);
+		
+		if(dir[0] && dir[3] && dir[4])
+			drawTile(x, y, TILEMAP.vertex.ne);
+		
+		if(dir[1] && dir[2] && dir[6])
+			drawTile(x, y, TILEMAP.vertex.sw);
+		
+		if(dir[1] && dir[3] && dir[5])
+			drawTile(x, y, TILEMAP.vertex.se);
 	}
 	
-	// Merge with the above when cleaning up the code, and account for the multiple merging going on which can happen. If all sides are open but all corners are taken, apply vertices 4 times (per intercardinal direction).
-	function drawTile2(x, y, info)
+	function drawConnection(x, y, direction = 'VERTICAL', size = 1)
 	{
-		let tm = [0,0];
+		direction = direction.toLowerCase();
+		drawTile(x, y, TILEMAP.connection[direction].first);
+		drawTile(x, y, TILEMAP.connection[direction].second);
 		
-		if(info[0] && info[2] && info[7])
+		for(let i = 1; i < Math.max(1, size); i++)
 		{
-			tm = TILEMAP.vertex.nw;
-			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3]);
-		}
-		
-		if(info[0] && info[3] && info[4])
-		{
-			tm = TILEMAP.vertex.ne;
-			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3]);
-		}
-		
-		if(info[1] && info[2] && info[6])
-		{
-			tm = TILEMAP.vertex.sw;
-			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3]);
-		}
-		
-		if(info[1] && info[3] && info[5])
-		{
-			tm = TILEMAP.vertex.se;
-			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3]);
+			let x0 = direction === 'vertical' ? i : 0;
+			let y0 = direction === 'horizontal' ? i : 0;
+			let x1 = direction === 'vertical' ? i-1 : 0;
+			let y1 = direction === 'horizontal' ? i-1 : 0;
+			drawTile(x + x0, y + y0, TILEMAP.connection[direction].first);
+			drawTile(x + x0, y + y0, TILEMAP.connection[direction].second);
+			drawTile(x + x1, y + y1, TILEMAP.connection[direction].extend.first);
+			drawTile(x + x1, y + y1, TILEMAP.connection[direction].extend.second);
 		}
 	}
 	
 	// This is going to break with update(). Integrate this into update() later.
-	function setViewMode(viewResult = false)
+	/*function setViewMode(viewResult = false)
 	{
 		if(viewResult)
 		{
@@ -447,7 +454,7 @@
 			generateTiles();
 			//generateButtons(CONTAINER);
 		}
-	}
+	}*/
 	
 	function input(e)
 	{
@@ -475,12 +482,15 @@
 	{
 		try
 		{
+			// f is to still generate a floor (the first index) even if defaultFloor doesn't exist or never matches a floor level.
 			data = JSON.parse(input);
+			let f = 0;
 			
 			for(let i = 0; i < data.floors.length; i++)
 				if(data.floors[i].level === data.defaultFloor)
-					setFloor(i);
+					f = i;
 			
+			setFloor(f);
 			return true;
 		}
 		catch(error)
@@ -658,54 +668,49 @@
 		return label;
 	}
 	
-	function setConnectionsMode()
+	function setConnectionsMode(debug = false)
 	{
 		generateTilesAdvanced();
 		
-		// Debug Mode //
-		for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+		if(debug)
 		{
-			let c = data.floors[currentFloor].connections[i];
-			setTile(c.tx, c.ty, '#ff0000');
-			
-			if(c.dir === 'HORIZONTAL')
+			// Debug Mode //
+			for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
 			{
-				setTile(c.tx + 1, c.ty, '#00ff00');
+				let c = data.floors[currentFloor].connections[i];
+				setTile(c.tx, c.ty, '#ff0000');
 				
-				for(let j = 1; j < c.size; j++)
+				if(c.dir === 'HORIZONTAL')
 				{
-					setTile(c.tx, c.ty + j, '#0000ff');
-					setTile(c.tx + 1, c.ty + j, '#0000ff');
+					setTile(c.tx + 1, c.ty, '#00ff00');
+					
+					for(let j = 1; j < c.size; j++)
+					{
+						setTile(c.tx, c.ty + j, '#0000ff');
+						setTile(c.tx + 1, c.ty + j, '#0000ff');
+					}
 				}
-			}
-			else if(c.dir === 'VERTICAL')
-			{
-				setTile(c.tx, c.ty + 1, '#00ff00');
-				
-				for(let j = 1; j < c.size; j++)
+				else if(c.dir === 'VERTICAL')
 				{
-					setTile(c.tx + j, c.ty, '#0000ff');
-					setTile(c.tx + j, c.ty + 1, '#0000ff');
+					setTile(c.tx, c.ty + 1, '#00ff00');
+					
+					for(let j = 1; j < c.size; j++)
+					{
+						setTile(c.tx + j, c.ty, '#0000ff');
+						setTile(c.tx + j, c.ty + 1, '#0000ff');
+					}
 				}
 			}
 		}
-		
-		// View Mode //
-		/*for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+		else
 		{
-			let c = data.floors[currentFloor].connections[i];
-			let tm = TILEMAP.
-			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3])
-			
-			if(c.dir === 'HORIZONTAL')
+			// View Mode //
+			for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
 			{
-				
+				let c = data.floors[currentFloor].connections[i];
+				drawConnection(c.tx, c.ty, c.dir, c.size);
 			}
-			else if(c.dir === 'VERTICAL')
-			{
-				
-			}
-		}*/
+		}
 	}
 	
 	function setOverlay(setting = false)
