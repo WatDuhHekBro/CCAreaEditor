@@ -38,6 +38,16 @@ h1,h2,h3,h4,h5,h6
 	width: 32px;
 }
 
+.medium
+{
+	width: 50px;
+}
+
+.large
+{
+	width: 75px;
+}
+
 table
 {
 	border: 1px solid black;

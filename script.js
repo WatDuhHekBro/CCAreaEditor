@@ -74,7 +74,30 @@
 			ne: [36,0,4,4,4,0],
 			sw: [32,4,4,4,0,4],
 			se: [36,4,4,4,4,4]
-		}
+		}/*,
+		connection:
+		{
+			vertical:
+			{
+				top: [40,8,8,2,0,6],
+				bottom: [40,10,8,3,0,8],
+				extend:
+				{
+					top: [17,3,8,2,4,6],
+					bottom: [17,3,8,3,4,8]
+				}
+			},
+			horizontal:
+			{
+				left: [],
+				right: [],
+				extend:
+				{
+					left: [],
+					right: []
+				}
+			}
+		}*/
 	};
 	// Possibly eliminate width and height in favor of updating the template data, esp. for creating new maps without editing an existing one.
 	let width = 10;
@@ -482,7 +505,8 @@
 	
 	function upload(file)
 	{
-		filename = file.name;
+		// Check if file is undefined, ie if you exit the window instead of selecting a file.
+		filename = file.name || 'area.json';
 		let reader = new FileReader();
 		reader.readAsText(file, 'UTF-8');
 		reader.onload = () => {inputData(event.target.result);}
@@ -634,6 +658,56 @@
 		return label;
 	}
 	
+	function setConnectionsMode()
+	{
+		generateTilesAdvanced();
+		
+		// Debug Mode //
+		for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+		{
+			let c = data.floors[currentFloor].connections[i];
+			setTile(c.tx, c.ty, '#ff0000');
+			
+			if(c.dir === 'HORIZONTAL')
+			{
+				setTile(c.tx + 1, c.ty, '#00ff00');
+				
+				for(let j = 1; j < c.size; j++)
+				{
+					setTile(c.tx, c.ty + j, '#0000ff');
+					setTile(c.tx + 1, c.ty + j, '#0000ff');
+				}
+			}
+			else if(c.dir === 'VERTICAL')
+			{
+				setTile(c.tx, c.ty + 1, '#00ff00');
+				
+				for(let j = 1; j < c.size; j++)
+				{
+					setTile(c.tx + j, c.ty, '#0000ff');
+					setTile(c.tx + j, c.ty + 1, '#0000ff');
+				}
+			}
+		}
+		
+		// View Mode //
+		/*for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+		{
+			let c = data.floors[currentFloor].connections[i];
+			let tm = TILEMAP.
+			PENCIL.drawImage(TILES, tm[0], tm[1], tm[2], tm[3], x * PIXELS * factor + tm[4], y * PIXELS * factor + tm[5], tm[2], tm[3])
+			
+			if(c.dir === 'HORIZONTAL')
+			{
+				
+			}
+			else if(c.dir === 'VERTICAL')
+			{
+				
+			}
+		}*/
+	}
+	
 	function setOverlay(setting = false)
 	{
 		document.getElementById("overlay").style.display = setting ? "block" : "none";
@@ -781,6 +855,20 @@
 		
 		return e;
 	}
+	
+	/*function generateConnectionButtons(e)
+	{
+		e.innerHTML = '';
+		
+		for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+		{
+			let c = data.floors[currentFloor].connections[i];
+			
+			
+		}
+		
+		return e;
+	}*/
 	
 	function select(index)
 	{

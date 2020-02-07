@@ -11,6 +11,13 @@
 		</div>
 		<!-- The class will auto-generate the HTML from a template. Maybe. But especially considering that adding a language will have a button and langUid will be a number. And adding a language will actually be stored in your localStorage so you don't have to add it per element, though language keys from the file itself won't auto add it to localStorage (you have to add fr_FR yourself, though a LangLabel with fr_FR will still be shown). -->
 		<div id="name" class="LangLabel"></div>
+		<!--<div>
+			<input type="number" class="medium" placeholder="width">
+			<input type="number" class="medium" placeholder="height">
+			<input type="number" class="medium" placeholder="chests">
+			<input type="number" class="large" placeholder="defaultFloor">
+		</div>-->
+		<!-- In Room Mode, Button A lets you edit rooms and Button B lets you edit connections. In Result Mode, Button A lets you view the map as you would in the game while Button B lets you edit icons &amp; landmarks. Or maybe forego simply viewing in Result Mode, opting for a toggle button? -->
 		<div class="container">
 			<div class="button-group">
 				<canvas id="canvas" style="border:1px solid #000000;"></canvas>
@@ -27,7 +34,8 @@
 		<!-- Figure out how to get modes on the left and floors on the right (right-align this block), and also how to keep canvas centered. -->
 		<p>Warning: As of right now, the buttons below might break stuff.</p>
 		<div>
-			<button onclick="setViewMode(false)">Edit Rooms / Edit Connections</button>
+			<button onclick="update()">Edit Rooms</button>
+			<button onclick="setConnectionsMode()">Edit Connections</button>
 			<button onclick="setViewMode(true)">View Result / Edit Icons &amp; Landmarks</button>
 		</div>
 		<div><button onclick="setOverlay(true)">Settings</button></div>
