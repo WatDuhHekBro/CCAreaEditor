@@ -99,6 +99,28 @@
 			}
 		}
 	};
+	const ICONS = new Image();
+	// [x, y, size-x, size-y, offset-x, offset-y]
+	const ICONMAP = {
+		arrow_up: [0,0],
+		arrow_down: [12,0],
+		arrow_left: [24,0],
+		arrow_right: [36,0],
+		floor_down: [48,0],
+		weapons: [60,0],
+		//???: [72,0],
+		entrance: [84,0],
+		chest: [96,0],
+		//lea?: [108,0],
+		area_up: [0,12],
+		area_down: [12,12],
+		area_left: [24,12],
+		area_right: [36,12],
+		shop: [48,12],
+		trader: [60,12],
+		quest_hub: [72,12],
+		landmark: [84,12,16,16,-7,-8]
+	};
 	// Possibly eliminate width and height in favor of updating the template data, esp. for creating new maps without editing an existing one.
 	let width = 10;
 	let height = 10;
@@ -156,6 +178,7 @@
 	}
 	
 	TILES.src = 'tiles.png';
+	ICONS.src = 'icons.png';
 	
 	generateTiles(MODE.LOAD);
 	
@@ -248,6 +271,40 @@
 			info[2] || PIXELS,
 			info[3] || PIXELS
 		);
+	}
+	
+	// ax and ay stand for absolute x and absolute y, because icons aren't tied to the grid.
+	function drawIcon(ax, ay, info = [])
+	{
+		PENCIL.drawImage(
+			ICONS,
+			info[0] || 0,
+			info[1] || 0,
+			info[2] || 12,
+			info[3] || 12,
+			(ax * factor) + (info[4] || -6),
+			(ay * factor) + (info[5] || -6),
+			info[2] || 12,
+			info[3] || 12
+		);
+	}
+	
+	function drawIcons()
+	{
+		for(let i = 0; i < data.floors[currentFloor].icons.length; i++)
+		{
+			let c = data.floors[currentFloor].icons[i];
+			drawIcon(c.x, c.y, ICONMAP[c.icon]);
+		}
+	}
+	
+	function drawLandmarks()
+	{
+		for(let i = 0; i < data.floors[currentFloor].landmarks.length; i++)
+		{
+			let c = data.floors[currentFloor].landmarks[i];
+			drawIcon(c.x, c.y, ICONMAP.landmark);
+		}
 	}
 	
 	function setSize(x, y, f)
@@ -515,12 +572,17 @@
 	
 	function upload(file)
 	{
+		filename = 'area.json';
+		
 		// Check if file is undefined, ie if you exit the window instead of selecting a file.
-		filename = file.name || 'area.json';
-		let reader = new FileReader();
-		reader.readAsText(file, 'UTF-8');
-		reader.onload = () => {inputData(event.target.result);}
-		reader.onerror = () => {console.error('Error with reading file.');}
+		if(file)
+		{
+			filename = file.name;
+			let reader = new FileReader();
+			reader.readAsText(file, 'UTF-8');
+			reader.onload = () => {inputData(event.target.result);}
+			reader.onerror = () => {console.error('Error with reading file.');}
+		}
 	}
 	
 	function pushChanges()
@@ -710,6 +772,9 @@
 				let c = data.floors[currentFloor].connections[i];
 				drawConnection(c.tx, c.ty, c.dir, c.size);
 			}
+			
+			drawIcons();
+			drawLandmarks();
 		}
 	}
 	
@@ -838,9 +903,13 @@
 		for(let i = data.floors.length-1; i >= 0; i--)
 		{
 			let button = document.createElement('button');
+			let handle = data.floors[i].handle;
 			let name = data.floors[i].level;
 			
-			if(name === 0)
+			// Floor names probably have language options in lang/sc/...
+			if(handle)
+				name = handle.en_US;
+			else if(name === 0)
 				name = 'GF';
 			else if(name > 0)
 				name = name + 'F';
