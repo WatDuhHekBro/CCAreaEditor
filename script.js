@@ -274,8 +274,8 @@
 		);
 	}
 	
-	// ax and ay stand for absolute x and absolute y, because icons aren't tied to the grid.
-	function drawIcon(ax, ay, info = [])
+	// x and y stand for absolute x and absolute y, because icons aren't tied to the grid.
+	function drawIcon(x, y, info = [])
 	{
 		PENCIL.drawImage(
 			ICONS,
@@ -283,8 +283,8 @@
 			info[1] || 0,
 			info[2] || 12,
 			info[3] || 12,
-			(ax * factor) + (info[4] || -6),
-			(ay * factor) + (info[5] || -6),
+			(x * factor) + (info[4] || -6),
+			(y * factor) + (info[5] || -6),
 			info[2] || 12,
 			info[3] || 12
 		);

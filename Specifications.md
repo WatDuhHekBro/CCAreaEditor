@@ -5,8 +5,7 @@ Up until now, I've mostly added functions without regard to how the code is orga
 There will be exactly one global object available which'll be made in order to declutter the global namespace.
 - Inside, it first uses strict mode then initializes all the constants and variables in that order.
 - Then, it'll run through the initialization code.
-- After initialization, it'll return an object which is split into three sections:
-	- `update`: ???
+- After initialization, it'll return an object which is split into two sections:
 	- `system`: These are functions which are only meant to be called by document itself, often including itself into functions by sending `this` as a parameter. While users can call these functions, it's not recommended because things could break without a reference to an element or the function could be a part of a larger chain of functions that isn't called.
 	- `debug`: This is meant to be the all-in-one function displaying all variables at once (so you don't have to log multiple variables). Also, whenever there's an error, this function will be called and be shown in the console.
 - Below the fields and initialization which have to be placed before the return statement are the functions which make up the bulk of the code.
@@ -72,9 +71,50 @@ Of course, you can purge your `autosaved` which'll allow you to create a new map
 From what it looks like, `window.sessionStorage` will persist as long as the specific browser tab you're on isn't closed. That means if you accidentally reload the page or click on a different link, you can go back and the data will still be there. However, since it isn't as useful as `window.localStorage`, it'll be used to store one thing mainly:
 - `history`: This is an array of area JSON based on each change. It's quite perfect for session storage, since, as you'd imagine, this data would quickly get very large, so it isn't ideal for long-term storage. However, it's useful for when ya dun goofed. Again, you only use `JSON.stringify` when you leave the page.
 
-# Functions (Coming Soon™)
-`setTile`: ___. Also changes data depending on the selected cursor.
-... The cursor variable will contain the selected map number, not the color. The color reflects the change you made to the data, not the other way around.
+# Functions
+Functions have to be split into several categories due to the sheer amount of them. These different categories are not just to organize the code, but also to specify the types of references each function uses, whether it's absolute references or relative references.
+
+I decided not to have a singular `update` function because I realized that it would end up calling unnecessary functions which would hit performance a bit. Functions will only update the elements that it needs to update.
+
+## Core Functions
+In order to simplify things, there'll be a few functions that'll restrict what can be done. This makes the code less error-prone, and is pretty much the bread and butter for the editor. This is also the only place that `PENCIL`, the thing that draws on the canvas, will appear.
+- `setTile`: This fills a tile on the grid with a solid color. It'll also modify the data depending on the selected cursor if that's enabled.
+- `drawTile`: This sets a tile on the grid with a map tile based on whether or not the bordering tiles are the same map as the target.
+- `drawIcon`: This draws an icon on the canvas which is based on absolute position rather than tile position.
+
+## Document-Specific Functions
+These functions should have a one-to-one correspondence to each HTML container as described in the layout. That means that the function that deals with the buttons on both modes should be managed by one function, even if that function calls sub-functions which do their own separate thing. Those sub-functions will not be included in this section though, so think of this section as the thing that links the document with the code. Outside this section, specific references to document objects will not be used, rather, a relative parameter `e` will signify an HTML element. A lot of these switch effects based on the mode, which is a boolean `view` that is true when result mode is enabled.
+- `generateDocument`: If I decide to make the document dynamically load and wait for the script, then this'll deal with that and it'll send feedback for each initialization stage.
+- `setViewMode`: This sets the viewing mode which not only changes the view (calls `generateTiles`), but also the canvas mouse click functions and the mode that the floor buttons will switch to.
+- Canvas Mouse Click Functions: *Without a parameter, these functions revert the default controls given by your browser.* Also, direct properties will be used rather than event listeners to not have any extra event listeners laying around. Mouse events should be centralized here.
+	- `setLeftClick`: Has three modes.
+		- The first lets you set the current tile to your selected cursor.
+		- The second, in connections mode, lets you set the currently selected connection's position (only the initial point).
+		- The third, in icons/landmarks mode, lets you set the absolute position of an icon/landmark.
+	- `setRightClick`: Only has one mode so the parameter acts as a boolean value. When activated, it lets you draw a rectangle with the selected cursor.
+- `setFloor`: Sets the floor you're currently viewing. It's also recommended to save the current floor before calling this function.
+- `setAuxiliaryButtons`: Two boolean values, the first is whether this is enabled, and the second is the view mode.
+	- `generateNewPalette`: Generates a new palette, re-generates the palette buttons, and sets the cursor to 0.
+	- View Mode: Call `generateTiles`, the `generateConnections`, and `generateIcons` to show the final result as you'd see in-game.
+	- Connections Mode: Call `generateTiles` and `generateConnections` on debug mode. You automatically start on the button -1 which shows all connections in debug mode.
+	- Icons Mode: Call `generateTiles` and `generateConnections`. You automatically start on the first index.
+- `setCommandButtons`: Has different modes and calls separate functions per mode.
+- `setCursor`: Cursor could mean different things, but it's mainly what you have selected. Shows the index of the map, connection, or icon/landmark you're editing.
+- `setData`: Parses JSON text and sets data to it. Also updates the page.
+- `getData`: Stringifies the data object.
+- `upload`: Calls `setData` with the data read by the uploaded file.
+- `download`: Calls `getData` and downloads a file with this data.
+- `create`: Creates a new area from the default settings hardcoded in the data object from the script.
+- `toggleSettings`: Toggles the overlay which shows/hides the `window.localStorage` settings.
+
+# Other Functions
+`save`: ...
+
+# Utility Functions
+...
+
+# Fields: Constants and Variables
+- The cursor variable will contain the selected map number, not the color. The color reflects the change you made to the data, not the other way around.
+- The internal pixel size is 8 for placing icons and landmarks.
+
 ... Maybe show a grid option?
-... Areas, internal pixel size is 8 for icons.
-... Also explain your fields (constants and variables).
