@@ -144,7 +144,7 @@
 	let cursor = 0;
 	let currentFloor = 0;
 	let settings = {
-		defaultLanguage: 'en_US',
+		language: 'en_US',
 		languages:
 		{
 			en_US: 'English',
@@ -154,6 +154,7 @@
 			ko_KR: 'Korean'
 		}
 	};
+	let showSettings = false;
 	
 	////////////////////
 	// Initialization //
@@ -227,7 +228,7 @@
 			input: input,
 			output: output
 		},
-		debug:
+		debug: function()
 		{
 			setTile: setTile,
 			setSize: setSize,
@@ -654,7 +655,7 @@
 			add.placeholder = description;
 		
 		if(data)
-			add.value = data[settings.defaultLanguage] || '';
+			add.value = data[settings.language] || '';
 		
 		e.appendChild(add);
 		
@@ -674,7 +675,7 @@
 					choice.value = key;
 					choice.innerText = settings.languages[key] || key;
 					
-					if(key === settings.defaultLanguage)
+					if(key === settings.language)
 						choice.selected = true;
 					
 					add.appendChild(choice);
@@ -691,7 +692,7 @@
 				choice.value = lang;
 				choice.innerText = settings.languages[lang];
 				
-				if(lang === settings.defaultLanguage)
+				if(lang === settings.language)
 					choice.selected = true;
 				
 				add.appendChild(choice);
@@ -781,6 +782,17 @@
 	function setOverlay(setting = false)
 	{
 		document.getElementById("overlay").style.display = setting ? "block" : "none";
+	}
+	
+	function toggleSettings()
+	{
+		showSettings = !showSettings;
+		document.getElementById("slist").style.display = showSettings ? "block" : "none";
+	}
+	
+	function updateSetting(e)
+	{
+		
 	}
 	
 	function output()
