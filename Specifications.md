@@ -1,5 +1,5 @@
 # The Goal
-Up until now, I've mostly added functions without regard to how the code is organized. Unfortunately, functions don't exactly do what they appear to be. So my goal is to outline the structure of the code and when everything is called, for myself and anyone who wants to do stuff with the code. And along the way, this might also explain the structure of area files.
+Up until now, I've mostly added functions without regard to how the code is organized. Unfortunately, these functions don't exactly do what they appear to be. So my goal is to outline the structure of the code and when everything is called, for myself and anyone who wants to do stuff with the code. And along the way, this might also explain the structure of area files.
 
 # The Usable Object: CCAE
 There will be exactly one global object available which'll be made in order to declutter the global namespace.
@@ -14,15 +14,16 @@ There will be exactly one global object available which'll be made in order to d
 # The Layout of the Page
 Before moving onto the functions, the design of the layout must first be established. This layout will be built on the idea of different editing modes.
 - At the very top of the document is a simple line of text that will be removed when the script loads. Before your browser caches this site, it'll probably take a few seconds.
+	- If I ever decide to make the rest of the page dynamically load (probably to support other languages), then this element will be in the center and have any console errors appended below it as well as any initialization stage notifications.
 - Above the canvas are the top-level data points: name (isn't used in-game), width, height, the amount of chests, and the default floor (which only determines the level that players will see when they first zoom over to your area). This all appears on a single line.
-- The second line right before the canvas is the floor-specific info, such as the level/elevation and the name (which probably doesn't matter). Optionally, there might be a specific handler which overrides what the default floor name would be.
+- The second line right before the canvas is the floor-specific info, such as the name (which probably doesn't matter) and the level/elevation. Optionally, there might be a specific handler which overrides what the default floor name would be.
 - The canvas, which is where all the magic happens, will be placed in the top-center of the page.
 	- The upper left corner will have the buttons to switch between the two viewing modes, marked `T` for "Tiles" and `R` for "Result".
-	- The upper right corner will have the buttons which determine the floor you're viewing. These floor names are based on what you'd see in-game. *Note that it'll switch over and retain the viewing mode you're currently on but it'll reset the selected map in the first view or any editor you're on in the second view.*
-- These set of buttons will be auxiliary buttons which do various things.
-	- In the first view, there's one button, `Generate New Palette` which'll, as the name suggests, generate a new palette for each map.
+	- The upper right corner will have the buttons which determine the floor you're viewing. These floor names are based on what you'd see in-game. *Note that when you click these buttons, it'll switch over and retain the viewing mode you're currently on, but it'll reset the cursor in the first view or any editor you're on in the second view.*
+- Below the canvas, these set of buttons will be auxiliary buttons which'll do various things.
+	- In the first view, there's one button, `Generate New Palette` which'll, as the name suggests, generates a new palette for each map.
 	- In the second view, they'll allow you to switch between viewing mode, connections mode, and icons/landmarks mode.
-- Below the canvas will be the buttons to...
+- Below that will be the buttons to...
 	- Select the map in the first view.
 	- Select the connection or icon/landmark in the second view.
 - Below the buttons will be the cursor which displays what you've selected and the information bound to whatever you selected.
@@ -41,28 +42,31 @@ Before moving onto the functions, the design of the layout must first be establi
 		- Left clicking a button sets your cursor to draw whatever map you select, as well as displaying below the currently selected cursor the name of the map, which you can edit in any language you choose.
 		- Right clicking a button, as long as you're holding right click, allows you to isolate the view of a map, useful for locating a map by its ID in a large map or if it has a similar color to another map. This is black and white to help you locate a map regardless of what its original color is.
 2. The second view is where you see the resulting area, basically how it would look in-game. This view is more focused on the fine-tuning aspects, since you've already determined how the shape is from the first view, now you add the details such as connections, icons, and landmarks.
-	- Clicking on the canvas, at least without ..., does nothing because it is set to act as default. So now you can actually right click on the canvas and save an image of it if you want to.
-	- When you switch to the connections editor, you'll only see the boxes (no icons/landmarks) as well as solid tiles where the connections are.
+	- Clicking on the canvas, at least without selecting an editing mode, does nothing because the mouse events are set to act as default. So now you can actually right click on the canvas and save an image of it if you want to.
+	- When you switch to the connections editor, you'll only see the basic tiles (no icons/landmarks) as well as solid tiles where the connections are.
 		- Red tiles are the exact point where a connection is defined.
 		- Green tiles are the implied length of a connection based on whether it's horizontal or vertical.
 		- Blue tiles are based on how big a connection is. This is how connections can span multiple tiles rather than just one.
 		- In the buttons section, you'll see buttons half-filled with each room it occupies and goes in the order that the connections are, meaning the order is essentially arbitrary.
 		- In this mode, once you've selected a specific connection, you can left click to specify the red tile or the coordinates, and then from there, you edit the other numbers and the canvas will provide feedback.
 		- When you select a connection, the two maps it occupies will be isolated. The two maps have no impact on the visuals, but you'll have to visit both maps for the connection to show up.
-	- When you switch to the icons/landmarks editor, you'll see the boxes with every connection, but only one icon/landmark will show up at a time.
+	- When you switch to the icons/landmarks editor, you'll see the basic tiles with every connection, but only one icon/landmark will show up at a time.
 		- Again, the buttons section will display a list of icons and landmarks to select. Both icons and landmarks are given in the order that appears in the JSON file (or the order they were added in), meaning that it's pretty much arbitrary.
 			- White buttons are icons.
 			- Light blue buttons are landmarks.
 		- In this mode, left clicking sets the icon/landmark to wherever the mouse cursor is. Keep in mind that icons/landmarks are based on **absolute** position rather than **tile** position, so you'll probably want to fine-tune the location by changing the numbers specifically. Left clicking is just to help you place an icon/landmark in the general area you want it to be in.
+	- And finally, having no editing mode selected (view mode) will let you see the entire result, complete with connections, icons, and landmarks.
 
 # About Local Storage
 Everything about persisting settings is based on `window.localStorage`, which means that if you access the area editor from another domain, these settings will not remain the same. The settings are stored in a single key, `CCAE`, which has a stringified object which contain all the settings. When the page loads, one of the first things it does is load these persisting settings and generates missing keys if needed.
 - `language`: The ISO language code (i.e. `en_US`) used to determine which language generated LangLabels automatically select, the format of floor names, and (maybe) the language all the text in the page would use. The last one is rather unlikely, but it wouldn't hurt to add support for it.
 - `languages`: The set of ISO language code and language name pairs (i.e. `en_US` and `English`) which is used to determine which language options to generate a LangLabel with. While existing language tags will still show up, you must edit this setting to determine how new LangLabels will generate. For example, an existing `fr_FR` tag will still show up, but if you want to add French yourself, you'll have to edit this setting. This is the alternative to manually editing each tag in the JSON file.
 - `palette`: Here is the custom palette you can set that'll predetermine the colors instead of having it be random. You can save the current palette or add/modify the settings' palette using hex color codes.
-- `autosaved`: While the editor itself should have undo and redo buttons using `history`, autosaved will only track the latest change. Though constantly using `JSON.stringify` isn't good on performance. So while the other settings will automatically `JSON.stringify` since those are small values changed only when the user chooses, this constantly updates. So it'll be a browser leave event that triggers `JSON.stringify` on this.
+- `autosaved`: While the editor itself should have undo and redo buttons using `history`, autosaved will only track the latest change. Though constantly using `JSON.stringify` isn't good on performance. So while the other settings will automatically `JSON.stringify` since those are small values changed only when the user chooses, this constantly updates. So it'll be a browser leave event that triggers `JSON.stringify` on this. If this doesn't exist, then load the default screen.
+- `autosave`: A boolean value determining whether the editor autosaves or not.
+- `autosaveHistory`: A boolean value determining whether the editor keeps track of history, which'll probably boost performance if it's running slow.
 
-Of course, you can purge your history/autosaved which'll allow you to create a new map.
+Of course, you can purge your `autosaved` which'll allow you to create a new map.
 
 # About Session Storage
 From what it looks like, `window.sessionStorage` will persist as long as the specific browser tab you're on isn't closed. That means if you accidentally reload the page or click on a different link, you can go back and the data will still be there. However, since it isn't as useful as `window.localStorage`, it'll be used to store one thing mainly:
