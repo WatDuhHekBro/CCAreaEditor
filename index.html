@@ -8,11 +8,12 @@
 	<body>
 		<!--
 		The goal here is to have a settings icon in the top-right which creates an overlay on top of the page with the settings. Unfortunately, I haven't learned CSS yet.
+		When cleaning up the code, turn any lists into dynamic tables.
+		"These are the settings that'll persist throughout every visit here. They will not be erased by leaving the page."
 		<div id="overlay" onclick="setOverlay(false)">
 			<input type="text">
 		</div>
 		-->
-		<!-- The class will auto-generate the HTML from a template. Maybe. But especially considering that adding a language will have a button and langUid will be a number. And adding a language will actually be stored in your localStorage so you don't have to add it per element, though language keys from the file itself won't auto add it to localStorage (you have to add fr_FR yourself, though a LangLabel with fr_FR will still be shown). -->
 		<div id="name" class="LangLabel"></div>
 		<!--<div>
 			<input type="number" class="medium" placeholder="width">
@@ -20,35 +21,20 @@
 			<input type="number" class="medium" placeholder="chests">
 			<input type="number" class="large" placeholder="defaultFloor">
 		</div>-->
-		<!-- In Room Mode, Button A lets you edit rooms and Button B lets you edit connections. In Result Mode, Button A lets you view the map as you would in the game while Button B lets you edit icons &amp; landmarks. Or maybe forego simply viewing in Result Mode, opting for a toggle button? -->
 		<!-- Add a "Please be patient" message that'll be removed when loaded so users don't think it's broken. -->
 		<div class="container">
-			<div class="button-group">
-				<canvas id="canvas" style="border:1px solid #000000;"></canvas>
-			</div>
+			<div id="modes" class="button-group"></div>
+			<div class="button-group"><canvas id="canvas" style="border:1px solid #000000;"></canvas></div>
 			<div id="floors" class="button-group"></div>
 		</div>
-		<div id="container" style="clear:both"></div>
+		<div id="auxiliary"></div>
+		<div id="command"></div>
 		<div id="cursor"></div>
-		<div><textarea id="input" oninput="input(this)" cols="100" rows="10" placeholder="[[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17,18,19,20],[21,22,23,24,25]]"></textarea></div>
+		<br>
+		<div><textarea id="input" oninput="setData(this.value)" cols="100" rows="10" placeholder="Copy and paste a valid area JSON file here to load it into the editor."></textarea></div>
 		<div><button onclick="output()">Get Changes</button></div>
-		<div><button onclick="generateNewPalette()">Generate New Palette</button></div>
 		<div><input type="file" onchange="upload(this.files[0])"></div>
 		<div><button onclick="download()">Download Changes</button></div>
-		<!-- Figure out how to get modes on the left and floors on the right (right-align this block), and also how to keep canvas centered. -->
-		<p>Warning: As of right now, the buttons below might break stuff.</p>
-		<div>
-			<button onclick="update()">Edit Rooms</button>
-			<button onclick="setConnectionsMode(true)">Edit Connections</button>
-			<button onclick="setConnectionsMode()">View Result / Edit Icons &amp; Landmarks</button>
-		</div>
-		<div><button onclick="toggleSettings()">Settings</button></div>
-		<div id="slist" style="display:none;">
-			<p>These are the settings that'll persist throughout every visit here. They will not be erased by leaving the page.</p>
-			<!--<div>defaultLanguage: <input type="text" oninput="updateSettings(this)" placeholder="Default: 'en_US'"></div>-->
-			<!-- When cleaning up the code, turn this into a dynamic table. -->
-			<!--<div>languages: <textarea oninput="updateSettings(this)" cols="20" rows="10" placeholder="Default:&#10;'en_US':'English',&#10;'de_DE':'German',&#10;'zh_CN':'Chinese',&#10;'ja_JP':'Japanese',&#10;'ko_KR':'Korean'"></textarea></div>-->
-		</div>
 		<script src="script.js"></script>
 	</body>
 </html>
