@@ -34,6 +34,8 @@
 	const TILES = new Image();
 	// [x, y, size-x, size-y, offset-x, offset-y]
 	const TILEMAP = {
+		void: [],
+		void_large: [],
 		enclosed: [40,0],
 		open: [20,4],
 		corner:
@@ -177,7 +179,7 @@
 	let pos1 = null;
 	let pos2 = null;
 	let isMouseDown = false;
-	let cursor = 0;
+	let cursor = -1;
 	let currentFloor = 0;
 	let settings = {
 		language: 'en_US',
@@ -198,6 +200,7 @@
 	try
 	{
 		// Add settings that aren't present and also remove deprecated settings.
+		// Do this by only copying keys that also exist in settings.
 		if(!window.localStorage.getItem('CCAE'))
 			throw "No settings detected! Generating default values.";
 		
@@ -342,7 +345,7 @@
 			drawLandmarks();
 			setAuxiliaryButtons(true, true);
 			setCommandButtons(true, true);
-			setCursor(0);
+			setCursor(-1);
 			setMouseMode(0);
 			mode = true;
 		}
@@ -351,7 +354,7 @@
 			generateTiles();
 			setAuxiliaryButtons(true, false);
 			setCommandButtons(true, false);
-			setCursor(0);
+			setCursor(-1);
 			setMouseMode(1);
 			mode = false;
 		}
@@ -368,7 +371,7 @@
 				{
 					if(!mouse)
 						mouse = setInterval(() => {
-							setTile(Math.floor(tpos.x/8), Math.floor(tpos.y/8), cursor, true);
+							setTile(Math.floor(tpos.x/8), Math.floor(tpos.y/8), cursor+1, true);
 						}, 10);
 				}
 				else if(event.button === 2) // right click
@@ -376,7 +379,7 @@
 					if(!pos1)
 					{
 						pos1 = {x: Math.floor(event.offsetX/8), y: Math.floor(event.offsetY/8)};
-						setTile(pos1.x, pos1.y, cursor);
+						setTile(pos1.x, pos1.y, cursor+1, true);
 					}
 					else
 					{
@@ -405,7 +408,7 @@
 						
 						for(let i = y0; i <= y1; i++)
 							for(let j = x0; j <= x1; j++)
-								setTile(j, i, cursor, true);
+								setTile(j, i, cursor+1, true);
 						
 						pos1 = null;
 						pos2 = null;
@@ -473,14 +476,14 @@
 		if(enabled)
 		{
 			let button = document.createElement('button');
-			button.innerText = "T";
+			button.innerText = 'T';
 			button.onclick = () => {
 				setViewMode(false);
 			};
 			MODES.appendChild(button);
 			
 			button = document.createElement('button');
-			button.innerText = "R";
+			button.innerText = 'R';
 			button.onclick = () => {
 				setViewMode(true);
 			};
@@ -512,7 +515,8 @@
 				button.onclick = () => {
 					generateTilesAdvanced();
 					drawConnections(true);
-					setMouseMode(2);
+					setMouseMode(0);
+					setCommandButtons(true, true, 'connections');
 				};
 				AUXILIARY.appendChild(button);
 				
@@ -522,6 +526,7 @@
 					generateTilesAdvanced();
 					drawConnections();
 					setMouseMode(3);
+					setCommandButtons(true, true, 'icons');
 				};
 				AUXILIARY.appendChild(button);
 			}
@@ -532,14 +537,14 @@
 				button.onclick = () => {
 					palette.splice(1, palette.length);
 					setCommandButtons(true, false);
-					setCursor(0);
+					setCursor(-1);
 				};
 				AUXILIARY.appendChild(button);
 			}
 		}
 	}
 	
-	function setCommandButtons(enabled = false, isResultMode = false)
+	function setCommandButtons(enabled = false, isResultMode = false, mode)
 	{
 		COMMAND.innerHTML = '';
 		
@@ -547,23 +552,26 @@
 		{
 			if(isResultMode)
 			{
-				
+				if(mode === 'connections')
+					generateConnectionButtons(COMMAND);
+				else if(mode === 'icons')
+					generateIconButtons(COMMAND);
 			}
 			else
-				generateButtons(COMMAND, generateTiles() + 1); // Redundant function call?
+				generateButtons(COMMAND, generateTiles()); // Redundant function call?
 		}
 	}
 	
-	function setCursor(index = 0)
+	function setCursor(index = -1)
 	{
-		if(CURSOR.children[1] && data.floors[currentFloor].maps[cursor-1])
-			data.floors[currentFloor].maps[cursor-1].name = getLangLabel(CURSOR.children[1]);
+		if(CURSOR.children[1] && data.floors[currentFloor].maps[cursor])
+			data.floors[currentFloor].maps[cursor].name = getLangLabel(CURSOR.children[1]);
 		
 		cursor = index;
-		CURSOR.innerHTML = `Your cursor is: <span style="background-color:${getColor(index)}; color:${getColor(index, true)};">&nbsp; ${index} &nbsp;</span>`;
+		CURSOR.innerHTML = `Your cursor is: <span style="background-color:${getColor(index+1)}; color:${getColor(index+1, true)};">&nbsp; ${index} &nbsp;</span>`;
 		
-		if(index !== 0)
-			CURSOR.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floors[currentFloor].maps[index-1] && data.floors[currentFloor].maps[index-1].name) || null));
+		if(index !== -1)
+			CURSOR.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floors[currentFloor].maps[index] && data.floors[currentFloor].maps[index].name) || null));
 	}
 	
 	function setData(input)
@@ -591,63 +599,59 @@
 		return JSON.stringify(data);
 	}*/
 	
-	function drawConnection(x, y, direction = 'VERTICAL', size = 1)
-	{
-		direction = direction.toLowerCase();
-		drawTile(x, y, TILEMAP.connection[direction].first);
-		drawTile(x, y, TILEMAP.connection[direction].second);
-		
-		for(let i = 1; i < Math.max(1, size); i++)
-		{
-			let x0 = direction === 'vertical' ? i : 0;
-			let y0 = direction === 'horizontal' ? i : 0;
-			let x1 = direction === 'vertical' ? i-1 : 0;
-			let y1 = direction === 'horizontal' ? i-1 : 0;
-			drawTile(x + x0, y + y0, TILEMAP.connection[direction].first);
-			drawTile(x + x0, y + y0, TILEMAP.connection[direction].second);
-			drawTile(x + x1, y + y1, TILEMAP.connection[direction].extend.first);
-			drawTile(x + x1, y + y1, TILEMAP.connection[direction].extend.second);
-		}
-	}
-	
-	function drawConnections(debug = false)
+	function drawConnection(x, y, direction = 'VERTICAL', size = 1, debug = false)
 	{
 		if(debug)
 		{
-			for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+			setTile(x, y, '#ff0000');
+			
+			if(direction === 'HORIZONTAL')
 			{
-				let c = data.floors[currentFloor].connections[i];
-				setTile(c.tx, c.ty, '#ff0000');
+				setTile(x + 1, y, '#00ff00');
 				
-				if(c.dir === 'HORIZONTAL')
+				for(let i = 1; i < size; i++)
 				{
-					setTile(c.tx + 1, c.ty, '#00ff00');
-					
-					for(let j = 1; j < c.size; j++)
-					{
-						setTile(c.tx, c.ty + j, '#0000ff');
-						setTile(c.tx + 1, c.ty + j, '#0000ff');
-					}
+					setTile(x, y + i, '#0000ff');
+					setTile(x + 1, y + i, '#0000ff');
 				}
-				else if(c.dir === 'VERTICAL')
+			}
+			else if(direction === 'VERTICAL')
+			{
+				setTile(x, y + 1, '#00ff00');
+				
+				for(let i = 1; i < size; i++)
 				{
-					setTile(c.tx, c.ty + 1, '#00ff00');
-					
-					for(let j = 1; j < c.size; j++)
-					{
-						setTile(c.tx + j, c.ty, '#0000ff');
-						setTile(c.tx + j, c.ty + 1, '#0000ff');
-					}
+					setTile(x + i, y, '#0000ff');
+					setTile(x + i, y + 1, '#0000ff');
 				}
 			}
 		}
 		else
 		{
-			for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+			direction = direction.toLowerCase();
+			drawTile(x, y, TILEMAP.connection[direction].first);
+			drawTile(x, y, TILEMAP.connection[direction].second);
+			
+			for(let i = 1; i < Math.max(1, size); i++)
 			{
-				let c = data.floors[currentFloor].connections[i];
-				drawConnection(c.tx, c.ty, c.dir, c.size);
+				let x0 = direction === 'vertical' ? i : 0;
+				let y0 = direction === 'horizontal' ? i : 0;
+				let x1 = direction === 'vertical' ? i-1 : 0;
+				let y1 = direction === 'horizontal' ? i-1 : 0;
+				drawTile(x + x0, y + y0, TILEMAP.connection[direction].first);
+				drawTile(x + x0, y + y0, TILEMAP.connection[direction].second);
+				drawTile(x + x1, y + y1, TILEMAP.connection[direction].extend.first);
+				drawTile(x + x1, y + y1, TILEMAP.connection[direction].extend.second);
 			}
+		}
+	}
+	
+	function drawConnections(debug = false)
+	{
+		for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+		{
+			let c = data.floors[currentFloor].connections[i];
+			drawConnection(c.tx, c.ty, c.dir, c.size, debug);
 		}
 	}
 	
@@ -679,8 +683,8 @@
 		CANVAS.height = height * PIXELS * factor;
 	}
 	
-	// Also returns highest room number;
-	function generateTiles(isolate = false, map = -1)
+	// Also returns highest room number.
+	function generateTiles(isolate)
 	{
 		setSize(floor[0].length, floor.length);
 		let highest = 0;
@@ -690,7 +694,7 @@
 			for(var j = 0; j < floor[i].length; j++)
 			{
 				if(isolate)
-					setTile(j, i, floor[i][j] === map ? '#ffffff' : '#000000');
+					setTile(j, i, isolate.includes(floor[i][j]) ? '#ffffff' : '#000000');
 				else
 					setTile(j, i, floor[i][j]);
 				
@@ -702,7 +706,7 @@
 		return highest;
 	}
 	
-	function generateTilesAdvanced()
+	function generateTilesAdvanced(isolate)
 	{
 		setSize(floor[0].length, floor.length);
 		
@@ -710,7 +714,7 @@
 		{
 			for(let j = 0; j < floor[i].length; j++)
 			{
-				if(floor[i][j] === 0)
+				if(floor[i][j] === 0 || (isolate && !isolate.includes(floor[i][j])))
 					drawTile(j, i);
 				else
 				{
@@ -861,8 +865,8 @@
 	{
 		data.floors[currentFloor].tiles = floor;
 		
-		if(CURSOR.children[1] && data.floors[currentFloor].maps[cursor-1])
-			data.floors[currentFloor].maps[cursor-1].name = getLangLabel(CURSOR.children[1]);
+		if(CURSOR.children[1] && data.floors[currentFloor].maps[cursor])
+			data.floors[currentFloor].maps[cursor].name = getLangLabel(CURSOR.children[1]);
 	}
 	
 	function download()
@@ -1029,17 +1033,17 @@
 	{
 		e.innerHTML = '';
 		
-		for(let i = 0; i < limit; i++)
+		for(let i = -1; i < limit; i++)
 		{
 			let button = document.createElement('button');
 			
 			button.innerText = i;
-			button.style.backgroundColor = getColor(i);
-			button.style.color = getColor(i, true);
+			button.style.backgroundColor = getColor(i+1);
+			button.style.color = getColor(i+1, true);
 			button.oncontextmenu = disable;
 			button.onmousedown = () => {
 				if(event.button === 2)
-					generateTiles(true, i);
+					generateTiles([i+1]);
 				else
 					setCursor(i);
 			};
@@ -1047,14 +1051,11 @@
 				if(event.button === 2)
 					generateTiles();
 			};
-			/*button.onmouseleave = () => {
-				generateTiles();
-			};*/
 			
 			e.appendChild(button);
 		}
 		
-		if(limit !== 0)
+		if(limit !== -1)
 		{
 			let button = document.createElement('button');
 			button.innerText = '+';
@@ -1098,19 +1099,94 @@
 		return e;
 	}
 	
-	/*function generateConnectionButtons(e)
+	function generateConnectionButtons(e)
 	{
 		e.innerHTML = '';
+		
+		let button = document.createElement('button');
+		button.innerText = '-1';
+		button.style.backgroundColor = '#000000';
+		button.style.color = '#ffffff';
+		button.oncontextmenu = disable;
+		button.onmousedown = () => {
+			generateTilesAdvanced();
+			drawConnections(true);
+			setMouseMode(0);
+		};
+		button.onmouseup = () => {
+			if(event.button === 2)
+			{}
+		};
+		e.appendChild(button);
 		
 		for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
 		{
 			let c = data.floors[currentFloor].connections[i];
-			
-			
+			button = document.createElement('button');
+			button.innerText = i;
+			button.style.background = 'linear-gradient(90deg, ' + getColor(c.map1+1) + ' 50%, ' + getColor(c.map2+1) + ' 50%)';
+			button.oncontextmenu = disable;
+			button.onmousedown = () => {
+				if(event.button === 2)
+				{
+					generateTilesAdvanced([c.map1+1, c.map2+1]);
+					drawConnection(c.tx, c.ty, c.dir, c.size, true);
+				}
+				else
+				{
+					generateTilesAdvanced();
+					drawConnection(c.tx, c.ty, c.dir, c.size, true);
+					setMouseMode(2);
+					console.log('selected cursor', i);
+				}
+			};
+			button.onmouseup = () => {
+				if(event.button === 2)
+				{
+					generateTilesAdvanced();
+					drawConnection(c.tx, c.ty, c.dir, c.size, true);
+					setMouseMode(2);
+					console.log('selected cursor', i);
+				}
+			};
+			e.appendChild(button);
 		}
 		
 		return e;
-	}*/
+	}
+	
+	function setCursorConnection(index = -1)
+	{
+		if(CURSOR.children[1])
+		{
+			// if 
+		}
+		
+		cursor = index;
+		CURSOR.innerHTML = `Your cursor is: <span style="background-color:${getColor(index+1)}; color:${getColor(index+1, true)};">&nbsp; ${index} &nbsp;</span>`;
+		
+		if(index !== -1)
+			CURSOR.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floors[currentFloor].maps[index] && data.floors[currentFloor].maps[index].name) || null));
+	}
+	
+	function generateIconButtons(e)
+	{
+		e.innerHTML = '';
+		
+		for(let i = 0; i < data.floors[currentFloor].icons.length; i++)
+		{
+			let c = data.floors[currentFloor].icons[i];
+			console.log(c);
+		}
+		
+		for(let i = 0; i < data.floors[currentFloor].landmarks.length; i++)
+		{
+			let c = data.floors[currentFloor].landmarks[i];
+			console.log(c);
+		}
+		
+		return e;
+	}
 	
 	///////////////////////
 	// Utility Functions //
