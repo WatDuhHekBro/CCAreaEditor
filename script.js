@@ -34,8 +34,8 @@
 	const TILES = new Image();
 	// [x, y, size-x, size-y, offset-x, offset-y]
 	const TILEMAP = {
-		void: [],
-		void_large: [],
+		void: [0,0,8,8],
+		void_large: [0,0,16,16],
 		enclosed: [40,0],
 		open: [20,4],
 		corner:
@@ -197,26 +197,7 @@
 	////////////////////
 	// Initialization //
 	////////////////////
-	try
-	{
-		// Add settings that aren't present and also remove deprecated settings.
-		// Do this by only copying keys that also exist in settings.
-		if(!window.localStorage.getItem('CCAE'))
-			throw "No settings detected! Generating default values.";
-		
-		let config = JSON.parse(window.localStorage.getItem('CCAE'));
-		
-		for(let key in settings)
-			if(!config[key])
-				config[key] = settings[key];
-		
-		settings = config;
-	}
-	catch(error)
-	{
-		console.log(error);
-		window.localStorage.setItem('CCAE', JSON.stringify(settings));
-	}
+	loadSettings(window.localStorage.getItem('CCAE'));
 	
 	TILES.src = 'tiles.png';
 	ICONS.src = 'icons.png';
@@ -345,7 +326,7 @@
 			drawLandmarks();
 			setAuxiliaryButtons(true, true);
 			setCommandButtons(true, true);
-			setCursor(-1);
+			resetCursor();
 			setMouseMode(0);
 			mode = true;
 		}
@@ -354,7 +335,7 @@
 			generateTiles();
 			setAuxiliaryButtons(true, false);
 			setCommandButtons(true, false);
-			setCursor(-1);
+			resetCursor();
 			setMouseMode(1);
 			mode = false;
 		}
@@ -452,9 +433,7 @@
 			{
 				CANVAS.onmousedown = () => {
 					if(event.button === 0)
-					{
-						console.log('connection', Math.floor(event.offsetX/8), Math.floor(event.offsetY/8));
-					}
+						placeConnection(cursor, Math.floor(event.offsetX/8), Math.floor(event.offsetY/8), data.floors[currentFloor].connections[cursor].dir, data.floors[currentFloor].connections[cursor].size);
 				};
 			}
 			else if(mode === 3)
@@ -537,7 +516,7 @@
 				button.onclick = () => {
 					palette.splice(1, palette.length);
 					setCommandButtons(true, false);
-					setCursor(-1);
+					resetCursor();
 				};
 				AUXILIARY.appendChild(button);
 			}
@@ -562,16 +541,10 @@
 		}
 	}
 	
-	function setCursor(index = -1)
+	function resetCursor()
 	{
-		if(CURSOR.children[1] && data.floors[currentFloor].maps[cursor])
-			data.floors[currentFloor].maps[cursor].name = getLangLabel(CURSOR.children[1]);
-		
-		cursor = index;
-		CURSOR.innerHTML = `Your cursor is: <span style="background-color:${getColor(index+1)}; color:${getColor(index+1, true)};">&nbsp; ${index} &nbsp;</span>`;
-		
-		if(index !== -1)
-			CURSOR.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floors[currentFloor].maps[index] && data.floors[currentFloor].maps[index].name) || null));
+		cursor = -1;
+		CURSOR.innerHTML = 'Your cursor is: <span style="background-color:#000000; color:#ffffff;">&nbsp; -1 &nbsp;</span>';
 	}
 	
 	function setData(input)
@@ -924,7 +897,7 @@
 		// Text Field //
 		let add = document.createElement('input');
 		add.type = 'text';
-		add.setAttribute('oninput', 'setText(this)');
+		add.oninput = function() {setText(this)};
 		
 		if(description)
 			add.placeholder = description;
@@ -936,7 +909,7 @@
 		
 		// Language Options //
 		add = document.createElement('select');
-		add.setAttribute('onchange', 'setLang(this)');
+		add.onchange = function() {setLang(this)};
 		
 		let tmp = [];
 		
@@ -979,7 +952,7 @@
 		// LangUid //
 		add = document.createElement('input');
 		add.type = 'number';
-		add.setAttribute('oninput', 'setLangUid(this)');
+		add.oninput = function() {setLangUid(this)};
 		add.style.width = '50px';
 		add.placeholder = 'langUid';
 		
@@ -1011,11 +984,6 @@
 		document.getElementById("overlay").style.display = setting ? "block" : "none";
 	}
 	
-	function updateSetting(e)
-	{
-		
-	}
-	
 	function output() {INPUT.value = JSON.stringify(data);}
 	
 	function clear()
@@ -1029,6 +997,7 @@
 	
 	function disable() {event.preventDefault();}
 	
+	// Set the default limit based on something more concrete like the length of the maps?
 	function generateButtons(e, limit = palette.length)
 	{
 		e.innerHTML = '';
@@ -1045,7 +1014,7 @@
 				if(event.button === 2)
 					generateTiles([i+1]);
 				else
-					setCursor(i);
+					setCursorRoom(CURSOR, i);
 			};
 			button.onmouseup = () => {
 				if(event.button === 2)
@@ -1112,10 +1081,13 @@
 			generateTilesAdvanced();
 			drawConnections(true);
 			setMouseMode(0);
+			
+			if(event.button !== 2)
+				setCursorConnection(CURSOR, -1);
 		};
 		button.onmouseup = () => {
 			if(event.button === 2)
-			{}
+				setMouseMode(2);
 		};
 		e.appendChild(button);
 		
@@ -1124,29 +1096,29 @@
 			let c = data.floors[currentFloor].connections[i];
 			button = document.createElement('button');
 			button.innerText = i;
-			button.style.background = 'linear-gradient(90deg, ' + getColor(c.map1+1) + ' 50%, ' + getColor(c.map2+1) + ' 50%)';
+			button.style.background = `linear-gradient(90deg, ${getColor(c.map1+1)} 50%, ${getColor(c.map2+1)} 50%)`;
 			button.oncontextmenu = disable;
 			button.onmousedown = () => {
 				if(event.button === 2)
 				{
 					generateTilesAdvanced([c.map1+1, c.map2+1]);
 					drawConnection(c.tx, c.ty, c.dir, c.size, true);
+					setMouseMode(0);
 				}
 				else
 				{
 					generateTilesAdvanced();
-					drawConnection(c.tx, c.ty, c.dir, c.size, true);
+					drawConnections(true);
 					setMouseMode(2);
-					console.log('selected cursor', i);
+					setCursorConnection(CURSOR, i);
 				}
 			};
 			button.onmouseup = () => {
 				if(event.button === 2)
 				{
 					generateTilesAdvanced();
-					drawConnection(c.tx, c.ty, c.dir, c.size, true);
+					drawConnections(true);
 					setMouseMode(2);
-					console.log('selected cursor', i);
 				}
 			};
 			e.appendChild(button);
@@ -1155,18 +1127,60 @@
 		return e;
 	}
 	
-	function setCursorConnection(index = -1)
+	function setCursorRoom(e, index = -1)
 	{
-		if(CURSOR.children[1])
-		{
-			// if 
-		}
+		if(e.children[1] && data.floors[currentFloor].maps[cursor])
+			data.floors[currentFloor].maps[cursor].name = getLangLabel(e.children[1]);
 		
 		cursor = index;
-		CURSOR.innerHTML = `Your cursor is: <span style="background-color:${getColor(index+1)}; color:${getColor(index+1, true)};">&nbsp; ${index} &nbsp;</span>`;
+		e.innerHTML = `Your cursor is: <span style="background-color:${getColor(index+1)}; color:${getColor(index+1, true)};">&nbsp; ${index} &nbsp;</span>`;
 		
 		if(index !== -1)
-			CURSOR.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floors[currentFloor].maps[index] && data.floors[currentFloor].maps[index].name) || null));
+			e.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floors[currentFloor].maps[index] && data.floors[currentFloor].maps[index].name) || null));
+	}
+	
+	function setCursorConnection(e, index = -1)
+	{
+		cursor = index;
+		e.innerHTML = `Your cursor is: <span style="background-color:#000000; color:#ffffff;">&nbsp; ${index} &nbsp;</span>`;
+		
+		if(index !== -1)
+		e.appendChild(setConnection(document.createElement('div'), index));
+	}
+	
+	function setConnection(e, index)
+	{
+		e.appendChild(setValue(data.floors[currentFloor].connections[index], 'tx', 'number', index));
+		e.appendChild(setValue(data.floors[currentFloor].connections[index], 'ty', 'number', index));
+		e.appendChild(setValue(data.floors[currentFloor].connections[index], 'dir', 'text', index));
+		e.appendChild(setValue(data.floors[currentFloor].connections[index], 'size', 'number', index));
+		return e;
+	}
+	
+	// (in an input node) setValue(data.floors[currentFloor].connections[i], 'tx', this.value)
+	function setValue(obj, key, type, index)
+	{
+		let add = document.createElement('input');
+		add.type = type;
+		add.placeholder = key;
+		add.classList.add('medium');
+		add.value = obj[key] || '';
+		add.oninput = function() {
+			obj[key] = type === 'number' ? Number(this.value) : this.value;
+			placeConnection(index, obj.tx, obj.ty, obj.dir, obj.size);
+		};
+		return add;
+	}
+	
+	function placeConnection(index, x, y, dir, size)
+	{
+		data.floors[currentFloor].connections[index].tx = x;
+		data.floors[currentFloor].connections[index].ty = y;
+		data.floors[currentFloor].connections[index].dir = dir;
+		data.floors[currentFloor].connections[index].size = size;
+		generateTilesAdvanced();
+		drawConnections(true);
+		setCursorConnection(CURSOR, index);
 	}
 	
 	function generateIconButtons(e)
@@ -1186,6 +1200,46 @@
 		}
 		
 		return e;
+	}
+	
+	// This makes it easy to import settings
+	// Load a stringified JSON object containing settings.
+	// Add settings that aren't present and also remove deprecated settings.
+	// Do this by only copying keys that also exist in settings.
+	function loadSettings(options)
+	{
+		try
+		{
+			if(!options)
+				throw "No settings detected! Generating default values.";
+			
+			options = JSON.parse(options);
+			
+			// This modifies settings based on what's in the local storage.
+			// Any unused keys are essentially discarded.
+			// Any missing keys are left to whatever the default is.
+			// This also prevents soft comparison. So if a setting is 0, it'll copy over.
+			for(let key in settings)
+				if(Object.keys(options).includes(key))
+					settings[key] = options[key];
+		}
+		catch(error) {console.log(error)}
+		
+		// Then, the new settings, or default settings, are stored into the local storage.
+		window.localStorage.setItem('CCAE', JSON.stringify(settings));
+	}
+	
+	// Checks if option is a valid key, then stores the new value in both settings and the local storage.
+	function storeOption(option, value)
+	{
+		if(Object.keys(settings).includes(option))
+		{
+			settings[option] = value;
+			window.localStorage.setItem('CCAE', JSON.stringify(settings));
+			return true;
+		}
+		
+		return false;
 	}
 	
 	///////////////////////
