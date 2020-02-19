@@ -12,6 +12,7 @@
 	const INPUT = document.getElementById("input");
 	const FLOORS = document.getElementById("floors");
 	const MODES = document.getElementById("modes");
+	const OPTIONS = document.getElementById("options");
 	const INVERT = {
 		'0': 'f',
 		'1': 'e',
@@ -156,23 +157,42 @@
 				ja_JP: '地下',
 				ko_KR: 'U'
 			}
+		},
+		untitled:
+		{
+			en_US: 'untitled',
+			de_DE: 'unbetitelt',
+			zh_CN: '未命名',
+			ja_JP: '無題',
+			ko_KR: '미정'
 		}
 	};
 	let palette = ['000000'];
-	// Possibly eliminate width and height in favor of updating the template data, esp. for creating new maps without editing an existing one.
-	let width = 10;
-	let height = 10;
 	let factor = 1;
 	let filename = 'area.json';
+	// When data is stringified, it'll skip over undefined keys unless it has a value. However, the order of these keys will remain.
 	let data = {
-		DOCTYPE: "AREAS_MAP",
-		name: {},
-		width: 10,
-		height: 10,
-		floors: [],
+		DOCTYPE: 'AREAS_MAP',
+		name: undefined,
+		width: 1,
+		height: 1,
+		floors:
+		[
+			{
+				level: 0,
+				name: undefined,
+				tiles: [[0]],
+				icons: [],
+				maps: [],
+				connections: [],
+				landmarks: [],
+				handle: undefined
+			}
+		],
 		chests: 0,
 		defaultFloor: 0 // defaultFloor only affects which floor you first see when you go to an area you're NOT currently in.
 	};
+	// After the logo, floor will be set to the reference to data.floors[currentFloor].tiles to reduce object access to data.
 	let floor = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,1,1,0,0,1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,0,0,1,1,1,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,0,1,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,1,1,1,0,1,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,1,0,1,0,1,1,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,1,1,0,0,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,0,0,1,0,1,0,1,1,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 	let mouse = null;
 	let tpos = {x: 0, y: 0};
@@ -209,6 +229,8 @@
 		for(let j = 0; j < floor[i].length; j++)
 			setTile(j, i, floor[i][j] === 0 ? '#000000' : '#ffffff');
 	
+	floor = data.floors[currentFloor].tiles;
+	
 	// throw an error if width is not the same
 	// "Your object must be a matrix of at least one row and one column!" input.constructor === Array && input[0].constructor === Array
 	// Also throw an error if the sizes don't match
@@ -232,6 +254,17 @@
 			
 			return {
 				setTile: setTile,
+				drawTile: drawTile,
+				drawIcon: drawIcon,
+				getText: getText,
+				setViewMode: setViewMode,
+				setMouseMode: setMouseMode,
+				setViewModeButtons
+				setAuxiliaryButtons
+				setCommandButtons
+				resetCursor
+				setData
+				
 				setSize: setSize,
 				generateTiles: generateTiles,
 				palette: palette,
@@ -248,7 +281,7 @@
 	function setTile(x, y, value, modify = false)
 	{
 		PENCIL.fillStyle = typeof value === 'number' ? getColor(value) : value;
-		PENCIL.fillRect(x * PIXELS * factor, y * PIXELS * factor, PIXELS * factor, PIXELS * factor);
+		PENCIL.fillRect(x * PIXELS, y * PIXELS, PIXELS, PIXELS);
 		
 		if(modify)
 			floor[y][x] = value;
@@ -262,8 +295,8 @@
 			info[1] || 0,
 			info[2] || PIXELS,
 			info[3] || PIXELS,
-			(x * PIXELS * factor) + (info[4] || 0),
-			(y * PIXELS * factor) + (info[5] || 0),
+			(x * PIXELS) + (info[4] || 0),
+			(y * PIXELS) + (info[5] || 0),
 			info[2] || PIXELS,
 			info[3] || PIXELS
 		);
@@ -278,8 +311,8 @@
 			info[1] || 0,
 			info[2] || 12,
 			info[3] || 12,
-			(x * factor) + (info[4] || -6),
-			(y * factor) + (info[5] || -6),
+			x + (info[4] || -6),
+			y + (info[5] || -6),
 			info[2] || 12,
 			info[3] || 12
 		);
@@ -352,19 +385,19 @@
 				{
 					if(!mouse)
 						mouse = setInterval(() => {
-							setTile(Math.floor(tpos.x/8), Math.floor(tpos.y/8), cursor+1, true);
+							setTile(Math.floor(tpos.x / PIXELS / factor), Math.floor(tpos.y / PIXELS / factor), cursor + 1, true);
 						}, 10);
 				}
 				else if(event.button === 2) // right click
 				{
 					if(!pos1)
 					{
-						pos1 = {x: Math.floor(event.offsetX/8), y: Math.floor(event.offsetY/8)};
-						setTile(pos1.x, pos1.y, cursor+1, true);
+						pos1 = {x: Math.floor(event.offsetX / PIXELS / factor), y: Math.floor(event.offsetY / PIXELS / factor)};
+						setTile(pos1.x, pos1.y, cursor + 1, true);
 					}
 					else
 					{
-						pos2 = {x: Math.floor(event.offsetX/8), y: Math.floor(event.offsetY/8)};
+						pos2 = {x: Math.floor(event.offsetX / PIXELS / factor), y: Math.floor(event.offsetY / PIXELS / factor)};
 						
 						// The loop is done here rather than in generateTiles since this will only loop through values that are already inside the box rather than looping through the entire floor.
 						// However, since pos1 could be behind or below pos2, you'll need to account for that.
@@ -389,7 +422,7 @@
 						
 						for(let i = y0; i <= y1; i++)
 							for(let j = x0; j <= x1; j++)
-								setTile(j, i, cursor+1, true);
+								setTile(j, i, cursor + 1, true);
 						
 						pos1 = null;
 						pos2 = null;
@@ -433,7 +466,7 @@
 			{
 				CANVAS.onmousedown = () => {
 					if(event.button === 0)
-						placeConnection(cursor, Math.floor(event.offsetX/8), Math.floor(event.offsetY/8), data.floors[currentFloor].connections[cursor].dir, data.floors[currentFloor].connections[cursor].size);
+						placeConnection(cursor, Math.floor(event.offsetX / PIXELS / factor), Math.floor(event.offsetY / PIXELS / factor), data.floors[currentFloor].connections[cursor].dir, data.floors[currentFloor].connections[cursor].size);
 				};
 			}
 			else if(mode === 3)
@@ -646,14 +679,38 @@
 		}
 	}
 	
-	function setSize(x, y, f)
+	// Sets the canvas display size
+	// Resizes the floors of the data as needed (filling or clipping data that doesn't match the new size)
+	// Automatically called when calling functions that generate tiles
+	// Given two parameters, you can also resize the area from this function call
+	function setSize(x = data.width, y = data.height)
 	{
-		width = x || width;
-		height = y || height;
+		data.width = x;
+		data.height = y;
+		
+		CANVAS.width = data.width * PIXELS;
+		CANVAS.height = data.height * PIXELS;
+		
+		// This part would be bad for efficiency if it were called every time the tiles generate. Wait, would it?
+	}
+	
+	function setFactor(f)
+	{
 		factor = f || factor;
 		
-		CANVAS.width = width * PIXELS * factor;
-		CANVAS.height = height * PIXELS * factor;
+		if(factor <= 0)
+			factor = 1;
+		
+		if(factor === 1)
+		{
+			CANVAS.style.width = '';
+			CANVAS.style.height = '';
+		}
+		else
+		{
+			CANVAS.style.width = (factor * 100) + '%';
+			CANVAS.style.height = (factor * 100) + '%';
+		}
 	}
 	
 	// Also returns highest room number.
@@ -1145,7 +1202,7 @@
 		e.innerHTML = `Your cursor is: <span style="background-color:#000000; color:#ffffff;">&nbsp; ${index} &nbsp;</span>`;
 		
 		if(index !== -1)
-		e.appendChild(setConnection(document.createElement('div'), index));
+			e.appendChild(setConnection(document.createElement('div'), index));
 	}
 	
 	function setConnection(e, index)
@@ -1200,6 +1257,60 @@
 		}
 		
 		return e;
+	}
+	
+	function generateInput(a)
+	{
+		let add = document.createElement('input');
+		
+		if(a)
+		{
+			add.type = a.type || 'text';
+			add.placeholder = a.placeholder || a.key || '';
+			add.classList.add('medium');
+			add.value = a.object[a.key] || '';
+			
+			if(a.type === 'number')
+				add.oninput = function() {
+					a.object[a.key] = Number(this.value);
+					a.callback && a.callback();
+				};
+			else
+				add.oninput = function() {
+					a.object[a.key] = this.value;
+					a.callback && a.callback();
+				};
+		}
+		
+		return add;
+	}
+	
+	function create()
+	{
+		setSize(1, 1);
+		generateTiles();
+		generateFloorButtons(FLOORS);
+		setViewModeButtons(true);
+		
+		OPTIONS.innerHTML = '';
+		OPTIONS.appendChild(generateInput({
+			object: data,
+			key: 'width',
+			type: 'number',
+			placeholder: 'width',
+			callback: function() {
+				setSize();
+			}
+		}));
+		OPTIONS.appendChild(generateInput({
+			object: data,
+			key: 'height',
+			type: 'number',
+			placeholder: 'height',
+			callback: function() {
+				setSize();
+			}
+		}));
 	}
 	
 	// This makes it easy to import settings

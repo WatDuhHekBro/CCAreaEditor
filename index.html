@@ -4,6 +4,7 @@
 		<title>CrossCode Area Editor</title>
 		<meta charset="utf-8">
 		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="script.js" defer></script>
 	</head>
 	<body>
 		<!--
@@ -14,17 +15,11 @@
 			<input type="text">
 		</div>
 		-->
-		<div id="name" class="LangLabel"></div>
-		<!--<div>
-			<input type="number" class="medium" placeholder="width">
-			<input type="number" class="medium" placeholder="height">
-			<input type="number" class="medium" placeholder="chests">
-			<input type="number" class="large" placeholder="defaultFloor">
-		</div>-->
+		<div id="options"></div>
 		<!-- Add a "Please be patient" message that'll be removed when loaded so users don't think it's broken. -->
 		<div class="container">
 			<div id="modes" class="button-group"></div>
-			<div class="button-group"><canvas id="canvas" style="border:1px solid #000000;"></canvas></div>
+			<div class="button-group"><canvas id="canvas"></canvas></div>
 			<div id="floors" class="button-group"></div>
 		</div>
 		<div id="auxiliary"></div>
@@ -35,6 +30,6 @@
 		<div><button onclick="output()">Get Changes</button></div>
 		<div><input type="file" onchange="upload(this.files[0])"></div>
 		<div><button onclick="download()">Download Changes</button></div>
-		<script src="script.js"></script>
+		<div><button onclick="create()">Create New Area</button></div>
 	</body>
 </html>

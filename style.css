@@ -61,6 +61,12 @@ tr
 	border-collapse: collapse;
 }
 
+canvas
+{
+	border: 1px solid #000000;
+	image-rendering: pixelated;
+}
+
 /* This code block is from antonj's answer to https://stackoverflow.com/questions/3790935/can-i-hide-the-html5-number-input-s-spin-box */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button
