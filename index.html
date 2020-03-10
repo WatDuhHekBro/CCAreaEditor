@@ -4,7 +4,13 @@
 		<title>CrossCode Area Editor</title>
 		<meta charset="utf-8">
 		<link rel="stylesheet" type="text/css" href="style.css">
-		<script src="script.js" defer></script>
+		<script src="code/definitions.js" defer></script>
+		<script src="code/area.js" defer></script>
+		<script src="code/palette.js" defer></script>
+		<script src="code/canvas.js" defer></script>
+		<script src="code/lang.js" defer></script>
+		<script src="code/config.js" defer></script>
+		<script src="code/main.js" defer></script>
 	</head>
 	<body>
 		<!--
@@ -14,6 +20,8 @@
 		<div id="overlay" onclick="setOverlay(false)">
 			<input type="text">
 		</div>
+		Plus an overlay to create a new area and modify the settings of an area.
+		Create a class to handle attributes like getData, setKey, etc. That'll be much less of a headache I think. A class that'll handle the data.
 		-->
 		<div id="options"></div>
 		<!-- Add a "Please be patient" message that'll be removed when loaded so users don't think it's broken. -->

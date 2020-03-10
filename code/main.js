@@ -33,7 +33,6 @@
 	};
 	const PIXELS = 8;
 	const TILES = new Image();
-	// [x, y, size-x, size-y, offset-x, offset-y]
 	const TILEMAP = {
 		void: [0,0,8,8],
 		void_large: [0,0,16,16],
@@ -99,7 +98,6 @@
 		}
 	};
 	const ICONS = new Image();
-	// [x, y, size-x, size-y, offset-x, offset-y]
 	const ICONMAP = {
 		arrow_up: [0,0],
 		arrow_down: [12,0],
@@ -120,7 +118,6 @@
 		quest_hub: [72,12],
 		landmark: [84,12,16,16,-7,-8]
 	};
-	// Most of these aren't used, but if localization ever happened, having everything here would make it easier.
 	const LEXICON = {
 		title: {en_US: "CrossCode Area Editor"},
 		loading: {en_US: "Please be patient."},
@@ -170,30 +167,9 @@
 	let palette = ['000000'];
 	let factor = 1;
 	let filename = 'area.json';
-	// When data is stringified, it'll skip over undefined keys unless it has a value. However, the order of these keys will remain.
-	let data = {
-		DOCTYPE: 'AREAS_MAP',
-		name: undefined,
-		width: 1,
-		height: 1,
-		floors:
-		[
-			{
-				level: 0,
-				name: undefined,
-				tiles: [[0]],
-				icons: [],
-				maps: [],
-				connections: [],
-				landmarks: [],
-				handle: undefined
-			}
-		],
-		chests: 0,
-		defaultFloor: 0 // defaultFloor only affects which floor you first see when you go to an area you're NOT currently in.
-	};
-	// After the logo, floor will be set to the reference to data.floors[currentFloor].tiles to reduce object access to data.
-	let floor = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,1,1,0,0,1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,0,0,1,1,1,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,0,1,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,1,1,1,0,1,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,1,0,1,0,1,1,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,1,1,0,0,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,0,0,1,0,1,0,1,1,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+	//let palette = new Palette();
+	let canvas = new Canvas(document.getElementById('canvas'));
+	let data = new Area();
 	let mouse = null;
 	let tpos = {x: 0, y: 0};
 	let pos1 = null;
@@ -201,35 +177,21 @@
 	let isMouseDown = false;
 	let cursor = -1;
 	let currentFloor = 0;
-	let settings = {
-		language: 'en_US',
-		languages:
-		{
-			en_US: 'English',
-			de_DE: 'German',
-			zh_CN: 'Chinese',
-			ja_JP: 'Japanese',
-			ko_KR: 'Korean'
-		}
-	};
+	let settings = new Config();
 	let mode = false;
 	
 	////////////////////
 	// Initialization //
 	////////////////////
-	loadSettings(window.localStorage.getItem('CCAE'));
-	
 	TILES.src = 'tiles.png';
 	ICONS.src = 'icons.png';
 	
 	// Generate Title Screen //
-	setSize(floor[0].length, floor.length);
+	setSize(DEFINITIONS.LOGO[0].length, DEFINITIONS.LOGO.length);
 	
-	for(let i = 0; i < floor.length; i++)
-		for(let j = 0; j < floor[i].length; j++)
-			setTile(j, i, floor[i][j] === 0 ? '#000000' : '#ffffff');
-	
-	floor = data.floors[currentFloor].tiles;
+	for(let l = DEFINITIONS.LOGO, i = 0, h = l.length; i < h; i++)
+		for(let j = 0, w = l[0].length; j < w; j++)
+			setTile(j, i, l[i][j] === 0 ? '#000000' : '#ffffff');
 	
 	// throw an error if width is not the same
 	// "Your object must be a matrix of at least one row and one column!" input.constructor === Array && input[0].constructor === Array
@@ -284,7 +246,7 @@
 		PENCIL.fillRect(x * PIXELS, y * PIXELS, PIXELS, PIXELS);
 		
 		if(modify)
-			floor[y][x] = value;
+			data.floor[y][x] = value;
 	}
 	
 	function drawTile(x, y, info = [])
@@ -1311,46 +1273,6 @@
 				setSize();
 			}
 		}));
-	}
-	
-	// This makes it easy to import settings
-	// Load a stringified JSON object containing settings.
-	// Add settings that aren't present and also remove deprecated settings.
-	// Do this by only copying keys that also exist in settings.
-	function loadSettings(options)
-	{
-		try
-		{
-			if(!options)
-				throw "No settings detected! Generating default values.";
-			
-			options = JSON.parse(options);
-			
-			// This modifies settings based on what's in the local storage.
-			// Any unused keys are essentially discarded.
-			// Any missing keys are left to whatever the default is.
-			// This also prevents soft comparison. So if a setting is 0, it'll copy over.
-			for(let key in settings)
-				if(Object.keys(options).includes(key))
-					settings[key] = options[key];
-		}
-		catch(error) {console.log(error)}
-		
-		// Then, the new settings, or default settings, are stored into the local storage.
-		window.localStorage.setItem('CCAE', JSON.stringify(settings));
-	}
-	
-	// Checks if option is a valid key, then stores the new value in both settings and the local storage.
-	function storeOption(option, value)
-	{
-		if(Object.keys(settings).includes(option))
-		{
-			settings[option] = value;
-			window.localStorage.setItem('CCAE', JSON.stringify(settings));
-			return true;
-		}
-		
-		return false;
 	}
 	
 	///////////////////////
