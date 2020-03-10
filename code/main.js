@@ -1,11 +1,9 @@
 //const CCAE = (() => {
 	"use strict";
 	
-	////////////
-	// Fields //
-	////////////
-	const CANVAS = document.getElementById("canvas");
-	const PENCIL = CANVAS.getContext("2d");
+	/////////////////////////////
+	// Fields / Initialization //
+	/////////////////////////////
 	const AUXILIARY = document.getElementById("auxiliary");
 	const COMMAND = document.getElementById("command");
 	const CURSOR = document.getElementById("cursor");
@@ -13,185 +11,23 @@
 	const FLOORS = document.getElementById("floors");
 	const MODES = document.getElementById("modes");
 	const OPTIONS = document.getElementById("options");
-	const INVERT = {
-		'0': 'f',
-		'1': 'e',
-		'2': 'd',
-		'3': 'c',
-		'4': 'b',
-		'5': 'a',
-		'6': '9',
-		'7': '8',
-		'8': '7',
-		'9': '6',
-		'a': '5',
-		'b': '4',
-		'c': '3',
-		'd': '2',
-		'e': '1',
-		'f': '0'
-	};
-	const PIXELS = 8;
-	const TILES = new Image();
-	const TILEMAP = {
-		void: [0,0,8,8],
-		void_large: [0,0,16,16],
-		enclosed: [40,0],
-		open: [20,4],
-		corner:
-		{
-			nw: [16,0],
-			ne: [24,0],
-			sw: [16,8],
-			se: [24,8]
-		},
-		edge:
-		{
-			north: [20,0],
-			east: [24,4],
-			south: [20,8],
-			west: [16,4]
-		},
-		tunnel:
-		{
-			horizontal: [[20,0,8,4],[20,12,8,4,0,4]],
-			vertical: [[16,4,4,8],[28,4,4,8,4,0]]
-		},
-		// Cul-De-Sac opening in <direction>
-		culdesac:
-		{
-			north: [[16,8,4,8],[28,8,4,8,4,0]],
-			east: [[16,0,8,4],[16,12,8,4,0,4]],
-			south: [[16,0,4,8],[28,0,4,8,4,0]],
-			west: [[24,0,8,4],[24,12,8,4,0,4]]
-		},
-		// This section will be used in addition to the main set to fine-tune the look of the map.
-		vertex:
-		{
-			nw: [32,0,4,4,0,0],
-			ne: [36,0,4,4,4,0],
-			sw: [32,4,4,4,0,4],
-			se: [36,4,4,4,4,4]
-		},
-		connection:
-		{
-			vertical:
-			{
-				first: [40,8,8,2,0,6],
-				second: [40,10,8,3,0,8],
-				extend:
-				{
-					first: [17,3,8,2,4,6],
-					second: [17,3,8,3,4,8]
-				}
-			},
-			horizontal:
-			{
-				first: [32,8,3,8,5,0],
-				second: [35,8,2,8,8,0],
-				extend:
-				{
-					first: [17,3,3,8,5,4],
-					second: [17,3,2,8,8,4]
-				}
-			}
-		}
-	};
-	const ICONS = new Image();
-	const ICONMAP = {
-		arrow_up: [0,0],
-		arrow_down: [12,0],
-		arrow_left: [24,0],
-		arrow_right: [36,0],
-		floor_down: [48,0],
-		weapons: [60,0],
-		//???: [72,0],
-		entrance: [84,0],
-		chest: [96,0],
-		//lea?: [108,0],
-		area_up: [0,12],
-		area_down: [12,12],
-		area_left: [24,12],
-		area_right: [36,12],
-		shop: [48,12],
-		trader: [60,12],
-		quest_hub: [72,12],
-		landmark: [84,12,16,16,-7,-8]
-	};
-	const LEXICON = {
-		title: {en_US: "CrossCode Area Editor"},
-		loading: {en_US: "Please be patient."},
-		cursor: {en_US: "Your cursor is: "},
-		textbox: {en_US: "Copy and paste a valid area JSON file here to load it into the editor."},
-		textbox_button: {en_US: "Get Changes"},
-		download: {en_US: "Download Changes"},
-		settings: {en_US: "Settings"},
-		settings_desc: {en_US: "These are the settings that'll persist throughout every visit here. They will not be erased by leaving the page."},
-		settings_generating: {en_US: "No settings detected! Generating default values."},
-		floor:
-		{
-			upper:
-			{
-				en_US: 'F',
-				de_DE: 'E',
-				zh_CN: '层',
-				ja_JP: '階',
-				ko_KR: '층'
-			},
-			ground:
-			{
-				en_US: 'GF',
-				de_DE: 'EG',
-				zh_CN: '基层',
-				ja_JP: '地階',
-				ko_KR: 'GF' // I know right? This is just what I found in the localization files.
-			},
-			lower:
-			{
-				en_US: 'U',
-				de_DE: 'U',
-				zh_CN: 'U',
-				ja_JP: '地下',
-				ko_KR: 'U'
-			}
-		},
-		untitled:
-		{
-			en_US: 'untitled',
-			de_DE: 'unbetitelt',
-			zh_CN: '未命名',
-			ja_JP: '無題',
-			ko_KR: '미정'
-		}
-	};
-	let palette = ['000000'];
-	let factor = 1;
 	let filename = 'area.json';
-	//let palette = new Palette();
-	let canvas = new Canvas(document.getElementById('canvas'));
 	let data = new Area();
-	let mouse = null;
-	let tpos = {x: 0, y: 0};
-	let pos1 = null;
-	let pos2 = null;
-	let isMouseDown = false;
+	let palette = new Palette();
+	let canvas = new Canvas(document.getElementById('canvas'));
+	canvas.setArea(data);
+	canvas.setPalette(palette);
 	let cursor = -1;
 	let currentFloor = 0;
 	let settings = new Config();
 	let mode = false;
-	
-	////////////////////
-	// Initialization //
-	////////////////////
-	TILES.src = 'tiles.png';
-	ICONS.src = 'icons.png';
 	
 	// Generate Title Screen //
 	setSize(DEFINITIONS.LOGO[0].length, DEFINITIONS.LOGO.length);
 	
 	for(let l = DEFINITIONS.LOGO, i = 0, h = l.length; i < h; i++)
 		for(let j = 0, w = l[0].length; j < w; j++)
-			setTile(j, i, l[i][j] === 0 ? '#000000' : '#ffffff');
+			canvas.setTile(j, i, l[i][j] === 0 ? '#000000' : '#ffffff');
 	
 	// throw an error if width is not the same
 	// "Your object must be a matrix of at least one row and one column!" input.constructor === Array && input[0].constructor === Array
@@ -206,79 +42,12 @@
 			input: input,
 			output: output
 		},
-		debug: function(log = true)
+		debug: function()
 		{
-			if(log)
-			{
-				console.log('blah blah blah');
-				//...
-			}
-			
-			return {
-				setTile: setTile,
-				drawTile: drawTile,
-				drawIcon: drawIcon,
-				getText: getText,
-				setViewMode: setViewMode,
-				setMouseMode: setMouseMode,
-				setViewModeButtons
-				setAuxiliaryButtons
-				setCommandButtons
-				resetCursor
-				setData
-				
-				setSize: setSize,
-				generateTiles: generateTiles,
-				palette: palette,
-				floor: floor,
-				getColor: getColor
-			};
+			console.log('blah blah blah');
+			//...
 		}
 	};*/
-	
-	////////////////////
-	// Core Functions //
-	////////////////////
-	
-	function setTile(x, y, value, modify = false)
-	{
-		PENCIL.fillStyle = typeof value === 'number' ? getColor(value) : value;
-		PENCIL.fillRect(x * PIXELS, y * PIXELS, PIXELS, PIXELS);
-		
-		if(modify)
-			data.floor[y][x] = value;
-	}
-	
-	function drawTile(x, y, info = [])
-	{
-		PENCIL.drawImage(
-			TILES,
-			info[0] || 0,
-			info[1] || 0,
-			info[2] || PIXELS,
-			info[3] || PIXELS,
-			(x * PIXELS) + (info[4] || 0),
-			(y * PIXELS) + (info[5] || 0),
-			info[2] || PIXELS,
-			info[3] || PIXELS
-		);
-	}
-	
-	// x and y are absolute coordinates here, because icons aren't tied to the grid.
-	function drawIcon(x, y, info = [])
-	{
-		PENCIL.drawImage(
-			ICONS,
-			info[0] || 0,
-			info[1] || 0,
-			info[2] || 12,
-			info[3] || 12,
-			x + (info[4] || -6),
-			y + (info[5] || -6),
-			info[2] || 12,
-			info[3] || 12
-		);
-	}
 	
 	// Automatically gets the user's language setting and reverts to English if the label doesn't exist.
 	function getText(label, cut = false)
@@ -316,13 +85,13 @@
 		if(isResultMode)
 		{
 			generateTilesAdvanced();
-			drawConnections();
-			drawIcons();
-			drawLandmarks();
+			canvas.drawConnections(data.floor);
+			canvas.drawIcons(data.floor);
+			canvas.drawLandmarks(data.floor);
 			setAuxiliaryButtons(true, true);
 			setCommandButtons(true, true);
 			resetCursor();
-			setMouseMode(0);
+			canvas.setMouseMode(0);
 			mode = true;
 		}
 		else
@@ -331,115 +100,8 @@
 			setAuxiliaryButtons(true, false);
 			setCommandButtons(true, false);
 			resetCursor();
-			setMouseMode(1);
+			canvas.setMouseMode(1);
 			mode = false;
-		}
-	}
-	
-	function setMouseMode(mode = 0)
-	{
-		if(mode === 1)
-		{
-			// left click = individual tiling
-			// right click = boxing
-			CANVAS.onmousedown = () => {
-				if(event.button === 0) // left click
-				{
-					if(!mouse)
-						mouse = setInterval(() => {
-							setTile(Math.floor(tpos.x / PIXELS / factor), Math.floor(tpos.y / PIXELS / factor), cursor + 1, true);
-						}, 10);
-				}
-				else if(event.button === 2) // right click
-				{
-					if(!pos1)
-					{
-						pos1 = {x: Math.floor(event.offsetX / PIXELS / factor), y: Math.floor(event.offsetY / PIXELS / factor)};
-						setTile(pos1.x, pos1.y, cursor + 1, true);
-					}
-					else
-					{
-						pos2 = {x: Math.floor(event.offsetX / PIXELS / factor), y: Math.floor(event.offsetY / PIXELS / factor)};
-						
-						// The loop is done here rather than in generateTiles since this will only loop through values that are already inside the box rather than looping through the entire floor.
-						// However, since pos1 could be behind or below pos2, you'll need to account for that.
-						let x0 = pos1.x;
-						let x1 = pos2.x;
-						let y0 = pos1.y;
-						let y1 = pos2.y;
-						
-						if(x0 > x1)
-						{
-							let tmp = x0;
-							x0 = x1;
-							x1 = tmp;
-						}
-						
-						if(y0 > y1)
-						{
-							let tmp = y0;
-							y0 = y1;
-							y1 = tmp;
-						}
-						
-						for(let i = y0; i <= y1; i++)
-							for(let j = x0; j <= x1; j++)
-								setTile(j, i, cursor + 1, true);
-						
-						pos1 = null;
-						pos2 = null;
-					}
-				}
-				
-				isMouseDown = true;
-			};
-			
-			window.onmouseup = () => {
-				isMouseDown = false;
-			};
-			
-			CANVAS.onmousemove = () => {
-				tpos = {x: event.offsetX, y: event.offsetY};
-			};
-			
-			CANVAS.onmouseup = clear;
-			
-			// The function will loop continuously if you let go off of the canvas.
-			CANVAS.onmouseenter = () => {
-				if(!isMouseDown)
-					clear();
-			};
-			
-			CANVAS.oncontextmenu = disable;
-		}
-		else
-		{
-			window.onmouseup = null;
-			CANVAS.onmousemove = null;
-			CANVAS.onmouseup = null;
-			CANVAS.onmouseenter = null;
-			CANVAS.oncontextmenu = null;
-			
-			if(!mode)
-			{
-				CANVAS.onmousedown = null;
-			}
-			else if(mode === 2)
-			{
-				CANVAS.onmousedown = () => {
-					if(event.button === 0)
-						placeConnection(cursor, Math.floor(event.offsetX / PIXELS / factor), Math.floor(event.offsetY / PIXELS / factor), data.floors[currentFloor].connections[cursor].dir, data.floors[currentFloor].connections[cursor].size);
-				};
-			}
-			else if(mode === 3)
-			{
-				CANVAS.onmousedown = () => {
-					if(event.button === 0)
-					{
-						console.log('icon', event.offsetX, event.offsetY);
-					}
-				};
-			}
 		}
 	}
 	
@@ -467,6 +129,7 @@
 	
 	function setAuxiliaryButtons(enabled = false, isResultMode = false)
 	{
+		let floor = data.floor;
 		AUXILIARY.innerHTML = '';
 		
 		if(enabled)
@@ -477,10 +140,10 @@
 				button.innerText = "View Final Result";
 				button.onclick = () => {
 					generateTilesAdvanced();
-					drawConnections();
-					drawIcons();
-					drawLandmarks();
-					setMouseMode(0);
+					canvas.drawConnections(floor);
+					canvas.drawIcons(floor);
+					canvas.drawLandmarks(floor);
+					canvas.setMouseMode(0);
 				};
 				AUXILIARY.appendChild(button);
 				
@@ -488,8 +151,8 @@
 				button.innerText = "Connections Editing";
 				button.onclick = () => {
 					generateTilesAdvanced();
-					drawConnections(true);
-					setMouseMode(0);
+					canvas.drawConnections(floor, true);
+					canvas.setMouseMode(0);
 					setCommandButtons(true, true, 'connections');
 				};
 				AUXILIARY.appendChild(button);
@@ -498,8 +161,8 @@
 				button.innerText = "Icons/Landmarks Editing";
 				button.onclick = () => {
 					generateTilesAdvanced();
-					drawConnections();
-					setMouseMode(3);
+					canvas.drawConnections(floor);
+					canvas.setMouseMode(3);
 					setCommandButtons(true, true, 'icons');
 				};
 				AUXILIARY.appendChild(button);
@@ -509,7 +172,7 @@
 				let button = document.createElement('button');
 				button.innerText = "Generate New Palette";
 				button.onclick = () => {
-					palette.splice(1, palette.length);
+					palette.generateNewPalette();
 					setCommandButtons(true, false);
 					resetCursor();
 				};
@@ -536,9 +199,15 @@
 		}
 	}
 	
+	function setCursor(index = -1)
+	{
+		cursor = index;
+		canvas.setCursor(index);
+	}
+	
 	function resetCursor()
 	{
-		cursor = -1;
+		setCursor(-1);
 		CURSOR.innerHTML = 'Your cursor is: <span style="background-color:#000000; color:#ffffff;">&nbsp; -1 &nbsp;</span>';
 	}
 	
@@ -547,98 +216,19 @@
 		try
 		{
 			// f is to still generate a floor (the first index) even if defaultFloor doesn't exist or never matches a floor level.
-			data = JSON.parse(input);
+			data.setData(JSON.parse(input));
 			let f = 0;
 			
 			for(let i = 0; i < data.floors.length; i++)
 				if(data.floors[i].level === data.defaultFloor)
 					f = i;
 			
-			setFloor(f);
+			data.setFloor(f);
+			setViewMode(mode); // do you need this?
 			generateFloorButtons(FLOORS);
 			setViewModeButtons(true);
 		}
 		catch(error) {console.error(error);}
-	}
-	
-	/*function getData()
-	{
-		save();
-		return JSON.stringify(data);
-	}*/
-	
-	function drawConnection(x, y, direction = 'VERTICAL', size = 1, debug = false)
-	{
-		if(debug)
-		{
-			setTile(x, y, '#ff0000');
-			
-			if(direction === 'HORIZONTAL')
-			{
-				setTile(x + 1, y, '#00ff00');
-				
-				for(let i = 1; i < size; i++)
-				{
-					setTile(x, y + i, '#0000ff');
-					setTile(x + 1, y + i, '#0000ff');
-				}
-			}
-			else if(direction === 'VERTICAL')
-			{
-				setTile(x, y + 1, '#00ff00');
-				
-				for(let i = 1; i < size; i++)
-				{
-					setTile(x + i, y, '#0000ff');
-					setTile(x + i, y + 1, '#0000ff');
-				}
-			}
-		}
-		else
-		{
-			direction = direction.toLowerCase();
-			drawTile(x, y, TILEMAP.connection[direction].first);
-			drawTile(x, y, TILEMAP.connection[direction].second);
-			
-			for(let i = 1; i < Math.max(1, size); i++)
-			{
-				let x0 = direction === 'vertical' ? i : 0;
-				let y0 = direction === 'horizontal' ? i : 0;
-				let x1 = direction === 'vertical' ? i-1 : 0;
-				let y1 = direction === 'horizontal' ? i-1 : 0;
-				drawTile(x + x0, y + y0, TILEMAP.connection[direction].first);
-				drawTile(x + x0, y + y0, TILEMAP.connection[direction].second);
-				drawTile(x + x1, y + y1, TILEMAP.connection[direction].extend.first);
-				drawTile(x + x1, y + y1, TILEMAP.connection[direction].extend.second);
-			}
-		}
-	}
-	
-	function drawConnections(debug = false)
-	{
-		for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
-		{
-			let c = data.floors[currentFloor].connections[i];
-			drawConnection(c.tx, c.ty, c.dir, c.size, debug);
-		}
-	}
-	
-	function drawIcons()
-	{
-		for(let i = 0; i < data.floors[currentFloor].icons.length; i++)
-		{
-			let c = data.floors[currentFloor].icons[i];
-			drawIcon(c.x, c.y, ICONMAP[c.icon]);
-		}
-	}
-	
-	function drawLandmarks()
-	{
-		for(let i = 0; i < data.floors[currentFloor].landmarks.length; i++)
-		{
-			let c = data.floors[currentFloor].landmarks[i];
-			drawIcon(c.x, c.y, ICONMAP.landmark);
-		}
 	}
 	
 	// Sets the canvas display size
@@ -647,38 +237,17 @@
 	// Given two parameters, you can also resize the area from this function call
 	function setSize(x = data.width, y = data.height)
 	{
-		data.width = x;
-		data.height = y;
-		
-		CANVAS.width = data.width * PIXELS;
-		CANVAS.height = data.height * PIXELS;
-		
+		//data.width = x;
+		//data.height = y;
+		canvas.setSize(x, y);
 		// This part would be bad for efficiency if it were called every time the tiles generate. Wait, would it?
-	}
-	
-	function setFactor(f)
-	{
-		factor = f || factor;
-		
-		if(factor <= 0)
-			factor = 1;
-		
-		if(factor === 1)
-		{
-			CANVAS.style.width = '';
-			CANVAS.style.height = '';
-		}
-		else
-		{
-			CANVAS.style.width = (factor * 100) + '%';
-			CANVAS.style.height = (factor * 100) + '%';
-		}
 	}
 	
 	// Also returns highest room number.
 	function generateTiles(isolate)
 	{
-		setSize(floor[0].length, floor.length);
+		let floor = data.tiles;
+		setSize(data.width, data.height);
 		let highest = 0;
 		
 		for(var i = 0; i < floor.length; i++)
@@ -686,9 +255,9 @@
 			for(var j = 0; j < floor[i].length; j++)
 			{
 				if(isolate)
-					setTile(j, i, isolate.includes(floor[i][j]) ? '#ffffff' : '#000000');
+					canvas.setTile(j, i, isolate.includes(floor[i][j]) ? '#ffffff' : '#000000');
 				else
-					setTile(j, i, floor[i][j]);
+					canvas.setTile(j, i, floor[i][j]);
 				
 				if(floor[i][j] > highest)
 					highest = floor[i][j];
@@ -700,14 +269,15 @@
 	
 	function generateTilesAdvanced(isolate)
 	{
-		setSize(floor[0].length, floor.length);
+		let floor = data.tiles;
+		setSize(data.width, data.height);
 		
 		for(let i = 0; i < floor.length; i++)
 		{
 			for(let j = 0; j < floor[i].length; j++)
 			{
 				if(floor[i][j] === 0 || (isolate && !isolate.includes(floor[i][j])))
-					drawTile(j, i);
+					canvas.drawTile(j, i);
 				else
 				{
 					let selected = floor[i][j];
@@ -741,103 +311,96 @@
 	
 	// [N,S,W,E] (false/0 = closed, true/1 = open), extended would be [N,S,W,E,NE,SE,SW,NW] (in the order of cardinal/intercardinal directions as per Wikipedia)
 	// Accounts for the multiple merging going on which can happen. If all sides are open but all corners are taken, apply vertices 4 times (per intercardinal direction).
-	/* [0,0,0,0] - TILEMAP.enclosed
-	 * [1,1,1,1] - TILEMAP.open
-	 * [0,1,0,1] - TILEMAP.corner.nw
-	 * [0,1,1,0] - TILEMAP.corner.ne
-	 * [1,0,0,1] - TILEMAP.corner.sw
-	 * [1,0,1,0] - TILEMAP.corner.se
-	 * [0,1,1,1] - TILEMAP.edge.north
-	 * [1,0,1,1] - TILEMAP.edge.south
-	 * [1,1,0,1] - TILEMAP.edge.west
-	 * [1,1,1,0] - TILEMAP.edge.east
-	 * [0,0,1,1] - TILEMAP.tunnel.horizontal
-	 * [1,1,0,0] - TILEMAP.tunnel.vertical
-	 * [1,0,0,0] - TILEMAP.culdesac.north
-	 * [0,1,0,0] - TILEMAP.culdesac.south
-	 * [0,0,1,0] - TILEMAP.culdesac.west
-	 * [0,0,0,1] - TILEMAP.culdesac.east
+	/* [0,0,0,0] - DEFINITIONS.TILEMAP.enclosed
+	 * [1,1,1,1] - DEFINITIONS.TILEMAP.open
+	 * [0,1,0,1] - DEFINITIONS.TILEMAP.corner.nw
+	 * [0,1,1,0] - DEFINITIONS.TILEMAP.corner.ne
+	 * [1,0,0,1] - DEFINITIONS.TILEMAP.corner.sw
+	 * [1,0,1,0] - DEFINITIONS.TILEMAP.corner.se
+	 * [0,1,1,1] - DEFINITIONS.TILEMAP.edge.north
+	 * [1,0,1,1] - DEFINITIONS.TILEMAP.edge.south
+	 * [1,1,0,1] - DEFINITIONS.TILEMAP.edge.west
+	 * [1,1,1,0] - DEFINITIONS.TILEMAP.edge.east
+	 * [0,0,1,1] - DEFINITIONS.TILEMAP.tunnel.horizontal
+	 * [1,1,0,0] - DEFINITIONS.TILEMAP.tunnel.vertical
+	 * [1,0,0,0] - DEFINITIONS.TILEMAP.culdesac.north
+	 * [0,1,0,0] - DEFINITIONS.TILEMAP.culdesac.south
+	 * [0,0,1,0] - DEFINITIONS.TILEMAP.culdesac.west
+	 * [0,0,0,1] - DEFINITIONS.TILEMAP.culdesac.east
 	 * Vertices (* means that that direction isn't checked)
-	 * [1,*,1,*,*,*,*,0] - TILEMAP.vertex.nw
-	 * [1,*,*,1,0,*,*,*] - TILEMAP.vertex.ne
-	 * [*,1,1,*,*,*,0,*] - TILEMAP.vertex.sw
-	 * [*,1,*,1,*,0,*,*] - TILEMAP.vertex.se
+	 * [1,*,1,*,*,*,*,0] - DEFINITIONS.TILEMAP.vertex.nw
+	 * [1,*,*,1,0,*,*,*] - DEFINITIONS.TILEMAP.vertex.ne
+	 * [*,1,1,*,*,*,0,*] - DEFINITIONS.TILEMAP.vertex.sw
+	 * [*,1,*,1,*,0,*,*] - DEFINITIONS.TILEMAP.vertex.se
 	 */
 	function drawTiles(x, y, dir)
 	{
 		if(!dir[0] && !dir[1] && !dir[2] && !dir[3])
-			drawTile(x, y, TILEMAP.enclosed);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.enclosed);
 		else if(dir[0] && dir[1] && dir[2] && dir[3])
-			drawTile(x, y, TILEMAP.open);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.open);
 		else if(!dir[0] && dir[1] && !dir[2] && dir[3])
-			drawTile(x, y, TILEMAP.corner.nw);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.corner.nw);
 		else if(!dir[0] && dir[1] && dir[2] && !dir[3])
-			drawTile(x, y, TILEMAP.corner.ne);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.corner.ne);
 		else if(dir[0] && !dir[1] && !dir[2] && dir[3])
-			drawTile(x, y, TILEMAP.corner.sw);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.corner.sw);
 		else if(dir[0] && !dir[1] && dir[2] && !dir[3])
-			drawTile(x, y, TILEMAP.corner.se);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.corner.se);
 		else if(!dir[0] && dir[1] && dir[2] && dir[3])
-			drawTile(x, y, TILEMAP.edge.north);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.edge.north);
 		else if(dir[0] && !dir[1] && dir[2] && dir[3])
-			drawTile(x, y, TILEMAP.edge.south);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.edge.south);
 		else if(dir[0] && dir[1] && !dir[2] && dir[3])
-			drawTile(x, y, TILEMAP.edge.west);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.edge.west);
 		else if(dir[0] && dir[1] && dir[2] && !dir[3])
-			drawTile(x, y, TILEMAP.edge.east);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.edge.east);
 		else if(!dir[0] && !dir[1] && dir[2] && dir[3])
 		{
-			drawTile(x, y, TILEMAP.tunnel.horizontal[0]);
-			drawTile(x, y, TILEMAP.tunnel.horizontal[1]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.tunnel.horizontal[0]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.tunnel.horizontal[1]);
 		}
 		else if(dir[0] && dir[1] && !dir[2] && !dir[3])
 		{
-			drawTile(x, y, TILEMAP.tunnel.vertical[0]);
-			drawTile(x, y, TILEMAP.tunnel.vertical[1]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.tunnel.vertical[0]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.tunnel.vertical[1]);
 		}
 		else if(dir[0] && !dir[1] && !dir[2] && !dir[3])
 		{
-			drawTile(x, y, TILEMAP.culdesac.north[0]);
-			drawTile(x, y, TILEMAP.culdesac.north[1]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.north[0]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.north[1]);
 		}
 		else if(!dir[0] && dir[1] && !dir[2] && !dir[3])
 		{
-			drawTile(x, y, TILEMAP.culdesac.south[0]);
-			drawTile(x, y, TILEMAP.culdesac.south[1]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.south[0]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.south[1]);
 		}
 		else if(!dir[0] && !dir[1] && dir[2] && !dir[3])
 		{
-			drawTile(x, y, TILEMAP.culdesac.west[0]);
-			drawTile(x, y, TILEMAP.culdesac.west[1]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.west[0]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.west[1]);
 		}
 		else if(!dir[0] && !dir[1] && !dir[2] && dir[3])
 		{
-			drawTile(x, y, TILEMAP.culdesac.east[0]);
-			drawTile(x, y, TILEMAP.culdesac.east[1]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.east[0]);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.east[1]);
 		}
 		else
-			drawTile(x, y, [0,0]);
+			canvas.drawTile(x, y, [0,0]);
 		
 		// Octo-Directional //
 		
 		if(dir[0] && dir[2] && dir[7])
-			drawTile(x, y, TILEMAP.vertex.nw);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.vertex.nw);
 		
 		if(dir[0] && dir[3] && dir[4])
-			drawTile(x, y, TILEMAP.vertex.ne);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.vertex.ne);
 		
 		if(dir[1] && dir[2] && dir[6])
-			drawTile(x, y, TILEMAP.vertex.sw);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.vertex.sw);
 		
 		if(dir[1] && dir[3] && dir[5])
-			drawTile(x, y, TILEMAP.vertex.se);
-	}
-	
-	function setFloor(num = 0)
-	{
-		currentFloor = num;
-		floor = data.floors[num].tiles;
-		setViewMode(mode);
+			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.vertex.se);
 	}
 	
 	function upload(file)
@@ -848,17 +411,15 @@
 			filename = file.name;
 			let reader = new FileReader();
 			reader.readAsText(file, 'UTF-8');
-			reader.onload = () => {setData(event.target.result);}
+			reader.onload = () => {data.setData(event.target.result);}
 			reader.onerror = () => {console.error('Error with reading file.');}
 		}
 	}
 	
 	function pushChanges()
 	{
-		data.floors[currentFloor].tiles = floor;
-		
-		if(CURSOR.children[1] && data.floors[currentFloor].maps[cursor])
-			data.floors[currentFloor].maps[cursor].name = getLangLabel(CURSOR.children[1]);
+		if(CURSOR.children[1] && data.floor.maps[cursor])
+			data.floor.maps[cursor].name = getLangLabel(CURSOR.children[1]);
 	}
 	
 	function download()
@@ -1005,19 +566,8 @@
 	
 	function output() {INPUT.value = JSON.stringify(data);}
 	
-	function clear()
-	{
-		if(mouse)
-		{
-			clearInterval(mouse);
-			mouse = null;
-		}
-	}
-	
-	function disable() {event.preventDefault();}
-	
 	// Set the default limit based on something more concrete like the length of the maps?
-	function generateButtons(e, limit = palette.length)
+	function generateButtons(e, limit = palette.palette.length)
 	{
 		e.innerHTML = '';
 		
@@ -1026,9 +576,9 @@
 			let button = document.createElement('button');
 			
 			button.innerText = i;
-			button.style.backgroundColor = getColor(i+1);
-			button.style.color = getColor(i+1, true);
-			button.oncontextmenu = disable;
+			button.style.backgroundColor = palette.getColor(i+1);
+			button.style.color = palette.getColor(i+1, true);
+			button.oncontextmenu = canvas.disable;
 			button.onmousedown = () => {
 				if(event.button === 2)
 					generateTiles([i+1]);
@@ -1069,16 +619,17 @@
 			if(handle)
 				name = getText(handle, true);
 			else if(name === 0)
-				name = getText(LEXICON.floor.ground);
+				name = getText(DEFINITIONS.LEXICON.floor.ground);
 			else if(name > 0)
-				name = name + getText(LEXICON.floor.upper);
+				name = name + getText(DEFINITIONS.LEXICON.floor.upper);
 			else if(name < 0)
-				name = getText(LEXICON.floor.lower) + -name;
+				name = getText(DEFINITIONS.LEXICON.floor.lower) + -name;
 			
 			button.innerText = name;
 			button.onclick = () => {
 				pushChanges();
-				setFloor(i);
+				data.setFloor(i);
+				setViewMode(mode); // do you need this?
 			};
 			
 			e.appendChild(button);
@@ -1089,46 +640,47 @@
 	
 	function generateConnectionButtons(e)
 	{
+		let floor = data.floor;
 		e.innerHTML = '';
 		
 		let button = document.createElement('button');
 		button.innerText = '-1';
 		button.style.backgroundColor = '#000000';
 		button.style.color = '#ffffff';
-		button.oncontextmenu = disable;
+		button.oncontextmenu = canvas.disable;
 		button.onmousedown = () => {
 			generateTilesAdvanced();
-			drawConnections(true);
-			setMouseMode(0);
+			canvas.drawConnections(floor, true);
+			canvas.setMouseMode(0);
 			
 			if(event.button !== 2)
 				setCursorConnection(CURSOR, -1);
 		};
 		button.onmouseup = () => {
 			if(event.button === 2)
-				setMouseMode(2);
+				canvas.setMouseMode(2);
 		};
 		e.appendChild(button);
 		
-		for(let i = 0; i < data.floors[currentFloor].connections.length; i++)
+		for(let i = 0; i < data.floor.connections.length; i++)
 		{
-			let c = data.floors[currentFloor].connections[i];
+			let c = data.floor.connections[i];
 			button = document.createElement('button');
 			button.innerText = i;
-			button.style.background = `linear-gradient(90deg, ${getColor(c.map1+1)} 50%, ${getColor(c.map2+1)} 50%)`;
-			button.oncontextmenu = disable;
+			button.style.background = `linear-gradient(90deg, ${palette.getColor(c.map1+1)} 50%, ${palette.getColor(c.map2+1)} 50%)`;
+			button.oncontextmenu = canvas.disable;
 			button.onmousedown = () => {
 				if(event.button === 2)
 				{
 					generateTilesAdvanced([c.map1+1, c.map2+1]);
-					drawConnection(c.tx, c.ty, c.dir, c.size, true);
-					setMouseMode(0);
+					canvas.drawConnection(c.tx, c.ty, c.dir, c.size, true);
+					canvas.setMouseMode(0);
 				}
 				else
 				{
 					generateTilesAdvanced();
-					drawConnections(true);
-					setMouseMode(2);
+					canvas.drawConnections(floor, true);
+					canvas.setMouseMode(2);
 					setCursorConnection(CURSOR, i);
 				}
 			};
@@ -1136,8 +688,8 @@
 				if(event.button === 2)
 				{
 					generateTilesAdvanced();
-					drawConnections(true);
-					setMouseMode(2);
+					canvas.drawConnections(floor, true);
+					canvas.setMouseMode(2);
 				}
 			};
 			e.appendChild(button);
@@ -1148,19 +700,19 @@
 	
 	function setCursorRoom(e, index = -1)
 	{
-		if(e.children[1] && data.floors[currentFloor].maps[cursor])
-			data.floors[currentFloor].maps[cursor].name = getLangLabel(e.children[1]);
+		if(e.children[1] && data.floor.maps[cursor])
+			data.floor.maps[cursor].name = getLangLabel(e.children[1]);
 		
-		cursor = index;
-		e.innerHTML = `Your cursor is: <span style="background-color:${getColor(index+1)}; color:${getColor(index+1, true)};">&nbsp; ${index} &nbsp;</span>`;
+		setCursor(index);
+		e.innerHTML = `Your cursor is: <span style="background-color:${palette.getColor(index+1)}; color:${palette.getColor(index+1, true)};">&nbsp; ${index} &nbsp;</span>`;
 		
 		if(index !== -1)
-			e.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floors[currentFloor].maps[index] && data.floors[currentFloor].maps[index].name) || null));
+			e.appendChild(setLangLabel(document.createElement('div'), 'Map Name', (data.floor.maps[index] && data.floor.maps[index].name) || null));
 	}
 	
 	function setCursorConnection(e, index = -1)
 	{
-		cursor = index;
+		setCursor(index);
 		e.innerHTML = `Your cursor is: <span style="background-color:#000000; color:#ffffff;">&nbsp; ${index} &nbsp;</span>`;
 		
 		if(index !== -1)
@@ -1169,14 +721,14 @@
 	
 	function setConnection(e, index)
 	{
-		e.appendChild(setValue(data.floors[currentFloor].connections[index], 'tx', 'number', index));
-		e.appendChild(setValue(data.floors[currentFloor].connections[index], 'ty', 'number', index));
-		e.appendChild(setValue(data.floors[currentFloor].connections[index], 'dir', 'text', index));
-		e.appendChild(setValue(data.floors[currentFloor].connections[index], 'size', 'number', index));
+		e.appendChild(setValue(data.floor.connections[index], 'tx', 'number', index));
+		e.appendChild(setValue(data.floor.connections[index], 'ty', 'number', index));
+		e.appendChild(setValue(data.floor.connections[index], 'dir', 'text', index));
+		e.appendChild(setValue(data.floor.connections[index], 'size', 'number', index));
 		return e;
 	}
 	
-	// (in an input node) setValue(data.floors[currentFloor].connections[i], 'tx', this.value)
+	// (in an input node) setValue(data.floor.connections[i], 'tx', this.value)
 	function setValue(obj, key, type, index)
 	{
 		let add = document.createElement('input');
@@ -1193,12 +745,12 @@
 	
 	function placeConnection(index, x, y, dir, size)
 	{
-		data.floors[currentFloor].connections[index].tx = x;
-		data.floors[currentFloor].connections[index].ty = y;
-		data.floors[currentFloor].connections[index].dir = dir;
-		data.floors[currentFloor].connections[index].size = size;
+		data.floor.connections[index].tx = x;
+		data.floor.connections[index].ty = y;
+		data.floor.connections[index].dir = dir;
+		data.floor.connections[index].size = size;
 		generateTilesAdvanced();
-		drawConnections(true);
+		canvas.drawConnections(data.floor, true);
 		setCursorConnection(CURSOR, index);
 	}
 	
@@ -1206,15 +758,15 @@
 	{
 		e.innerHTML = '';
 		
-		for(let i = 0; i < data.floors[currentFloor].icons.length; i++)
+		for(let i = 0; i < data.floor.icons.length; i++)
 		{
-			let c = data.floors[currentFloor].icons[i];
+			let c = data.floor.icons[i];
 			console.log(c);
 		}
 		
-		for(let i = 0; i < data.floors[currentFloor].landmarks.length; i++)
+		for(let i = 0; i < data.floor.landmarks.length; i++)
 		{
-			let c = data.floors[currentFloor].landmarks[i];
+			let c = data.floor.landmarks[i];
 			console.log(c);
 		}
 		
@@ -1273,43 +825,5 @@
 				setSize();
 			}
 		}));
-	}
-	
-	///////////////////////
-	// Utility Functions //
-	///////////////////////
-	
-	function getColor(value, invert = false)
-	{
-		if(!palette[value])
-			palette[value] = getRandom(0, 16777216).toString(16).padStart(6, '000000');
-		
-		return '#' + (invert ? inverseColor(palette[value]) : palette[value]);
-	}
-	
-	// Get random integer between min (inclusive) and max (exclusive).
-	function getRandom(min, max)
-	{
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
-	
-	// To get the inverse of a hex color, get the difference of each digit. For example, if you have F (15), you'd get 0.
-	function inverseColor(hex)
-	{
-		if(hex.length !== 6)
-			throw "Hex numbers need to have a length of exactly 6.";
-		
-		hex = hex.toLowerCase();
-		let result = '';
-		
-		for(let c of hex)
-		{
-			result += INVERT[c];
-			
-			if(!INVERT[c])
-				throw "Digit " + c + " is not valid.";
-		}
-		
-		return result;
 	}
 //})();

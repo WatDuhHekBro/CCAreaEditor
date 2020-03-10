@@ -2,17 +2,22 @@
 class Area
 {
 	// When the data is stringified, it'll skip over undefined keys unless it has a value. However, the order of these keys will remain.
-	constructor(data = {})
+	constructor(data)
 	{
-		this.name = data.name || undefined;
-		this.width = data.width || 1;
-		this.height = data.height || 1;
-		this.floors = data.floors || [];
-		this.chests = data.chests || 0;
-		// defaultFloor only affects which floor you first see when you go to an area you're NOT currently in.
-		this.defaultFloor = data.defaultFloor || 0;
-		this.addFloor();
-		this.setFloor();
+		this.setData(data || {
+			name: undefined,
+			width: 1,
+			height: 1,
+			floors: [],
+			chests: 0,
+			defaultFloor: 0 // defaultFloor only affects which floor you first see when you go to an area you're NOT currently in.
+		});
+		
+		if(data)
+		{
+			this.addFloor();
+			this.setFloor(0);
+		}
 	}
 	
 	addFloor(index = this.floors.length)
@@ -38,6 +43,7 @@ class Area
 	{
 		this.currentFloor = f;
 		this.floor = this.floors[f];
+		this.tiles = this.floor.tiles;
 	}
 	
 	// For efficiency, set the height then the width, so that you deal with less operations.
@@ -119,7 +125,12 @@ class Area
 	
 	setData(data)
 	{
-		
+		this.name = data.name;
+		this.width = data.width;
+		this.height = data.height;
+		this.floors = data.floors;
+		this.chests = data.chests;
+		this.defaultFloor = data.defaultFloor;
 	}
 	
 	getData()

@@ -56,4 +56,9 @@ class Palette
 	{
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+	
+	generateNewPalette()
+	{
+		this.palette.splice(1, palette.length);
+	}
 }

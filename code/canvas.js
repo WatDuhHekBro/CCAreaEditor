@@ -4,7 +4,7 @@ class Canvas
 	{
 		this.canvas = c;
 		this.pencil = c.getContext('2d');
-		this.setFactor(1);
+		this.factor = 1;
 		
 		this.tiles = new Image();
 		this.tiles.src = 'tiles.png';
@@ -21,11 +21,11 @@ class Canvas
 	
 	setTile(x, y, value, modify = false)
 	{
-		this.pencil.fillStyle = typeof value === 'number' ? p.getColor(value) : value;
+		this.pencil.fillStyle = typeof value === 'number' ? this.palette.getColor(value) : value;
 		this.pencil.fillRect(x * 8, y * 8, 8, 8);
 		
 		if(modify)
-			data.floor[y][x] = value;
+			this.area.tiles[y][x] = value;
 	}
 	
 	drawTile(x, y, info = [])
@@ -84,7 +84,22 @@ class Canvas
 		}
 	}
 	
-	setMouseMode(mode, cursor)
+	setArea(a)
+	{
+		this.area = a;
+	}
+	
+	setPalette(p)
+	{
+		this.palette = p;
+	}
+	
+	setCursor(index = -1)
+	{
+		this.cursor = index;
+	}
+	
+	setMouseMode(mode)
 	{
 		if(mode === 1)
 		{
@@ -95,19 +110,19 @@ class Canvas
 				{
 					if(!this.mouse)
 						this.mouse = setInterval(() => {
-							this.setTile(Math.floor(tpos.x / 8 / factor), Math.floor(tpos.y / 8 / factor), cursor + 1, true);
+							this.setTile(Math.floor(this.tpos.x / this.factor / 8), Math.floor(this.tpos.y / this.factor / 8), this.cursor + 1, true);
 						}, 10);
 				}
 				else if(event.button === 2) // right click
 				{
 					if(!this.pos1)
 					{
-						this.pos1 = {x: Math.floor(event.offsetX / 8 / factor), y: Math.floor(event.offsetY / 8 / factor)};
-						this.setTile(this.pos1.x, this.pos1.y, cursor + 1, true);
+						this.pos1 = {x: Math.floor(event.offsetX / this.factor / 8), y: Math.floor(event.offsetY / this.factor / 8)};
+						this.setTile(this.pos1.x, this.pos1.y, this.cursor + 1, true);
 					}
 					else
 					{
-						this.pos2 = {x: Math.floor(event.offsetX / 8 / factor), y: Math.floor(event.offsetY / 8 / factor)};
+						this.pos2 = {x: Math.floor(event.offsetX / this.factor / 8), y: Math.floor(event.offsetY / this.factor / 8)};
 						
 						// The loop is done here rather than in generateTiles since this will only loop through values that are already inside the box rather than looping through the entire floor.
 						// However, since pos1 could be behind or below pos2, you'll need to account for that.
@@ -132,7 +147,7 @@ class Canvas
 						
 						for(let i = y0; i <= y1; i++)
 							for(let j = x0; j <= x1; j++)
-								this.setTile(j, i, cursor + 1, true);
+								this.setTile(j, i, this.cursor + 1, true);
 						
 						this.pos1 = null;
 						this.pos2 = null;
@@ -144,6 +159,7 @@ class Canvas
 			
 			window.onmouseup = () => {
 				this.isMouseDown = false;
+				this.clear();
 			};
 			
 			this.canvas.onmousemove = () => {
@@ -176,7 +192,7 @@ class Canvas
 			{
 				this.canvas.onmousedown = () => {
 					if(event.button === 0)
-						placeConnection(cursor, Math.floor(event.offsetX / 8 / factor), Math.floor(event.offsetY / 8 / factor), data.floors[currentFloor].connections[cursor].dir, data.floors[currentFloor].connections[cursor].size);
+						placeConnection(this.cursor, Math.floor(event.offsetX / this.factor / 8), Math.floor(event.offsetY / this.factor / 8), this.area.floor.connections[this.cursor].dir, this.area.floor.connections[this.cursor].size);
 				};
 			}
 			else if(mode === 3)
