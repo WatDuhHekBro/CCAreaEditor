@@ -15,23 +15,20 @@
 	let data = new Area();
 	let palette = new Palette();
 	let canvas = new Canvas(document.getElementById('canvas'));
+	// new Toolbar(); (buttons, auxiliary, command, cursor; basically everything below the canvas)
+	// lang.js -> LangManager() (handles a static getText and also LangLabels)
 	canvas.setArea(data);
 	canvas.setPalette(palette);
 	let cursor = -1;
-	let currentFloor = 0;
 	let settings = new Config();
 	let mode = false;
 	
 	// Generate Title Screen //
-	setSize(DEFINITIONS.LOGO[0].length, DEFINITIONS.LOGO.length);
+	canvas.setSize(DEFINITIONS.LOGO.width, DEFINITIONS.LOGO.height);
 	
-	for(let l = DEFINITIONS.LOGO, i = 0, h = l.length; i < h; i++)
-		for(let j = 0, w = l[0].length; j < w; j++)
-			canvas.setTile(j, i, l[i][j] === 0 ? '#000000' : '#ffffff');
-	
-	// throw an error if width is not the same
-	// "Your object must be a matrix of at least one row and one column!" input.constructor === Array && input[0].constructor === Array
-	// Also throw an error if the sizes don't match
+	for(let t = DEFINITIONS.LOGO.tiles, i = 0, h = DEFINITIONS.LOGO.height; i < h; i++)
+		for(let j = 0, w = DEFINITIONS.LOGO.width; j < w; j++)
+			canvas.setTile(j, i, t[i][j] === 0 ? '#000000' : '#ffffff');
 	
 	///////////////////
 	// Usable Object //
@@ -144,6 +141,7 @@
 					canvas.drawIcons(floor);
 					canvas.drawLandmarks(floor);
 					canvas.setMouseMode(0);
+					setCommandButtons(false, true);
 				};
 				AUXILIARY.appendChild(button);
 				
@@ -211,43 +209,11 @@
 		CURSOR.innerHTML = 'Your cursor is: <span style="background-color:#000000; color:#ffffff;">&nbsp; -1 &nbsp;</span>';
 	}
 	
-	function setData(input)
-	{
-		try
-		{
-			// f is to still generate a floor (the first index) even if defaultFloor doesn't exist or never matches a floor level.
-			data.setData(JSON.parse(input));
-			let f = 0;
-			
-			for(let i = 0; i < data.floors.length; i++)
-				if(data.floors[i].level === data.defaultFloor)
-					f = i;
-			
-			data.setFloor(f);
-			setViewMode(mode); // do you need this?
-			generateFloorButtons(FLOORS);
-			setViewModeButtons(true);
-		}
-		catch(error) {console.error(error);}
-	}
-	
-	// Sets the canvas display size
-	// Resizes the floors of the data as needed (filling or clipping data that doesn't match the new size)
-	// Automatically called when calling functions that generate tiles
-	// Given two parameters, you can also resize the area from this function call
-	function setSize(x = data.width, y = data.height)
-	{
-		//data.width = x;
-		//data.height = y;
-		canvas.setSize(x, y);
-		// This part would be bad for efficiency if it were called every time the tiles generate. Wait, would it?
-	}
-	
 	// Also returns highest room number.
 	function generateTiles(isolate)
 	{
 		let floor = data.tiles;
-		setSize(data.width, data.height);
+		canvas.setSize(data.width, data.height);
 		let highest = 0;
 		
 		for(var i = 0; i < floor.length; i++)
@@ -270,7 +236,7 @@
 	function generateTilesAdvanced(isolate)
 	{
 		let floor = data.tiles;
-		setSize(data.width, data.height);
+		canvas.setSize(data.width, data.height);
 		
 		for(let i = 0; i < floor.length; i++)
 		{
@@ -303,104 +269,29 @@
 					// SE Corner if y is downmost and x is rightmost.
 					directions[5] = i !== floor.length-1 && j !== floor[i].length-1 && floor[i+1][j+1] !== selected;
 					
-					drawTiles(j, i, directions);
+					let tile = DEFINITIONS.TILES[(directions[0] << 3) | (directions[1] << 2) | (directions[2] << 1) | directions[3]];
+					
+					if((tile[0] && tile[0].constructor === Array) || (tile[1] && tile[1].constructor === Array))
+					{
+						canvas.drawTile(j, i, tile[0]);
+						canvas.drawTile(j, i, tile[1]);
+					}
+					else
+						canvas.drawTile(j, i, tile);
+					
+					// Octo-Directional //
+					
+					if(directions[0] && directions[2] && directions[7])
+						canvas.drawTile(j, i, DEFINITIONS.TILEMAP.vertex.nw);
+					if(directions[0] && directions[3] && directions[4])
+						canvas.drawTile(j, i, DEFINITIONS.TILEMAP.vertex.ne);
+					if(directions[1] && directions[2] && directions[6])
+						canvas.drawTile(j, i, DEFINITIONS.TILEMAP.vertex.sw);
+					if(directions[1] && directions[3] && directions[5])
+						canvas.drawTile(j, i, DEFINITIONS.TILEMAP.vertex.se);
 				}
 			}
 		}
-	}
-	
-	// [N,S,W,E] (false/0 = closed, true/1 = open), extended would be [N,S,W,E,NE,SE,SW,NW] (in the order of cardinal/intercardinal directions as per Wikipedia)
-	// Accounts for the multiple merging going on which can happen. If all sides are open but all corners are taken, apply vertices 4 times (per intercardinal direction).
-	/* [0,0,0,0] - DEFINITIONS.TILEMAP.enclosed
-	 * [1,1,1,1] - DEFINITIONS.TILEMAP.open
-	 * [0,1,0,1] - DEFINITIONS.TILEMAP.corner.nw
-	 * [0,1,1,0] - DEFINITIONS.TILEMAP.corner.ne
-	 * [1,0,0,1] - DEFINITIONS.TILEMAP.corner.sw
-	 * [1,0,1,0] - DEFINITIONS.TILEMAP.corner.se
-	 * [0,1,1,1] - DEFINITIONS.TILEMAP.edge.north
-	 * [1,0,1,1] - DEFINITIONS.TILEMAP.edge.south
-	 * [1,1,0,1] - DEFINITIONS.TILEMAP.edge.west
-	 * [1,1,1,0] - DEFINITIONS.TILEMAP.edge.east
-	 * [0,0,1,1] - DEFINITIONS.TILEMAP.tunnel.horizontal
-	 * [1,1,0,0] - DEFINITIONS.TILEMAP.tunnel.vertical
-	 * [1,0,0,0] - DEFINITIONS.TILEMAP.culdesac.north
-	 * [0,1,0,0] - DEFINITIONS.TILEMAP.culdesac.south
-	 * [0,0,1,0] - DEFINITIONS.TILEMAP.culdesac.west
-	 * [0,0,0,1] - DEFINITIONS.TILEMAP.culdesac.east
-	 * Vertices (* means that that direction isn't checked)
-	 * [1,*,1,*,*,*,*,0] - DEFINITIONS.TILEMAP.vertex.nw
-	 * [1,*,*,1,0,*,*,*] - DEFINITIONS.TILEMAP.vertex.ne
-	 * [*,1,1,*,*,*,0,*] - DEFINITIONS.TILEMAP.vertex.sw
-	 * [*,1,*,1,*,0,*,*] - DEFINITIONS.TILEMAP.vertex.se
-	 */
-	function drawTiles(x, y, dir)
-	{
-		if(!dir[0] && !dir[1] && !dir[2] && !dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.enclosed);
-		else if(dir[0] && dir[1] && dir[2] && dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.open);
-		else if(!dir[0] && dir[1] && !dir[2] && dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.corner.nw);
-		else if(!dir[0] && dir[1] && dir[2] && !dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.corner.ne);
-		else if(dir[0] && !dir[1] && !dir[2] && dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.corner.sw);
-		else if(dir[0] && !dir[1] && dir[2] && !dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.corner.se);
-		else if(!dir[0] && dir[1] && dir[2] && dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.edge.north);
-		else if(dir[0] && !dir[1] && dir[2] && dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.edge.south);
-		else if(dir[0] && dir[1] && !dir[2] && dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.edge.west);
-		else if(dir[0] && dir[1] && dir[2] && !dir[3])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.edge.east);
-		else if(!dir[0] && !dir[1] && dir[2] && dir[3])
-		{
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.tunnel.horizontal[0]);
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.tunnel.horizontal[1]);
-		}
-		else if(dir[0] && dir[1] && !dir[2] && !dir[3])
-		{
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.tunnel.vertical[0]);
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.tunnel.vertical[1]);
-		}
-		else if(dir[0] && !dir[1] && !dir[2] && !dir[3])
-		{
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.north[0]);
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.north[1]);
-		}
-		else if(!dir[0] && dir[1] && !dir[2] && !dir[3])
-		{
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.south[0]);
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.south[1]);
-		}
-		else if(!dir[0] && !dir[1] && dir[2] && !dir[3])
-		{
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.west[0]);
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.west[1]);
-		}
-		else if(!dir[0] && !dir[1] && !dir[2] && dir[3])
-		{
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.east[0]);
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.culdesac.east[1]);
-		}
-		else
-			canvas.drawTile(x, y, [0,0]);
-		
-		// Octo-Directional //
-		
-		if(dir[0] && dir[2] && dir[7])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.vertex.nw);
-		
-		if(dir[0] && dir[3] && dir[4])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.vertex.ne);
-		
-		if(dir[1] && dir[2] && dir[6])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.vertex.sw);
-		
-		if(dir[1] && dir[3] && dir[5])
-			canvas.drawTile(x, y, DEFINITIONS.TILEMAP.vertex.se);
 	}
 	
 	function upload(file)
@@ -411,7 +302,17 @@
 			filename = file.name;
 			let reader = new FileReader();
 			reader.readAsText(file, 'UTF-8');
-			reader.onload = () => {data.setData(event.target.result);}
+			reader.onload = () => {
+				try
+				{
+					data.setData(JSON.parse(event.target.result));
+					data.setFloorView();
+					setViewMode(mode);
+					generateFloorButtons(FLOORS);
+					setViewModeButtons(true);
+				}
+				catch(error) {console.error(error);}
+			}
 			reader.onerror = () => {console.error('Error with reading file.');}
 		}
 	}
@@ -425,7 +326,7 @@
 	function download()
 	{
 		pushChanges();
-		downloadFile(filename, JSON.stringify(data));
+		downloadFile(filename, JSON.stringify(data.getData()));
 	}
 	
 	// ahuff44 @ https://stackoverflow.com/questions/8310657/how-to-create-a-dynamic-file-link-for-download-in-javascript
@@ -559,12 +460,20 @@
 		return label;
 	}
 	
-	function setOverlay(setting = false)
+	function setOverlay(s)
 	{
-		document.getElementById("overlay").style.display = setting ? "block" : "none";
+		if(s === 'options')
+			document.getElementById('overlay_options').style.display = 'block';
+		else
+			document.getElementById('overlay_options').style.display = 'none';
+		
+		if(s === 'settings')
+			document.getElementById('overlay_settings').style.display = 'block';
+		else
+			document.getElementById('overlay_settings').style.display = 'none';
 	}
 	
-	function output() {INPUT.value = JSON.stringify(data);}
+	function output() {INPUT.value = JSON.stringify(data.getData());}
 	
 	// Set the default limit based on something more concrete like the length of the maps?
 	function generateButtons(e, limit = palette.palette.length)
@@ -629,7 +538,7 @@
 			button.onclick = () => {
 				pushChanges();
 				data.setFloor(i);
-				setViewMode(mode); // do you need this?
+				setViewMode(mode);
 			};
 			
 			e.appendChild(button);
@@ -799,9 +708,10 @@
 		return add;
 	}
 	
-	function create()
+	// Broken Function
+	/*function create()
 	{
-		setSize(1, 1);
+		canvas.setSize(1, 1);
 		generateTiles();
 		generateFloorButtons(FLOORS);
 		setViewModeButtons(true);
@@ -813,7 +723,7 @@
 			type: 'number',
 			placeholder: 'width',
 			callback: function() {
-				setSize();
+				canvas.setSize();
 			}
 		}));
 		OPTIONS.appendChild(generateInput({
@@ -822,8 +732,8 @@
 			type: 'number',
 			placeholder: 'height',
 			callback: function() {
-				setSize();
+				canvas.setSize();
 			}
 		}));
-	}
+	}*/
 //})();

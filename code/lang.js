@@ -1,0 +1,9 @@
+class LangManager
+{
+	
+}
+
+class LangLabel
+{
+	
+}

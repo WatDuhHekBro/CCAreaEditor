@@ -59,6 +59,6 @@ class Palette
 	
 	generateNewPalette()
 	{
-		this.palette.splice(1, palette.length);
+		this.palette.splice(1, this.palette.length);
 	}
 }

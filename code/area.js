@@ -13,17 +13,14 @@ class Area
 			defaultFloor: 0 // defaultFloor only affects which floor you first see when you go to an area you're NOT currently in.
 		});
 		
-		if(data)
-		{
-			this.addFloor();
-			this.setFloor(0);
-		}
+		this.addFloor();
+		this.setFloor(0);
 	}
 	
 	addFloor(index = this.floors.length)
 	{
 		return this.floors.splice(index, 0, {
-			level: 0,
+			level: 0, // fix this, increment one by the previous floor (if it exists)
 			name: undefined,
 			tiles: this.fillTiles(),
 			icons: [],
@@ -46,13 +43,25 @@ class Area
 		this.tiles = this.floor.tiles;
 	}
 	
+	setFloorView()
+	{
+		// f is to still generate a floor (the first index) even if defaultFloor doesn't exist or never matches a floor level.
+		let f = 0;
+		
+		for(let i = 0; i < data.floors.length; i++)
+			if(data.floors[i].level === data.defaultFloor)
+				f = i;
+		
+		this.setFloor(f);
+	}
+	
 	// For efficiency, set the height then the width, so that you deal with less operations.
 	setWidth(w = this.width)
 	{
 		// Resize Width //
 		if(w < this.width)
 			for(let f = 0, flen = this.floors.length; f < flen; f++)
-				for(let i = 0, len = this.width; i < len; i++)
+				for(let i = 0, len = this.height; i < len; i++)
 					this.floors[f].tiles[i].splice(w, this.width - w);
 		else if(w > this.width)
 		{
@@ -107,6 +116,40 @@ class Area
 	getHeight()
 	{
 		return this.height;
+	}
+	
+	setSelected(key, index)
+	{
+		if(key === 'map')
+			this.selected = this.floor.maps[index];
+		else if(key === 'connection')
+			this.selected = this.floor.connections[index];
+		else if(key === 'icon')
+			this.selected = this.floor.icons[index];
+		else if(key === 'landmark')
+			this.selected = this.floor.landmarks[index];
+		else
+			delete this.selected;
+	}
+	
+	addMap()
+	{
+		
+	}
+	
+	addConnection()
+	{
+		
+	}
+	
+	addIcon()
+	{
+		
+	}
+	
+	addLandmark()
+	{
+		
 	}
 	
 	fillTiles()
