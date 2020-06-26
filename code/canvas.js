@@ -72,7 +72,7 @@ class Canvas
 		if(this.factor <= 0)
 			this.factor = 1;
 		
-		if(factor === 1)
+		if(this.factor === 1)
 		{
 			this.canvas.style.width = '';
 			this.canvas.style.height = '';

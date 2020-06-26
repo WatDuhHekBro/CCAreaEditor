@@ -216,9 +216,9 @@
 		canvas.setSize(data.width, data.height);
 		let highest = 0;
 		
-		for(var i = 0; i < floor.length; i++)
+		for(let i = 0; i < floor.length; i++)
 		{
-			for(var j = 0; j < floor[i].length; j++)
+			for(let j = 0; j < floor[i].length; j++)
 			{
 				if(isolate)
 					canvas.setTile(j, i, isolate.includes(floor[i][j]) ? '#ffffff' : '#000000');

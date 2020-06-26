@@ -134,22 +134,63 @@ class Area
 	
 	addMap()
 	{
-		
+		this.floor.maps.push({
+			path: 'map.name',
+			name: undefined
+		});
 	}
 	
 	addConnection()
 	{
-		
+		this.floor.connections.push({
+			tx: 0,
+			ty: 0,
+			dir: 'HORIZONTAL',
+			size: 1,
+			map1: 0,
+			map2: 0
+		});
 	}
 	
 	addIcon()
 	{
-		
+		this.floor.icons.push({
+			icon: 'arrow_down',
+			x: 0,
+			y: 0,
+			map: 0
+		});
 	}
 	
 	addLandmark()
 	{
-		
+		this.floor.landmarks.push({
+			id: 'landmark',
+			x: 0,
+			y: 0,
+			map: 0,
+			option: 'DEFAULT'
+		});
+	}
+	
+	removeMap(index = this.floor.maps.length - 1)
+	{
+		return this.floor.maps.splice(index, 1);
+	}
+	
+	removeConnection(index = this.floor.connections.length - 1)
+	{
+		return this.floor.connections.splice(index, 1);
+	}
+	
+	removeIcon(index = this.floor.icons.length - 1)
+	{
+		return this.floor.icons.splice(index, 1);
+	}
+	
+	removeLandmark(index = this.floor.landmarks.length - 1)
+	{
+		return this.floor.landmarks.splice(index, 1);
 	}
 	
 	fillTiles()
