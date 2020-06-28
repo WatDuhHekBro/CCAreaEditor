@@ -1,9 +1,0 @@
-class LangManager
-{
-	
-}
-
-class LangLabel
-{
-	
-}

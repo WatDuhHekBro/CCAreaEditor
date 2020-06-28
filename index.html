@@ -3,73 +3,13 @@
 	<head>
 		<title>CrossCode Area Editor</title>
 		<meta charset="utf-8">
-		<link rel="stylesheet" type="text/css" href="style.css">
-		<script src="code/definitions.js" defer></script>
-		<script src="code/area.js" defer></script>
-		<script src="code/palette.js" defer></script>
-		<script src="code/canvas.js" defer></script>
-		<script src="code/toolbar.js" defer></script>
-		<script src="code/lang.js" defer></script>
-		<script src="code/config.js" defer></script>
-		<script src="code/main.js" defer></script>
+		<link href="style.css" rel="stylesheet" type="text/css">
+		<script src="main.js" type="module"></script>
+		<script nomodule>document.write("no module support pepehands")</script>
 	</head>
 	<body>
-		<div id="overlay_options" class="overlay">
-			<div class="tile left" onclick="setOverlay(null)">❌</div>
-			<div class="list">
-				<h1>General Settings</h1>
-				<p>These settings will let you change the area you're working on and manage uploading and downloading data.</p>
-				<!-- Create a new area, modify the settings of that area, load an area, get changes (copy + textarea), or upload an area JSON file. -->
-				<!--
-					[Start]
-					- Create New Area (just leads to the main screen)
-					- Load Existing Area (if successful, close out of the overlay, otherwise, show the error on this same screen)
-					
-					[Load Existing Area]
-					- uploader
-					- textarea to copy paste
-					
-					[Main Screen]
-					- Create New Area
-					- Load Existing Area
-					- Save Changes (leading to a download and a textarea with a copy button (ofc you can just manually copy it))
-					- name (default: untitled)
-					- width (default: 1)
-					- height (default: 1)
-					- chests (default: 0)
-					- defaultFloor(default: 0)
-					- Floor "Flipbook" (pages named off of floor indices)
-						- floor index (only recommended to set at the lowest floor, then go up) (default: 0)
-						- name (default: untitled)
-						- custom handler
-				-->
-				<div><textarea id="input" oninput="setData(this.value)" cols="100" rows="10" placeholder="Copy and paste a valid area JSON file here to load it into the editor."></textarea></div>
-				<div><button onclick="output()">Get Changes</button></div>
-				<div><input type="file" onchange="upload(this.files[0])"></div>
-				<div><button onclick="download()">Download Changes</button></div>
-				<div><button onclick="create()">Create New Area</button></div>
-			</div>
-		</div>
-		<div id="overlay_settings" class="overlay">
-			<div class="tile right" onclick="setOverlay(null)">❌</div>
-			<div class="list">
-				<h1>Persistent Settings</h1>
-				<p>These settings will persist even after the page is closed (as long as your browser has <code>window.localStorage</code>).</p>
-				<div>Language: <select></select></div>
-				<div>Languages: <input type="text"></div>
-				<!-- Make this a dynamic table. -->
-			</div>
-		</div>
-		<div id="options" class="tile left" onclick="setOverlay('options')">🧰</div>
-		<div id="settings" class="tile right" onclick="setOverlay('settings')">⚙️</div>
-		<!-- Add a "Please be patient" message that'll be removed when loaded so users don't think it's broken. -->
-		<div id="container">
-			<div id="modes" class="button-group"></div>
-			<div class="button-group"><canvas id="canvas"></canvas></div>
-			<div id="floors" class="button-group"></div>
-		</div>
-		<div id="auxiliary"></div>
-		<div id="command"></div>
-		<div id="cursor"></div>
+		<canvas id="canvas"></canvas>
+		<!--<div id=""></div>
+		<div id=""></div>-->
 	</body>
 </html>

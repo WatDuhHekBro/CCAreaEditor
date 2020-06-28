@@ -1,7 +1,0 @@
-- Create New Map
-- Dynamically Add...
-	- New Floors
-	- Connections
-	- Icons/Landmarks
-- Resize the area (automatically removes/adds spaces to match the new size), with a button to change size
-- Clean up the code
