@@ -1,3 +1,7 @@
+import LangLabel from "./langlabel.js";
+
+const DUNGEON_OVERRIDE = ["", "DUNGEON", "NO_DUNGEON"];
+
 export default class Map
 {
 	constructor()

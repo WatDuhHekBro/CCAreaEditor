@@ -1,5 +1,5 @@
 import Cube from "../modules/cube.js";
-import LangLabel from "../structures/langlabel.js";
+import LangLabel from "./langlabel.js";
 
 // An area essentially extends the functionality of a cube to fit area data. However, I think it's better to make the cube a property along with others.
 export default class Area
