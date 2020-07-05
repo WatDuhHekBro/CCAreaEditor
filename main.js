@@ -1,4 +1,4 @@
-import Exportable from "./modules/exportable.js";
+/*import Exportable from "./modules/exportable.js";
 window.Exportable = Exportable;
 class a extends Exportable
 {
@@ -9,4 +9,7 @@ class a extends Exportable
 	}
 }
 window.a = a;
-window.b = new a();
+window.b = new a();*/
+
+import a from "./core/controller.js";
+window.a = a;
