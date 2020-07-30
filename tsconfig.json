@@ -2,6 +2,7 @@
 	"compilerOptions":
 	{
 		"moduleResolution": "node",
+		"target": "ES2017",
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
 		"strictNullChecks": true,
