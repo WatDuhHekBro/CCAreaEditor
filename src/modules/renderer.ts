@@ -17,12 +17,11 @@ class Renderer
 		this.canvas.style.border = "1px solid #000000";
 		this.context = this.canvas.getContext("2d");
 		this.setSize(1, 1);
-		document.body.appendChild(this.canvas);
 	}
 	
 	public setTile(x: number, y: number, value: number, isPureValue = false)
 	{
-		if(this.context)
+		if(this.context && !this.isOutOfBounds(x, y))
 		{
 			this.context.fillStyle = isPureValue ? `#${value.toString(16).padStart(6, '0')}` : Palette.getColor(value);
 			this.context.fillRect(x * 8, y * 8, 8, 8);
@@ -32,19 +31,22 @@ class Renderer
 	// [x, y, sizeX, sizeY, offsetX, offsetY]
 	public drawTile(x: number, y: number, data: number[][])
 	{
-		for(const info of data)
+		if(this.context && !this.isOutOfBounds(x, y))
 		{
-			this.context?.drawImage(
-				tiles,
-				info[0] || 0,
-				info[1] || 0,
-				info[2] || 8,
-				info[3] || 8,
-				(x * 8) + (info[4] || 0),
-				(y * 8) + (info[5] || 0),
-				info[2] || 8,
-				info[3] || 8
-			);
+			for(const info of data)
+			{
+				this.context.drawImage(
+					tiles,
+					info[0] || 0,
+					info[1] || 0,
+					info[2] || 8,
+					info[3] || 8,
+					(x * 8) + (info[4] || 0),
+					(y * 8) + (info[5] || 0),
+					info[2] || 8,
+					info[3] || 8
+				);
+			}
 		}
 	}
 	
@@ -53,23 +55,33 @@ class Renderer
 	{
 		if(!(tag in ICONMAP))
 			throw `"${tag}" is not a valid icon name!`;
-		
-		const info = ICONMAP[tag];
-		
-		this.context?.drawImage(
-			icons,
-			info[0] || 0,
-			info[1] || 0,
-			info[2] || 12,
-			info[3] || 12,
-			x + (info[4] || -6),
-			y + (info[5] || -6),
-			info[2] || 12,
-			info[3] || 12
-		);
+		else if(this.context && !this.isOutOfBounds(x / 8, y / 8))
+		{
+			const info = ICONMAP[tag];
+			
+			this.context?.drawImage(
+				icons,
+				info[0] || 0,
+				info[1] || 0,
+				info[2] || 12,
+				info[3] || 12,
+				x + (info[4] || -6),
+				y + (info[5] || -6),
+				info[2] || 12,
+				info[3] || 12
+			);
+		}
 	}
 	
-	public setSize(x: number, y: number)
+	private isOutOfBounds(x: number, y: number)
+	{
+		return x < 0 ||
+			x >= this.canvas.width / 8 ||
+			y < 0 ||
+			y >= this.canvas.height / 8;
+	}
+	
+	private setSize(x: number, y: number)
 	{
 		this.canvas.width = x * 8;
 		this.canvas.height = y * 8;
@@ -190,6 +202,16 @@ class Renderer
 				this.setTile(x + i, y + 1, 0x0000FF, true);
 			}
 		}
+	}
+	
+	/*public attach(controller:)
+	{
+		
+	}*/
+	
+	public bind()
+	{
+		document.body.appendChild(this.canvas);
 	}
 }
 

@@ -86,9 +86,8 @@ export default class Matrix
 	public toJSON()
 	{
 		const grid: number[][] = new Array(this.height);
-		const length = Math.ceil(this.data.length / this.width);
 		
-		for(let i = 0; i < length; i++)
+		for(let i = 0; i < this.height; i++)
 			grid[i] = Array.from(this.data.slice(this.width * i, this.width * (i+1)));
 		
 		return grid;
