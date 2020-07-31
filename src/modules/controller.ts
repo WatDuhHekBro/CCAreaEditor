@@ -1,27 +1,26 @@
+// Feast your eyes on this spaghetti code
+import Renderer from "./renderer";
+
 let canvas: HTMLCanvasElement;
-let factor: number;
 let primaryActive = false;
 let secondaryActive = false;
 let middleActive = false;
 
-export function setupController(incomingCanvas: HTMLCanvasElement, incomingFactor: number)
+export function setupController(incomingCanvas: HTMLCanvasElement)
 {
 	canvas = incomingCanvas;
-	factor = incomingFactor;
 	canvas.onmousedown = mouseEventStart;
 	canvas.onmousemove = mouseEventMove;
 	canvas.onmouseup = mouseEventStop;
 	canvas.onmouseleave = mouseEventStop;
-	canvas.onwheel = event => {
-		console.log(event.deltaY, event.deltaX);
-	}
+	window.onwheel = mouseEventWheel;
 	canvas.oncontextmenu = event => event.preventDefault();
 }
 
 function mouseEventStart(event: MouseEvent)
 {
-	const x = Math.round(event.offsetX / factor);
-	const y = Math.round(event.offsetY / factor);
+	const x = event.offsetX;
+	const y = event.offsetY;
 	
 	// Left Click //
 	if(event.button === 0)
@@ -32,6 +31,7 @@ function mouseEventStart(event: MouseEvent)
 	// Middle Click //
 	else if(event.button === 1)
 	{
+		event.preventDefault();
 		event.stopImmediatePropagation();
 		MiddleButtonController.start(x, y);
 		middleActive = true;
@@ -46,8 +46,8 @@ function mouseEventStart(event: MouseEvent)
 
 function mouseEventMove(event: MouseEvent)
 {
-	const x = Math.round(event.offsetX / factor);
-	const y = Math.round(event.offsetY / factor);
+	const x = event.offsetX;
+	const y = event.offsetY;
 	
 	if(primaryActive)
 		PrimaryButtonController.move(x, y);
@@ -59,8 +59,8 @@ function mouseEventMove(event: MouseEvent)
 
 function mouseEventStop(event: MouseEvent)
 {
-	const x = Math.round(event.offsetX / factor);
-	const y = Math.round(event.offsetY / factor);
+	const x = event.offsetX;
+	const y = event.offsetY;
 	
 	PrimaryButtonController.stop(x, y);
 	MiddleButtonController.stop(x, y);
@@ -71,19 +71,22 @@ function mouseEventStop(event: MouseEvent)
 	secondaryActive = false;
 }
 
-export function setControllerFactor(newFactor: number)
+function mouseEventWheel(event: WheelEvent)
 {
-	factor = newFactor;
+	if(event.deltaY < 0)
+		WheelController.up();
+	else if(event.deltaY > 0)
+		WheelController.down();
 }
 
 const PrimaryButtonController = {
 	start(x: number, y: number)
 	{
-		
+		console.log(Math.floor(x / 8), Math.floor(y / 8));
 	},
 	move(x: number, y: number)
 	{
-		
+		console.log(Math.floor(x / 8), Math.floor(y / 8));
 	},
 	stop(x: number, y: number)
 	{
@@ -94,24 +97,29 @@ const PrimaryButtonController = {
 const MiddleButtonController = {
 	lastX: 0,
 	lastY: 0,
+	hasMovedAtLeastOnceDuringTheSpecifiedTimeframeWhichDifferentiatesBetweenASimpleClickAsOpposedToDraggingTheCanvasAcrossTheScreenAndStuff: false,
 	start(x: number, y: number)
 	{
 		this.lastX = x;
 		this.lastY = y;
-		console.log(x, y);
+		this.hasMovedAtLeastOnceDuringTheSpecifiedTimeframeWhichDifferentiatesBetweenASimpleClickAsOpposedToDraggingTheCanvasAcrossTheScreenAndStuff = false;
 	},
 	move(x: number, y: number)
 	{
-		const displayX = parseInt(canvas.style.left || '0') + (x - this.lastX);
-		const displayY = parseInt(canvas.style.top || '0') + (y - this.lastY);
-		canvas.style.left = displayX === 0 ? "" : `${x}px`;
-		canvas.style.top = displayY === 0 ? "" : `${y}px`;
-		this.lastX = x;
-		this.lastY = y;
+		const deltaX = (x - this.lastX);
+		const deltaY = (y - this.lastY);
+		Renderer.movePosition(deltaX, deltaY);
+		this.lastX = x - deltaX;
+		this.lastY = y - deltaY;
+		this.hasMovedAtLeastOnceDuringTheSpecifiedTimeframeWhichDifferentiatesBetweenASimpleClickAsOpposedToDraggingTheCanvasAcrossTheScreenAndStuff = true;
 	},
 	stop(x: number, y: number)
 	{
-		
+		if(!this.hasMovedAtLeastOnceDuringTheSpecifiedTimeframeWhichDifferentiatesBetweenASimpleClickAsOpposedToDraggingTheCanvasAcrossTheScreenAndStuff)
+		{
+			Renderer.resetPosition();
+			Renderer.setZoom(1);
+		}
 	}
 };
 
@@ -127,5 +135,16 @@ const SecondaryButtonController = {
 	stop(x: number, y: number)
 	{
 		
+	}
+};
+
+const WheelController = {
+	up()
+	{
+		Renderer.changeZoom(1);
+	},
+	down()
+	{
+		Renderer.changeZoom(-1);
 	}
 };

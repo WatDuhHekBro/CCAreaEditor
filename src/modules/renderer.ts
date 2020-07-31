@@ -1,6 +1,6 @@
 import Palette from "./palette";
 import Matrix from "./matrix";
-import {setupController, setControllerFactor} from "./controller";
+import {setupController} from "./controller";
 
 const tiles = new Image();
 tiles.src = "tiles.png";
@@ -11,16 +11,23 @@ class Renderer
 {
 	private readonly canvas: HTMLCanvasElement;
 	private readonly context: CanvasRenderingContext2D|null;
-	private factor: number; // Must conform to an integer or weird stuff happens with the display.
+	private offsetX: number;
+	private offsetY: number;
+	private factor: number;
 	
 	constructor()
 	{
 		this.canvas = document.createElement("canvas");
 		this.canvas.style.imageRendering = "pixelated";
 		this.canvas.style.position = "absolute";
+		this.canvas.style.top = "50%";
+		this.canvas.style.left = "50%";
 		this.context = this.canvas.getContext("2d");
-		this.factor = 2;
-		setupController(this.canvas, this.factor);
+		this.offsetX = 0;
+		this.offsetY = 0;
+		this.factor = 1;
+		this.pushTransform();
+		setupController(this.canvas);
 		this.generateTiles(Matrix.from([
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -119,31 +126,50 @@ class Renderer
 	{
 		this.canvas.width = x * 8;
 		this.canvas.height = y * 8;
-		this.canvas.style.width = this.factor === 1 ? "" : `${Math.round(this.factor * x * 8)}px`;
-		this.canvas.style.height = this.factor === 1 ? "" : `${Math.round(this.factor * y * 8)}px`;
 	}
 	
-	private setPosition(x: number, y: number)
+	public movePosition(deltaX: number, deltaY: number)
 	{
-		this.canvas.style.left = x === 0 ? "" : `${x}px`;
-		this.canvas.style.top = y === 0 ? "" : `${y}px`;
+		// For some reason, panning just refuses to work properly when you pan outside the canvas (window) or when it's a decimal zoom. So it's a messy workaround.
+		if(this.factor >= 1)
+		{
+			this.offsetX += deltaX;
+			this.offsetY += deltaY;
+			this.pushTransform();
+		}
 	}
 	
 	public resetPosition()
 	{
-		this.setPosition(
-			Math.round((window.innerWidth - Math.round(this.factor * this.canvas.width)) / 2),
-			Math.round((window.innerHeight - Math.round(this.factor * this.canvas.height)) / 2)
-		);
+		this.offsetX = 0;
+		this.offsetY = 0;
+		this.pushTransform();
 	}
 	
-	// Note: You still have to regenerate the tiles yourself.
-	public setFactor(ratio: number)
+	public setZoom(ratio: number)
 	{
 		if(ratio % 1 !== 0)
-			throw `Renderer.setFactor(${ratio}) was called with a non-integer number!`;
+			throw `Renderer.setZoom(${ratio}) was called with a non-integer number!`;
 		this.factor = ratio;
-		setControllerFactor(ratio);
+		this.pushTransform();
+	}
+	
+	public changeZoom(delta: number)
+	{
+		if(delta % 1 !== 0)
+			throw `Renderer.changeZoom(${delta}) was called with a non-integer number!`;
+		this.factor += delta;
+		this.pushTransform();
+	}
+	
+	private pushTransform()
+	{
+		let factor = this.factor;
+		
+		if(factor <= 0)
+			factor = Math.abs(1 / (factor - 2));
+		
+		this.canvas.style.transform = `translate(-50%, -50%) translate(${this.offsetX}px, ${this.offsetY}px) scale(${factor})`;
 	}
 	
 	public generateTiles(matrix: Matrix, isolate?: number[])

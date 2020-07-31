@@ -3,7 +3,7 @@ import Matrix from "./matrix";
 import Renderer from "./renderer";
 
 // When the data is stringified, it'll skip over undefined keys unless it has a value. However, the order of these keys will remain.
-export default class Area
+export class Area
 {
 	private DOCTYPE: string;
 	private name: LangLabel;
@@ -70,6 +70,9 @@ export default class Area
 		};
 	}
 }
+
+let currentArea = new Area();
+export default currentArea;
 
 // I decided that it'd be better to just stick with using a matrix per floor. While you're going to be resizing the entire grid if you're modifying width or height, for floors, it'd be better to have it splice individual floors which will take the entire matrix with it. Also, methods like setTile in the area object will just call the current floor's setTile method.
 class Floor

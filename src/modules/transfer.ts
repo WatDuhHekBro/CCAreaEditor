@@ -1,4 +1,4 @@
-import Area from "./area";
+import {Area} from "./area";
 
 function inputViaDragAndDrop(event: DragEvent)
 {
