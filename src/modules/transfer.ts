@@ -17,7 +17,7 @@ function inputViaDragAndDrop(event: DragEvent)
 		const reader = new FileReader();
 		reader.readAsText(file, 'UTF-8');
 		reader.onload = () => {
-			try {Area.from(JSON.parse(reader.result as string))}
+			try {new Area(JSON.parse(reader.result as string))}
 			catch {console.log(new Area())}
 		};
 	}

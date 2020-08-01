@@ -159,6 +159,9 @@ class Renderer
 		if(delta % 1 !== 0)
 			throw `Renderer.changeZoom(${delta}) was called with a non-integer number!`;
 		this.factor += delta;
+		// This is a workaround solution for the panning function not working with decimal factors.
+		if(this.factor < 1)
+			this.factor = 1;
 		this.pushTransform();
 	}
 	
@@ -217,13 +220,13 @@ class Renderer
 					// Get extra directions for adding vertices. Since these CAN be compounded on each other, false = no vertex and true = has vertex.
 					// Also note that tiles with vertices cannot be on the edge, because for a tile to have a vertex NW, sides N and W have to be open.
 					// NW Corner if y is upmost and x is leftmost.
-					const nw = x !== 0 && y !== 0 && matrix.get(x-1, y-1) !== value;
+					const nw = y !== 0 && x !== 0 && matrix.get(x-1, y-1) !== value;
 					// NE Corner if y is upmost and x is rightmost.
-					const ne = x !== 0 && y !== width-1 && matrix.get(x+1, y-1) !== value;
+					const ne = y !== 0 && x !== width-1 && matrix.get(x+1, y-1) !== value;
 					// SW Corner if y is downmost and x is leftmost.
-					const sw = x !== height-1 && y !== 0 && matrix.get(x-1, y+1) !== value;
+					const sw = y !== height-1 && x !== 0 && matrix.get(x-1, y+1) !== value;
 					// SE Corner if y is downmost and x is rightmost.
-					const se = x !== height-1 && y !== width-1 && matrix.get(x+1, y+1) !== value;
+					const se = y !== height-1 && x !== width-1 && matrix.get(x+1, y+1) !== value;
 					
 					this.drawTile(x, y, TILEMAP.tiles[
 						+north << 3 |

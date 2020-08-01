@@ -1,9 +1,11 @@
-import {GenericJSON} from "./area";
+import {GenericJSON} from "./common";
+import Settings from "./config";
+import lexiconJSON from "./lexicon.json";
 
 export class LangLabel
 {
 	public langUid?: number;
-	private languages: {[language: string]: string};
+	public languages: {[language: string]: string};
 	
 	constructor(data?: GenericJSON)
 	{
@@ -16,19 +18,22 @@ export class LangLabel
 					this.languages[lang] = data[lang];
 	}
 	
-	public get(language: string): string|null
+	public get(language = Settings.language): string
 	{
-		const text = this.languages[language];
-		
-		if((text ?? null) === null)
-			return null;
+		if(language in this.languages)
+			return this.languages[language];
 		else
-			return text;
+			return this.languages.en_US ?? "";
 	}
 	
-	public set(language: string, value: string)
+	public getClean(language = Settings.language): string
 	{
-		this.languages[language] = value;
+		let text = this.get(language);
+		
+		if(/<<[AC]/g.test(text))
+			text = text.substring(0, text.search(/<<[AC]/g));
+		
+		return text;
 	}
 	
 	public toJSON()
@@ -36,3 +41,14 @@ export class LangLabel
 		return Object.assign({}, this.languages, {langUid: this.langUid});
 	}
 }
+
+// Initialize the lexicon into an indexable format //
+export const supportedLanguages = lexiconJSON.supportedLanguages;
+delete lexiconJSON.supportedLanguages;
+
+export const lexicon: {[key: string]: LangLabel} = {};
+for(const key in lexiconJSON)
+	lexicon[key] = new LangLabel((lexiconJSON as any)[key]);
+
+// Initialize Document Title //
+document.title = lexicon.title.get();

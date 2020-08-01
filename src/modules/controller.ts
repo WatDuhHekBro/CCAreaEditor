@@ -15,6 +15,8 @@ export function setupController(incomingCanvas: HTMLCanvasElement)
 	canvas.onmouseleave = mouseEventStop;
 	window.onwheel = mouseEventWheel;
 	canvas.oncontextmenu = event => event.preventDefault();
+	//window.oncontextmenu = (event: MouseEvent) => event.preventDefault();
+	//window.onkeydown = console.log;
 }
 
 function mouseEventStart(event: MouseEvent)
@@ -62,9 +64,12 @@ function mouseEventStop(event: MouseEvent)
 	const x = event.offsetX;
 	const y = event.offsetY;
 	
-	PrimaryButtonController.stop(x, y);
-	MiddleButtonController.stop(x, y);
-	SecondaryButtonController.stop(x, y);
+	if(primaryActive)
+		PrimaryButtonController.stop(x, y);
+	if(middleActive)
+		MiddleButtonController.stop(x, y);
+	if(secondaryActive)
+		SecondaryButtonController.stop(x, y);
 	
 	primaryActive = false;
 	middleActive = false;
@@ -123,6 +128,7 @@ const MiddleButtonController = {
 	}
 };
 
+// right click should isolate whatever you selected so the user knows what they're dealing with
 const SecondaryButtonController = {
 	start(x: number, y: number)
 	{

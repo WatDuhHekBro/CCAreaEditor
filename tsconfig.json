@@ -3,6 +3,8 @@
 	{
 		"moduleResolution": "node",
 		"target": "ES2017",
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
 		"strictNullChecks": true,

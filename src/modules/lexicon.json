@@ -1,0 +1,55 @@
+{
+	"supportedLanguages": ["en_US"],
+	"title":
+	{
+		"en_US": "CrossCode Area Editor",
+		"ko_KR": "크롯콛 실 에디타"
+	},
+	"languages":
+	{
+		"en_US": "English",
+		"de_DE": "Deutsch",
+		"zh_CN": "简体中文",
+		"ja_JP": "日本語",
+		"ko_KR": "한국어",
+		"zh_TW": "簡體中文",
+		"ru_RU": "Русский",
+		"fr_FR": "Français"
+	},
+	"floorUpper":
+	{
+		"en_US": "F",
+		"de_DE": "E",
+		"zh_CN": "层",
+		"ja_JP": "階",
+		"ko_KR": "층",
+		"zh_TW": "層"
+	},
+	"floorGround":
+	{
+		"en_US": "GF",
+		"de_DE": "EG",
+		"zh_CN": "基层",
+		"ja_JP": "地階",
+		"ko_KR": "지상",
+		"zh_TW": "基層"
+	},
+	"floorLower":
+	{
+		"en_US": "U",
+		"de_DE": "U",
+		"zh_CN": "U",
+		"ja_JP": "地下",
+		"ko_KR": "U",
+		"zh_TW": "U"
+	},
+	"untitled":
+	{
+		"en_US": "untitled",
+		"de_DE": "unbetitelt",
+		"zh_CN": "未命名",
+		"ja_JP": "無題",
+		"ko_KR": "미정",
+		"zh_TW": "未命名"
+	}
+}
