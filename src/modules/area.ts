@@ -1,6 +1,7 @@
 import {LangLabel} from "./lang";
 import {Floor} from "./floor";
 import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "./common";
+import {loadArea} from "./gateway";
 
 // When the data is stringified, it'll skip over undefined keys unless it has a value. However, the order of these keys will remain.
 // This is just a gateway to access/manage all the floors. Individual floor logic should be done on a floor instance itself, but operations for all floors (like resizing an area) should go through here.
@@ -32,8 +33,10 @@ export class Area
 		this.defaultFloor = data?.defaultFloor ?? 0;
 	}
 	
-	public getFloorByIndex(index: number): Floor|undefined
+	public getFloorByIndex(index: number): Floor
 	{
+		if(index < 0 || index >= this.floors.length)
+			throw `A floor by the index ${index} was attempted to be fetched but no floor by that index exists!`;
 		return this.floors[index];
 	}
 	
@@ -42,6 +45,14 @@ export class Area
 		for(const floor of this.floors)
 			if(level === floor.level)
 				return floor;
+		return undefined;
+	}
+	
+	public getIndexByLevel(level: number): number|undefined
+	{
+		for(let i = 0; i < this.floors.length; i++)
+			if(level === this.floors[i].level)
+				return i;
 		return undefined;
 	}
 	
@@ -87,7 +98,17 @@ export class Area
 	{
 		return this.height;
 	}
+	
+	public getAmountOfFloors()
+	{
+		return this.floors.length;
+	}
 }
 
-let currentArea = new Area();
-export default currentArea;
+export let currentArea: Area|null = null; // Don't allow editing on the title screen.
+
+export function setCurrentArea(area: Area)
+{
+	currentArea = area;
+	loadArea();
+}

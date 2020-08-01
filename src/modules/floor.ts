@@ -74,21 +74,31 @@ export class Floor
 			return "N/A";
 	}
 	
-	public render(resultModeEnabled: boolean)
+	// Renders this entire floor. The only time you'd be able to skip this is with setTile which is the one exception because its changes just stack upon each other.
+	// For everything else, you'd need to redraw the canvas to avoid ghost elements lingering around.
+	public render(resultModeEnabled: boolean, options?: RenderOptions)
 	{
 		if(resultModeEnabled)
 		{
-			Renderer.generateTilesAdvanced(this.tiles);
+			Renderer.generateTilesAdvanced(this.tiles, options?.isolate);
 			
-			for(const connection of this.connections)
-				Renderer.drawConnection(connection.tx, connection.ty, connection.dir === "VERTICAL", connection.size);
-			for(const icon of this.icons)
-				Renderer.drawIcon(icon.x, icon.y, icon.icon);
-			for(const landmark of this.landmarks)
-				Renderer.drawIcon(landmark.x, landmark.y, "landmark");
+			if(options?.debugConnectionsMode)
+			{
+				for(const connection of this.connections)
+					Renderer.drawDebugConnection(connection.tx, connection.ty, connection.dir === "VERTICAL", connection.size);
+			}
+			else
+			{
+				for(const connection of this.connections)
+					Renderer.drawConnection(connection.tx, connection.ty, connection.dir === "VERTICAL", connection.size);
+				for(const icon of this.icons)
+					Renderer.drawIcon(icon.x, icon.y, icon.icon);
+				for(const landmark of this.landmarks)
+					Renderer.drawIcon(landmark.x, landmark.y, "landmark");
+			}
 		}
 		else
-			Renderer.generateTiles(this.tiles);
+			Renderer.generateTiles(this.tiles, options?.isolate);
 	}
 	
 	// DO NOT CALL THIS FROM ANYWHERE EXCEPT THE AREA CLASS! (Because of this, I'm assuming width and height are already checked for negative values.)
@@ -188,6 +198,12 @@ export class Floor
 	}
 	public moveLandmark(from: number, to: number) {moveGeneric(this.landmarks, from, to)}
 	public removeLandmark(index?: number) {removeGeneric(this.icons, index)}
+}
+
+interface RenderOptions
+{
+	isolate?: number[];
+	debugConnectionsMode?: boolean;
 }
 
 class Map

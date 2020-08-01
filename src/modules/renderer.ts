@@ -1,6 +1,6 @@
 import Palette from "./palette";
 import Matrix from "./matrix";
-import {setupController} from "./controller";
+import {bindController} from "./controller";
 
 const tiles = new Image();
 tiles.src = "tiles.png";
@@ -27,7 +27,6 @@ class Renderer
 		this.offsetY = 0;
 		this.factor = 1;
 		this.pushTransform();
-		setupController(this.canvas);
 		this.generateTiles(Matrix.from([
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -204,7 +203,7 @@ class Renderer
 					console.warn(`Point (${x}, ${y}) was outside of the grid!`);
 					continue;
 				}
-				else if(value === 0 || isolate?.includes(value))
+				else if(value === 0 || (isolate && !isolate.includes(value)))
 					this.drawTile(x, y, TILEMAP.void);
 				else
 				{
@@ -272,16 +271,6 @@ class Renderer
 		
 		if(isVertical)
 		{
-			this.setTile(x + 1, y, 0x00FF00, true);
-			
-			for(let i = 1; i < size; i++)
-			{
-				this.setTile(x, y + i, 0x0000FF, true);
-				this.setTile(x + 1, y + i, 0x0000FF, true);
-			}
-		}
-		else
-		{
 			this.setTile(x, y + 1, 0x00FF00, true);
 			
 			for(let i = 1; i < size; i++)
@@ -290,6 +279,21 @@ class Renderer
 				this.setTile(x + i, y + 1, 0x0000FF, true);
 			}
 		}
+		else
+		{
+			this.setTile(x + 1, y, 0x00FF00, true);
+			
+			for(let i = 1; i < size; i++)
+			{
+				this.setTile(x, y + i, 0x0000FF, true);
+				this.setTile(x + 1, y + i, 0x0000FF, true);
+			}
+		}
+	}
+	
+	public bind()
+	{
+		bindController(this.canvas);
 	}
 	
 	public attach()
