@@ -130,7 +130,6 @@ function mouseEventMove(event: MouseEvent)
 			}
 		}
 		
-		
 		hasMovedLeft = true;
 	}
 	if(middleActive)
