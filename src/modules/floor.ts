@@ -198,6 +198,58 @@ export class Floor
 	}
 	public moveLandmark(from: number, to: number) {moveGeneric(this.landmarks, from, to)}
 	public removeLandmark(index?: number) {removeGeneric(this.icons, index)}
+	
+	public getMapIndexByPosition(x: number, y: number): number
+	{
+		return this.tiles.get(x, y) ?? -1;
+	}
+	
+	public getConnectionIndexByPosition(x: number, y: number): number
+	{
+		for(let i = 0; i < this.connections.length; i++)
+		{
+			const connection = this.connections[i]
+			const isVertical = connection.dir === "VERTICAL";
+			const x1 = connection.tx;
+			const y1 = connection.ty;
+			const x2 = !isVertical ? x1 + 1 : x1 + connection.size - 1;
+			const y2 = isVertical ? y1 + 1 : y1 + connection.size - 1;
+			
+			if(x >= x1 && x <= x2 && y >= y1 && y <= y2)
+				return i;
+		}
+		
+		return -1;
+	}
+	
+	// Icons and landmarks are both intertwined. However, to separate between the two, landmarks will be bit flipped plus one (so -1 is kept as the not found index).
+	public getIconIndexByPosition(x: number, y: number): number
+	{
+		for(let i = 0; i < this.icons.length; i++)
+		{
+			const icon = this.icons[i];
+			const [x1, y1, x2, y2] = Renderer.getIconBounds(icon.x, icon.y, icon.icon);
+			
+			if(x >= x1 && x <= x2 && y >= y1 && y <= y2)
+				return i;
+		}
+		
+		for(let i = 0; i < this.landmarks.length; i++)
+		{
+			const landmark = this.landmarks[i];
+			const [x1, y1, x2, y2] = Renderer.getIconBounds(landmark.x, landmark.y, "landmark");
+			
+			if(x >= x1 && x <= x2 && y >= y1 && y <= y2)
+				return ~i - 1;
+		}
+		
+		return -1;
+	}
+	
+	public getMapByIndex(index: number): Map|undefined {return this.maps[index]}
+	public getConnectionByIndex(index: number): Connection|undefined {return this.connections[index]}
+	public getIconByIndex(index: number): Icon|undefined {return this.icons[index]}
+	public getLandmarkByIndex(index: number): Landmark|undefined {return this.landmarks[index]}
 }
 
 interface RenderOptions

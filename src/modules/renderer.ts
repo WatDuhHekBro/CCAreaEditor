@@ -291,6 +291,22 @@ class Renderer
 		}
 	}
 	
+	public getIconBounds(x: number, y: number, tag: string): [number, number, number, number]
+	{
+		if(!(tag in ICONMAP))
+			throw `"${tag}" is not a valid icon name!`;
+		
+		const icon = ICONMAP[tag];
+		// First re-add the offsets so the x and y are at the top-left corner.
+		const x1 = x + (icon[4] || -6);
+		const y1 = y + (icon[5] || -6);
+		// Then add the sizes of the icon itself.
+		const x2 = x1 + (icon[2] || 12);
+		const y2 = y1 + (icon[3] || 12);
+		
+		return [x1, y1, x2, y2];
+	}
+	
 	public bind()
 	{
 		bindController(this.canvas);

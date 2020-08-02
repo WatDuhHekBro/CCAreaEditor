@@ -2,9 +2,12 @@ import Renderer from "./renderer";
 import {Area, currentArea, setCurrentArea} from "./area";
 import {Floor} from "./floor";
 
+export enum VIEWS {TILES, CONNECTIONS, RESULT};
+const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
 let currentFloor: Floor|undefined;
 let currentFloorIndex = 0;
-let selectedMap = 0;
+let currentMode = VIEWS.TILES;
+let selected = 0;
 
 // glue everything together
 // box method here
@@ -45,6 +48,24 @@ setBox(x1, y1, x2, y2, map)
 }
 */
 
+export function render(maps?: number[])
+{
+	if(currentFloor)
+	{
+		if(currentMode === VIEWS.TILES)
+			currentFloor.render(false, {isolate: maps});
+		else if(currentMode === VIEWS.CONNECTIONS)
+		{
+			currentFloor.render(true, {
+				debugConnectionsMode: true,
+				isolate: maps
+			});
+		}
+		else if(currentMode === VIEWS.RESULT)
+			currentFloor.render(true, {isolate: maps});
+	}
+}
+
 export function createArea(width: number, height: number)
 {
 	setCurrentArea(new Area({
@@ -60,7 +81,7 @@ export function loadArea()
 	{
 		currentFloor = currentArea.getFloorByLevel(currentArea.defaultFloor) ?? currentArea.getFloorByIndex(0);
 		currentFloorIndex = currentArea.getIndexByLevel(currentArea.defaultFloor) ?? 0;
-		currentFloor.render(false);
+		render();
 		Renderer.bind();
 	}
 	else
@@ -71,8 +92,8 @@ export function setTile(x: number, y: number)
 {
 	if(currentFloor)
 	{
-		currentFloor.setTile(x, y, selectedMap);
-		Renderer.setTile(x, y, selectedMap);
+		currentFloor.setTile(x, y, selected);
+		Renderer.setTile(x, y, selected);
 	}
 }
 
@@ -82,16 +103,23 @@ export function setBox(x1: number, x2: number, y1: number, y2: number, map: numb
 	// generateTiles
 }
 
-export function isolateMaps(maps: number[])
+// Send in the absolute x and y and it'll resolve based on the current view.
+export function select(x: number, y: number)
 {
-	currentFloor?.render(false, {
-		isolate: maps
-	});
-}
-
-export function setSelectedMap(map: number)
-{
-	selectedMap = map;
+	if(currentFloor)
+	{
+		const tx = Math.floor(x / 8);
+		const ty = Math.floor(y / 8);
+		
+		if(currentMode === VIEWS.TILES)
+			selected = currentFloor.getMapIndexByPosition(tx, ty);
+		else if(currentMode === VIEWS.CONNECTIONS)
+			selected = currentFloor.getConnectionIndexByPosition(tx, ty);
+		else if(currentMode === VIEWS.RESULT)
+			selected = currentFloor.getIconIndexByPosition(x, y);
+	}
+	
+	console.log(selected);
 }
 
 export function moveConnection()
@@ -125,9 +153,20 @@ export function resetView()
 	Renderer.setZoom(1);
 }
 
-export function toggleView()
+// Set a specific view or cycle through the views.
+export function setView(mode?: VIEWS)
 {
+	if(typeof mode === "number" && mode in VIEWS)
+		currentMode = mode;
+	else
+	{
+		currentMode++;
+		
+		if(currentMode >= AMOUNT_OF_VIEWS)
+			currentMode = 0;
+	}
 	
+	render();
 }
 
 export function switchZoom(delta: number)
@@ -145,7 +184,7 @@ export function switchFloor(delta: number)
 		{
 			currentFloor = currentArea.getFloorByIndex(newIndex);
 			currentFloorIndex = newIndex;
-			currentFloor.render(false);
+			render();
 		}
 	}
 }

@@ -1,4 +1,5 @@
 import * as Gateway from "./gateway";
+import {VIEWS} from "./gateway";
 
 let primaryActive = false;
 let secondaryActive = false;
@@ -32,19 +33,22 @@ export function bindController(canvas: HTMLCanvasElement)
 	};
 	canvas.oncontextmenu = event => event.preventDefault();
 	//window.oncontextmenu = (event: MouseEvent) => event.preventDefault();
-	window.onkeydown = (event: KeyboardEvent) => {event.code in KeyMap && KeyMap[event.code]()};
+	window.onkeydown = (event: KeyboardEvent) => {event.code in KeyMap && KeyMap[event.code](event.shiftKey)};
 }
 
-const KeyMap: {[key: string]: () => void} = {
+const KeyMap: {[key: string]: (shift: boolean) => void} = {
 	Minus: () => Gateway.switchZoom(-1),
 	Equal: () => Gateway.switchZoom(1),
 	KeyQ: () => Gateway.switchFloor(-1),
 	KeyE: () => Gateway.switchFloor(1),
-	ArrowUp: () => Gateway.panView(0, -50),
-	ArrowDown: () => Gateway.panView(0, 50),
-	ArrowLeft: () => Gateway.panView(-50, 0),
-	ArrowRight: () => Gateway.panView(50, 0),
-	KeyR: () => Gateway.resetView()
+	ArrowUp: shift => Gateway.panView(0, shift ? -100 : -50),
+	ArrowDown: shift => Gateway.panView(0, shift ? 100 : 50),
+	ArrowLeft: shift => Gateway.panView(shift ? -100 : -50, 0),
+	ArrowRight: shift => Gateway.panView(shift ? 100 : 50, 0),
+	KeyR: () => Gateway.resetView(),
+	Digit1: () => Gateway.setView(VIEWS.TILES),
+	Digit2: () => Gateway.setView(VIEWS.CONNECTIONS),
+	Digit3: () => Gateway.setView(VIEWS.RESULT)
 };
 
 function mouseEventStart(event: MouseEvent)
@@ -70,7 +74,7 @@ function mouseEventStart(event: MouseEvent)
 	// Right Click //
 	else if(event.button === 2)
 	{
-		SecondaryButtonController.stop(x, y);
+		SecondaryButtonController.start(x, y);
 		secondaryActive = true;
 	}
 }
@@ -148,7 +152,7 @@ const MiddleButtonController = {
 const SecondaryButtonController = {
 	start(x: number, y: number)
 	{
-		
+		Gateway.select(x, y);
 	},
 	move(x: number, y: number)
 	{
