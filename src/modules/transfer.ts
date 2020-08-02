@@ -112,6 +112,24 @@ export class TextField
 	}
 }
 
+export class DownloadButton
+{
+	private element: HTMLButtonElement;
+	
+	constructor()
+	{
+		const field = document.createElement("button");
+		field.onclick = outputViaDownload;
+		field.innerText = "Download";
+		this.element = field;
+	}
+	
+	public attach()
+	{
+		document.body.appendChild(this.element);
+	}
+}
+
 export function activateDragAndDrop()
 {
 	document.body.ondrop = inputViaDragAndDrop;

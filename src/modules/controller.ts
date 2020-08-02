@@ -1,9 +1,15 @@
+// Feast your eyes on this spaghetti code
 import * as Gateway from "./gateway";
 import {VIEWS} from "./gateway";
 
 let primaryActive = false;
 let secondaryActive = false;
 let middleActive = false;
+let boxStartX = 0;
+let boxStartY = 0;
+let lastBoxX = 0;
+let lastBoxY = 0;
+let hasMovedLeft = false;
 
 export function bindController(canvas: HTMLCanvasElement)
 {
@@ -55,13 +61,29 @@ function mouseEventStart(event: MouseEvent)
 {
 	const x = event.offsetX;
 	const y = event.offsetY;
+	const tx = Math.floor(x / 8);
+	const ty = Math.floor(y / 8);
 	const shift = event.shiftKey;
 	
 	// Left Click //
 	if(event.button === 0)
 	{
-		PrimaryButtonController.start(x, y);
+		Gateway.select(x, y, VIEWS.CONNECTIONS);
+		Gateway.select(x, y, VIEWS.RESULT);
+		
+		if(shift)
+		{
+			boxStartX = tx;
+			boxStartY = ty;
+			lastBoxX = tx;
+			lastBoxY = ty;
+			Gateway.setBoxPreview(tx, ty, tx, ty);
+		}
+		else
+			Gateway.setTile(tx, ty);
+		
 		primaryActive = true;
+		hasMovedLeft = false;
 	}
 	// Middle Click //
 	else if(event.button === 1)
@@ -83,10 +105,34 @@ function mouseEventMove(event: MouseEvent)
 {
 	const x = event.offsetX;
 	const y = event.offsetY;
+	const tx = Math.floor(x / 8);
+	const ty = Math.floor(y / 8);
+	const shift = event.shiftKey;
 	//console.log(event.button, event.buttons);
 	
 	if(primaryActive)
-		PrimaryButtonController.move(x, y);
+	{
+		// onmousemove fires off hundres of times in milliseconds, so you have to restrict the amount of times the renderer has to render the canvas again.
+		if(tx !== lastBoxX && ty !== lastBoxY)
+		{
+			if(shift)
+			{
+				lastBoxX = tx;
+				lastBoxY = ty;
+				Gateway.setBoxPreview(boxStartX, boxStartY, tx, ty);
+				Gateway.resizeConnection(tx, ty);
+			}
+			else
+			{
+				Gateway.setTile(tx, ty);
+				Gateway.moveConnection(tx, ty);
+				Gateway.moveIcon(x, y);
+			}
+		}
+		
+		
+		hasMovedLeft = true;
+	}
 	if(middleActive)
 		MiddleButtonController.move(x, y);
 	if(secondaryActive)
@@ -97,10 +143,18 @@ function mouseEventStop(event: MouseEvent)
 {
 	const x = event.offsetX;
 	const y = event.offsetY;
+	const tx = Math.floor(x / 8);
+	const ty = Math.floor(y / 8);
+	const shift = event.shiftKey;
 	//console.log(event.button, event.buttons);
 	
 	if(primaryActive)
-		PrimaryButtonController.stop(x, y);
+	{
+		if(shift)
+			Gateway.setBox(boxStartX, boxStartY, tx, ty);
+		if(!hasMovedLeft)
+			Gateway.rotateConnection();
+	}
 	if(middleActive)
 		MiddleButtonController.stop(x, y);
 	if(secondaryActive)
@@ -110,21 +164,6 @@ function mouseEventStop(event: MouseEvent)
 	middleActive = false;
 	secondaryActive = false;
 }
-
-const PrimaryButtonController = {
-	start(x: number, y: number)
-	{
-		//console.log(Math.floor(x / 8), Math.floor(y / 8));
-	},
-	move(x: number, y: number)
-	{
-		//console.log(Math.floor(x / 8), Math.floor(y / 8));
-	},
-	stop(x: number, y: number)
-	{
-		
-	}
-};
 
 const MiddleButtonController = {
 	lastX: 0,
@@ -153,6 +192,7 @@ const SecondaryButtonController = {
 	start(x: number, y: number)
 	{
 		Gateway.select(x, y);
+		Gateway.highlight();
 	},
 	move(x: number, y: number)
 	{
@@ -160,6 +200,6 @@ const SecondaryButtonController = {
 	},
 	stop(x: number, y: number)
 	{
-		
+		Gateway.render();
 	}
 };

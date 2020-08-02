@@ -84,8 +84,30 @@ export class Floor
 			
 			if(options?.debugConnectionsMode)
 			{
-				for(const connection of this.connections)
-					Renderer.drawDebugConnection(connection.tx, connection.ty, connection.dir === "VERTICAL", connection.size);
+				for(let i = 0; i < this.connections.length; i++)
+				{
+					const connection = this.connections[i];
+					
+					if(!options.select || (i === options.select))
+						Renderer.drawDebugConnection(connection.tx, connection.ty, connection.dir === "VERTICAL", connection.size);
+				}
+			}
+			else if(options?.isolate)
+			{
+				for(let i = 0; i < this.icons.length; i++)
+				{
+					const icon = this.icons[i];
+					
+					if(options.isolate.includes(icon.map + 1) && (!options.select || (i === options.select)))
+						Renderer.drawIcon(icon.x, icon.y, icon.icon);
+				}
+				for(let i = 0; i < this.landmarks.length; i++)
+				{
+					const landmark = this.landmarks[i];
+					
+					if(options.isolate.includes(landmark.map + 1))
+						Renderer.drawIcon(landmark.x, landmark.y, "landmark");
+				}
 			}
 			else
 			{
@@ -256,6 +278,7 @@ interface RenderOptions
 {
 	isolate?: number[];
 	debugConnectionsMode?: boolean;
+	select?: number
 }
 
 class Map

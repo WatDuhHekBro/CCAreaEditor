@@ -9,60 +9,33 @@ let currentFloorIndex = 0;
 let currentMode = VIEWS.TILES;
 let selected = 0;
 
-// glue everything together
-// box method here
-/*
-setBox(x1, y1, x2, y2, map)
-{
-	if(isNaN(x1) || isNaN(y1) || isNaN(x2) || isNaN(y2))
-		throw `Error: Non-numeric value(s) given for Floor.setBox! x1: ${x1}, y1: ${y1}, x2: ${x2}, y2: ${y2}`;
-
-	let startX, endX, startY, endY;
-
-	// Only if the second portion is greater does it switch the start and end, because otherwise, it'd that'd mess with the for loop.
-	if(x1 > x2)
-	{
-		startX = x2;
-		endX = x1;
-	}
-	else
-	{
-		startX = x1;
-		endX = x2;
-	}
-
-	if(y1 > y2)
-	{
-		startY = y2;
-		endY = y1;
-	}
-	else
-	{
-		startY = y1;
-		endY = y2;
-	}
-
-	for(let y = startY; y <= endY; y++)
-		for(let x = startX; x <= endX; x++)
-			this.setTile(x, y, map);
-}
-*/
-
-export function render(maps?: number[])
+// With functions like setBoxPreview and moveConnection, you really need to figure out a way to make it faster. Find some way to keep track of what changed so it's more efficient.
+export function render(maps?: number[], select?: number)
 {
 	if(currentFloor)
 	{
 		if(currentMode === VIEWS.TILES)
-			currentFloor.render(false, {isolate: maps});
+		{
+			currentFloor.render(false, {
+				isolate: maps,
+				select: select
+			});
+		}
 		else if(currentMode === VIEWS.CONNECTIONS)
 		{
 			currentFloor.render(true, {
 				debugConnectionsMode: true,
-				isolate: maps
+				isolate: maps,
+				select: select
 			});
 		}
 		else if(currentMode === VIEWS.RESULT)
-			currentFloor.render(true, {isolate: maps});
+		{
+			currentFloor.render(true, {
+				isolate: maps,
+				select: select
+			});
+		}
 	}
 }
 
@@ -90,22 +63,136 @@ export function loadArea()
 
 export function setTile(x: number, y: number)
 {
-	if(currentFloor)
+	if(currentFloor && currentMode === VIEWS.TILES)
 	{
 		currentFloor.setTile(x, y, selected);
 		Renderer.setTile(x, y, selected);
 	}
 }
 
-export function setBox(x1: number, x2: number, y1: number, y2: number, map: number)
+// Modifies the data THEN renders again.
+export function setBox(x1: number, y1: number, x2: number, y2: number)
 {
-	// set box on floor data
-	// generateTiles
+	if(currentFloor && currentMode === VIEWS.TILES)
+	{
+		// In order to make it easy to traverse these in a for loop, if the second point is before the first point, then swap the two.
+		if(x2 < x1)
+		{
+			const tmp = x1;
+			x1 = x2;
+			x2 = tmp;
+		}
+		if(y2 < y1)
+		{
+			const tmp = y1;
+			y1 = y2;
+			y2 = tmp;
+		}
+		
+		for(let y = y1; y <= y2; y++)
+			for(let x = x1; x <= x2; x++)
+				currentFloor.setTile(x, y, selected);
+		
+		render(); // You only need to render after setting all the tiles internally, which doubles as a check to make sure the function itself is working.
+	}
+}
+
+// Only shows a preview of what you're going to be seeing.
+export function setBoxPreview(x1: number, y1: number, x2: number, y2: number)
+{
+	if(currentFloor && currentMode === VIEWS.TILES)
+	{
+		render(); // You first need a clean render to avoid ghost tiles.
+		
+		if(x2 < x1)
+		{
+			const tmp = x1;
+			x1 = x2;
+			x2 = tmp;
+		}
+		if(y2 < y1)
+		{
+			const tmp = y1;
+			y1 = y2;
+			y2 = tmp;
+		}
+		
+		for(let y = y1; y <= y2; y++)
+			for(let x = x1; x <= x2; x++)
+				Renderer.setTile(x, y, selected);
+	}
+}
+
+export function moveConnection(x: number, y: number)
+{
+	if(currentFloor && currentMode === VIEWS.CONNECTIONS)
+	{
+		const connection = currentFloor.getConnectionByIndex(selected);
+		
+		if(connection)
+		{
+			connection.tx = x;
+			connection.ty = y;
+			render();
+		}
+	}
+}
+
+export function rotateConnection()
+{
+	if(currentFloor && currentMode === VIEWS.CONNECTIONS)
+	{
+		const connection = currentFloor.getConnectionByIndex(selected);
+		
+		if(connection)
+		{
+			const isVertical = connection.dir === "VERTICAL";
+			connection.dir = isVertical ? "HORIZONTAL": "VERTICAL";
+			render();
+		}
+	}
+}
+
+export function resizeConnection(x: number, y: number)
+{
+	if(currentFloor && currentMode === VIEWS.CONNECTIONS)
+	{
+		const connection = currentFloor.getConnectionByIndex(selected);
+		
+		if(connection)
+		{
+			const isVertical = connection.dir === "VERTICAL";
+			const sizeX = Math.max(x - connection.tx, 1);
+			const sizeY = Math.max(y - connection.ty, 1);
+			connection.size = isVertical ? sizeX : sizeY;
+			console.log(isVertical, sizeX, sizeY);
+			render();
+		}
+	}
+}
+
+export function moveIcon(x: number, y: number)
+{
+	if(currentFloor && currentMode === VIEWS.RESULT)
+	{
+		const isLandmark = selected < -1;
+		const icon = isLandmark ? currentFloor.getLandmarkByIndex(~selected - 1) : currentFloor.getIconByIndex(selected);
+		
+		if(icon)
+		{
+			icon.x = x;
+			icon.y = y;
+			render();
+		}
+	}
 }
 
 // Send in the absolute x and y and it'll resolve based on the current view.
-export function select(x: number, y: number)
+export function select(x: number, y: number, modeRequired?: VIEWS)
 {
+	if(modeRequired && currentMode !== modeRequired)
+		return;
+	
 	if(currentFloor)
 	{
 		const tx = Math.floor(x / 8);
@@ -118,28 +205,32 @@ export function select(x: number, y: number)
 		else if(currentMode === VIEWS.RESULT)
 			selected = currentFloor.getIconIndexByPosition(x, y);
 	}
-	
-	console.log(selected);
 }
 
-export function moveConnection()
+// Isolates the current selection. Use render() to reset it.
+export function highlight()
 {
-	
-}
-
-export function rotateConnection()
-{
-	
-}
-
-export function resizeConnection()
-{
-	
-}
-
-export function moveIcon(isLandmark = false)
-{
-	
+	if(currentFloor)
+	{
+		// connections[0] or icons[0] = map index 1
+		if(currentMode === VIEWS.TILES)
+			render([selected], selected);
+		else if(currentMode === VIEWS.CONNECTIONS)
+		{
+			const connection = currentFloor.getConnectionByIndex(selected);
+			
+			if(connection)
+				render([connection.map1 + 1, connection.map2 + 1], selected);
+		}
+		else if(currentMode === VIEWS.RESULT)
+		{
+			const isLandmark = selected < -1;
+			const icon = isLandmark ? currentFloor.getLandmarkByIndex(~selected - 1) : currentFloor.getIconByIndex(selected);
+			
+			if(icon)
+				render([icon.map + 1], selected);
+		}
+	}
 }
 
 export function panView(deltaX: number, deltaY: number)
@@ -166,6 +257,7 @@ export function setView(mode?: VIEWS)
 			currentMode = 0;
 	}
 	
+	selected = 0;
 	render();
 }
 
@@ -187,14 +279,4 @@ export function switchFloor(delta: number)
 			render();
 		}
 	}
-}
-
-export function displayMenu()
-{
-	
-}
-
-export function displayAdvancedMenu()
-{
-	
 }
