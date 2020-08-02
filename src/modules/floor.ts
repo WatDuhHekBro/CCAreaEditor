@@ -7,7 +7,6 @@ import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "./common";
 export class Floor
 {
 	public level: number; // The level property only determines the display of that level. So you can have -2 then -4, which will show up in that order. A defaultFloor property that doesn't match anything will just show a blank screen until you select a floor.
-	public name?: LangLabel;
 	private tiles: Matrix;
 	private icons: Icon[];
 	private maps: Map[]; // maps[0] describes tiles with a value of 1, as tiles with a value of 0 indicate that there is no map there.
@@ -285,19 +284,11 @@ class Map
 {
 	path: string;
 	name: LangLabel;
-	offset: {x: number, y: number};
-	dungeon: ""|"DUNGEON"|"NO_DUNGEON";
-	zMin?: number|null;
-	zMax?: number|null;
 	
 	constructor(data?: GenericJSON)
 	{
 		this.path = data?.path ?? "";
 		this.name = new LangLabel(data?.name);
-		this.offset = data?.offset ?? {x: 0, y: 0};
-		this.dungeon = ["DUNGEON", "NO_DUNGEON"].includes(data?.dungeon) ? data?.dungeon : "";
-		this.zMin = data?.zMin;
-		this.zMax = data?.zMax;
 	}
 }
 
@@ -310,7 +301,7 @@ class Connection
 	map1: number;
 	map2: number;
 	condition?: string;
-	offset?: {x: number, y: number};
+	offset?: {x: number, y: number}; // It's possible to fine-tune the location of a connection by using this. I don't recommend using it though.
 	
 	constructor(data?: GenericJSON)
 	{
@@ -349,7 +340,6 @@ class Landmark
 	x: number;
 	y: number;
 	map: number;
-	option: string;
 	
 	constructor(data?: GenericJSON)
 	{
@@ -357,6 +347,5 @@ class Landmark
 		this.x = data?.x ?? 0;
 		this.y = data?.y ?? 0;
 		this.map = data?.map ?? 0;
-		this.option = data?.option ?? "DEFAULT";
 	}
 }

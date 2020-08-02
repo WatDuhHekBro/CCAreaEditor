@@ -45,6 +45,17 @@ The entry point to the program is `src/index` which pretty much calls everything
 - `renderer`: Manages everything related to displaying area data.
 - `transfer`: Handles downloading and uploading area data.
 
+# Unused Properties
+- `area.DOCTYPE` (string = `AREAS_MAP`)
+- `area.name` (LangLabel)
+- `area.chests` (number): It's quite deceiving, but this is actually an unused property. It's stored in `database.json/areas/<area>` along with the name, description, etc.
+- `floor.name` (LangLabel)
+- `map.offset` (Vector): I can't guarantee that it won't affect anything, but it seems to have no effect when setting it to extremely high values.
+- `map.dungeon` (string = `DUNGEON`|`NO_DUNGEON`): Overrides the dungeon provided by the database area? For the database entry, I think it affects the icon, but other than that, I have no clue what this is supposed to do.
+- `map.zMin` (number|null): This along with `zMax` does seem to do... something. I have no clue what it's supposed to do, but it doesn't seem to be anything useful.
+- `map.zMax` (number|null): Same as above.
+- `landmark.option` (string = `DEFAULT`): This can be found in `sc.LANDMARK_OPTIONS` which only has one option and isn't even used in the code besides declaring that.
+
 # Possible Features
 - Auto-saving
 - History

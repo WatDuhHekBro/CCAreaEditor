@@ -4,13 +4,11 @@ import lexiconJSON from "./lexicon.json";
 
 export class LangLabel
 {
-	public langUid?: number;
 	public languages: {[language: string]: string};
 	
 	constructor(data?: GenericJSON)
 	{
 		this.languages = {en_US: ""};
-		this.langUid = data?.langUid;
 		
 		if(data)
 			for(const lang in data)
@@ -38,7 +36,7 @@ export class LangLabel
 	
 	public toJSON()
 	{
-		return Object.assign({}, this.languages, {langUid: this.langUid});
+		return this.languages;
 	}
 }
 

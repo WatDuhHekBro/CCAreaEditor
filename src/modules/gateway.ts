@@ -52,8 +52,8 @@ export function loadArea()
 {
 	if(currentArea)
 	{
-		currentFloor = currentArea.getFloorByLevel(currentArea.defaultFloor) ?? currentArea.getFloorByIndex(0);
-		currentFloorIndex = currentArea.getIndexByLevel(currentArea.defaultFloor) ?? 0;
+		currentFloor = currentArea.getFloorByLevel(currentArea.defaultFloor ?? 0) ?? currentArea.getFloorByIndex(0);
+		currentFloorIndex = currentArea.getIndexByLevel(currentArea.defaultFloor ?? 0) ?? 0;
 		render();
 		Renderer.bind();
 	}

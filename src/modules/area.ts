@@ -1,4 +1,3 @@
-import {LangLabel} from "./lang";
 import {Floor} from "./floor";
 import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "./common";
 import {loadArea} from "./gateway";
@@ -7,18 +6,13 @@ import {loadArea} from "./gateway";
 // This is just a gateway to access/manage all the floors. Individual floor logic should be done on a floor instance itself, but operations for all floors (like resizing an area) should go through here.
 export class Area
 {
-	private DOCTYPE: string;
-	private name?: LangLabel;
 	private width: number;
 	private height: number;
 	private floors: Floor[];
-	public chests: number;
-	public defaultFloor: number; // The first floor you see when viewing the area from another area. It only affects which floor you first see when you go to an area you're NOT currently in.
+	public defaultFloor?: number; // The first floor you see when viewing the area from another area. It only affects which floor you first see when you go to an area you're NOT currently in.
 	
 	constructor(data?: GenericJSON)
 	{
-		this.DOCTYPE = data?.DOCTYPE ?? "AREAS_MAP";
-		this.name = data?.name && new LangLabel(data?.name);
 		this.width = data?.width ?? 1;
 		this.height = data?.height ?? 1;
 		this.floors = [];
@@ -29,8 +23,7 @@ export class Area
 		else
 			this.addFloor();
 		
-		this.chests = data?.chests ?? 0;
-		this.defaultFloor = data?.defaultFloor ?? 0;
+		this.defaultFloor = data?.defaultFloor;
 	}
 	
 	public getFloorByIndex(index: number): Floor
