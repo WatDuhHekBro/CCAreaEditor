@@ -1,4 +1,6 @@
 import {Area, currentArea, setCurrentArea} from "./area";
+import {HTMLWrapper} from "./common";
+import lang from "./lang";
 
 let currentFileName = "area.json";
 
@@ -34,7 +36,7 @@ function inputViaFileUpload()
 	const file = this.files?.[0];
 	
 	// Check if the file is undefined, which can happen if you exit the window instead of selecting a file.
-	if(file && file.name.endsWith(".json"))
+	if(file?.name.endsWith(".json"))
 	{
 		const reader = new FileReader();
 		currentFileName = file.name;
@@ -46,7 +48,7 @@ function inputViaFileUpload()
 function inputViaTextField()
 {
 	parseAndSendToEditor(this.value);
-	this.value = "Transferred into editor!";
+	this.value = lang("inspector.transfer.textfield.paste");
 }
 
 function outputViaDownload()
@@ -70,63 +72,37 @@ function outputViaTextField(element: HTMLTextAreaElement)
 		element.setSelectionRange(0, 99999);
 		document.execCommand("copy");
 		element.blur();
-		element.value = "Copied to clipboard!";
+		element.value = lang("inspector.transfer.textfield.copy.status");
 	}
 }
 
-export class FileUploader
+export class FileUploader extends HTMLWrapper<HTMLInputElement>
 {
-	private element: HTMLInputElement;
-	
 	constructor()
 	{
-		const field = document.createElement("input");
-		field.type = "file";
-		field.onchange = inputViaFileUpload;
-		this.element = field;
-	}
-	
-	public attach()
-	{
-		document.body.appendChild(this.element);
+		super(document.createElement("input"));
+		this.element.type = "file";
+		this.element.onchange = inputViaFileUpload;
 	}
 }
 
-export class TextField
+export class TextField extends HTMLWrapper<HTMLInputElement>
 {
-	private element: HTMLTextAreaElement;
-	
 	constructor()
 	{
-		const field = document.createElement("textarea");
-		field.oninput = inputViaTextField;
-		field.cols = 100;
-		field.rows = 10;
-		field.placeholder = "Copy and paste a valid area JSON file here to load it into the editor.";
-		this.element = field;
-	}
-	
-	public attach()
-	{
-		document.body.appendChild(this.element);
+		super(document.createElement("input"));
+		this.element.oninput = inputViaTextField;
+		//this.element.placeholder = lang("inspector.transfer.textfield.placeholder");
 	}
 }
 
-export class DownloadButton
+export class DownloadButton extends HTMLWrapper<HTMLButtonElement>
 {
-	private element: HTMLButtonElement;
-	
 	constructor()
 	{
-		const field = document.createElement("button");
-		field.onclick = outputViaDownload;
-		field.innerText = "Download";
-		this.element = field;
-	}
-	
-	public attach()
-	{
-		document.body.appendChild(this.element);
+		super(document.createElement("button"));
+		this.element.onclick = outputViaDownload;
+		this.element.innerText = lang("inspector.transfer.download");
 	}
 }
 

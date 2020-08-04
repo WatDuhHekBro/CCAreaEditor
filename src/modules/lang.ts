@@ -44,9 +44,19 @@ export class LangLabel
 export const supportedLanguages = lexiconJSON.supportedLanguages;
 delete lexiconJSON.supportedLanguages;
 
-export const lexicon: {[key: string]: LangLabel} = {};
+const lexicon: {[key: string]: LangLabel} = {};
 for(const key in lexiconJSON)
 	lexicon[key] = new LangLabel((lexiconJSON as any)[key]);
 
+export default function lang(tag: string, language?: string): string
+{
+	const label = lexicon[tag];
+	
+	if(label)
+		return label.get(language);
+	else
+		return "N/A";
+}
+
 // Initialize Document Title //
-document.title = lexicon.title.get();
+document.title = lang("title");

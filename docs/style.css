@@ -3,4 +3,72 @@ html, body
 	height: 100%;
 	margin: 0;
 	overflow: hidden;
+	background-color: linen;
+}
+
+canvas
+{
+	image-rendering: pixelated;
+	position: absolute;
+}
+
+.center
+{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.ui
+{
+	position: absolute;
+	width: 275px;
+	background-color: lightgray;
+	border: 5px double darkgray;
+	text-align: center;
+}
+
+.ui *
+{
+	margin: 0;
+	background-color: white;
+	border: 3px solid green;
+	border-radius: 10px;
+}
+
+.ui * *
+{
+	border: initial;
+	border-radius: initial;
+}
+
+.sidebar-left
+{
+	height: 99%;
+	left: -270px;
+	transition: left 0.25s ease-in-out;
+}
+
+.sidebar-left:hover
+{
+	left: 0;
+}
+
+.sidebar-right
+{
+	height: 99%;
+	right: -270px;
+	transition: right 0.25s ease-in-out;
+}
+
+.sidebar-right:hover
+{
+	right: 0;
+}
+
+.window
+{
+	height: 450px;
+	border-radius: 15px;
 }

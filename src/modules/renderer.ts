@@ -9,20 +9,31 @@ icons.src = "icons.png";
 
 class Renderer
 {
-	private readonly canvas: HTMLCanvasElement;
-	private readonly context: CanvasRenderingContext2D|null;
+	private readonly container: HTMLDivElement;
+	private readonly background: HTMLCanvasElement;
+	private readonly foreground: HTMLCanvasElement;
+	private readonly contextBG: CanvasRenderingContext2D|null;
+	private readonly contextFG: CanvasRenderingContext2D|null;
+	private context: CanvasRenderingContext2D|null;
+	private width: number;
+	private height: number;
 	private offsetX: number;
 	private offsetY: number;
 	private factor: number;
 	
 	constructor()
 	{
-		this.canvas = document.createElement("canvas");
-		this.canvas.style.imageRendering = "pixelated";
-		this.canvas.style.position = "absolute";
-		this.canvas.style.top = "50%";
-		this.canvas.style.left = "50%";
-		this.context = this.canvas.getContext("2d");
+		this.container = document.createElement("div");
+		this.container.classList.add("center");
+		this.background = document.createElement("canvas");
+		this.foreground = document.createElement("canvas");
+		this.container.appendChild(this.background);
+		this.container.appendChild(this.foreground);
+		this.contextBG = this.background.getContext("2d");
+		this.contextFG = this.foreground.getContext("2d");
+		this.context = this.contextBG;
+		this.width = 8;
+		this.height = 8;
 		this.offsetX = 0;
 		this.offsetY = 0;
 		this.factor = 1;
@@ -113,18 +124,29 @@ class Renderer
 		}
 	}
 	
+	public setRenderingMode(temporary: boolean)
+	{
+		this.context = temporary ? this.contextFG : this.contextBG;
+	}
+	
 	private isOutOfBounds(x: number, y: number)
 	{
 		return x < 0 ||
-			x >= this.canvas.width / 8 ||
+			x >= this.width / 8 ||
 			y < 0 ||
-			y >= this.canvas.height / 8;
+			y >= this.height / 8;
 	}
 	
 	private setSize(x: number, y: number)
 	{
-		this.canvas.width = x * 8;
-		this.canvas.height = y * 8;
+		this.width = x * 8;
+		this.height = y * 8;
+		this.background.width = this.width;
+		this.background.height = this.height;
+		this.foreground.width = this.width;
+		this.foreground.height = this.height;
+		this.container.style.width = `${this.width}px`;
+		this.container.style.height = `${this.height}px`;
 	}
 	
 	public movePosition(deltaX: number, deltaY: number)
@@ -171,7 +193,9 @@ class Renderer
 		if(factor <= 0)
 			factor = Math.abs(1 / (factor - 2));
 		
-		this.canvas.style.transform = `translate(-50%, -50%) translate(${this.offsetX}px, ${this.offsetY}px) scale(${factor})`;
+		const newPosition = `translate(${this.offsetX}px, ${this.offsetY}px) scale(${factor})`;
+		this.background.style.transform = newPosition;
+		this.foreground.style.transform = newPosition;
 	}
 	
 	public generateTiles(matrix: Matrix, isolate?: number[])
@@ -309,12 +333,12 @@ class Renderer
 	
 	public bind()
 	{
-		bindController(this.canvas);
+		bindController(this.container);
 	}
 	
 	public attach()
 	{
-		document.body.appendChild(this.canvas);
+		document.body.appendChild(this.container);
 	}
 }
 

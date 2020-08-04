@@ -162,8 +162,8 @@ export function resizeConnection(x: number, y: number)
 		if(connection)
 		{
 			const isVertical = connection.dir === "VERTICAL";
-			const sizeX = Math.max(x - connection.tx, 1);
-			const sizeY = Math.max(y - connection.ty, 1);
+			const sizeX = Math.max(x - connection.tx + 1, 1);
+			const sizeY = Math.max(y - connection.ty + 1, 1);
 			connection.size = isVertical ? sizeX : sizeY;
 			console.log(isVertical, sizeX, sizeY);
 			render();

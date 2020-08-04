@@ -1,10 +1,5 @@
 {
 	"supportedLanguages": ["en_US"],
-	"title":
-	{
-		"en_US": "CrossCode Area Editor",
-		"ko_KR": "크로스코드 지역 에디타"
-	},
 	"languages":
 	{
 		"en_US": "English",
@@ -12,11 +7,16 @@
 		"zh_CN": "简体中文",
 		"ja_JP": "日本語",
 		"ko_KR": "한국어",
-		"zh_TW": "簡體中文",
+		"zh_TW": "繁體中文",
 		"ru_RU": "Русский",
 		"fr_FR": "Français"
 	},
-	"floorUpper":
+	"title":
+	{
+		"en_US": "CrossCode Area Editor",
+		"ko_KR": "크로스코드 지역 에디터"
+	},
+	"floor.upper":
 	{
 		"en_US": "F",
 		"de_DE": "E",
@@ -25,7 +25,7 @@
 		"ko_KR": "층",
 		"zh_TW": "層"
 	},
-	"floorGround":
+	"floor.ground":
 	{
 		"en_US": "GF",
 		"de_DE": "EG",
@@ -34,7 +34,7 @@
 		"ko_KR": "지상",
 		"zh_TW": "基層"
 	},
-	"floorLower":
+	"floor.lower":
 	{
 		"en_US": "U",
 		"de_DE": "U",
@@ -43,7 +43,160 @@
 		"ko_KR": "U",
 		"zh_TW": "U"
 	},
-	"untitled":
+	"inspector":
+	{
+		"en_US": "Inspector",
+		"ko_KR": "인스펙터"
+	},
+	"inspector.transfer":
+	{
+		"en_US": "Create/Load Area"
+	},
+	"inspector.transfer.note":
+	{
+		"en_US": "You can either create an area or load an existing one. To load an existing area, you can either copy and paste its data or upload it. To get the area from the editor, you can either copy it from the text field or download it."
+	},
+	"inspector.transfer.create":
+	{
+		"en_US": "Create New Area"
+	},
+	"inspector.transfer.create.dimensions":
+	{
+		"en_US": "Dimensions"
+	},
+	"inspector.transfer.textfield":
+	{
+		"en_US": "Text Field"
+	},
+	"inspector.transfer.textfield.paste":
+	{
+		"en_US": "Transferred into editor!"
+	},
+	"inspector.transfer.textfield.copy":
+	{
+		"en_US": "Copy"
+	},
+	"inspector.transfer.textfield.copy.status":
+	{
+		"en_US": "Copied to clipboard!"
+	},
+	"inspector.transfer.textfield.note":
+	{
+		"en_US": "Copy and paste a valid area JSON file here to load it into the editor."
+	},
+	"inspector.transfer.upload":
+	{
+		"en_US": "Upload"
+	},
+	"inspector.transfer.upload.note":
+	{
+		"en_US": "You can also drag and drop an area JSON file anywhere to load it into the editor."
+	},
+	"inspector.transfer.download":
+	{
+		"en_US": "Download"
+	},
+	"inspector.area":
+	{
+		"en_US": "Area Settings"
+	},
+	"inspector.area.genericListNote":
+	{
+		"en_US": "To add an entry, click the [+] button to add a new entry at that location. Likewise, click the [-] button to remove that entry. You can also select two entries and click the \"Swap\" button."
+	},
+	"inspector.area.dimensions":
+	{
+		"en_US": "Dimensions"
+	},
+	"inspector.area.move":
+	{
+		"en_US": "Move Current Grid"
+	},
+	"inspector.area.dimensions.confirm":
+	{
+		"en_US": "Set these as my new dimensions and offsets."
+	},
+	"inspector.area.defaultFloor":
+	{
+		"en_US": "Default Floor"
+	},
+	"inspector.area.defaultFloor.note":
+	{
+		"en_US": "This setting determines the first floor you see when viewing this area from another area."
+	},
+	"inspector.area.floors":
+	{
+		"en_US": "Floors"
+	},
+	"inspector.area.floors.swap":
+	{
+		"en_US": "Swap Floors"
+	},
+	"inspector.area.floors.swap.success":
+	{
+		"en_US": "Successfully swapped the two selected floors!"
+	},
+	"inspector.area.floors.swap.failure":
+	{
+		"en_US": "You need to select exactly two floors in order to swap them!"
+	},
+	"inspector.area.note":
+	{
+		"en_US": "Note: Area metadata is stored in \"assets/data/database.json/areas/<area>/...\". This is where properties like the amount of chests in the area, names/descriptions, and its position on the global map are stored. The area data structure itself is for storing the grid and any other grid-specific data like maps, connections, icons, and landmarks."
+	},
+	"inspector.floor":
+	{
+		"en_US": "Floor Settings"
+	},
+	"inspector.floor.level":
+	{
+		"en_US": "Level"
+	},
+	"inspector.floor.level.note":
+	{
+		"en_US": "The level property only determines the display of this floor in the floor buttons. So you can have -2 then -4, which will show up in that order. A default floor property that doesn't match anything will just show a blank screen until you select a floor."
+	},
+	"inspector.floor.maps":
+	{
+		"en_US": "Maps"
+	},
+	"inspector.floor.connections":
+	{
+		"en_US": "Connections"
+	},
+	"inspector.floor.icons":
+	{
+		"en_US": "Icons"
+	},
+	"inspector.floor.landmarks":
+	{
+		"en_US": "Landmarks"
+	},
+	"inspector.floor.genericSelect":
+	{
+		"en_US": "Select"
+	},
+	"inspector.floor.handle":
+	{
+		"en_US": "Custom Handler"
+	},
+	"inspector.floor.handle.note":
+	{
+		"en_US": "This will override the level property so instead of displaying \"F5\", you can instead display \"F??\" with this setting."
+	},
+	"inspector.selection.map":
+	{
+		"en_US": "Current Map"
+	},
+	"inspector.selection.map.path":
+	{
+		"en_US": "Path"
+	},
+	"inspector.selection.map.name":
+	{
+		"en_US": "Map Name"
+	},
+	"inspector.selection.map.name.untitled":
 	{
 		"en_US": "untitled",
 		"de_DE": "unbetitelt",
@@ -51,5 +204,113 @@
 		"ja_JP": "無題",
 		"ko_KR": "미정",
 		"zh_TW": "未命名"
+	},
+	"inspector.selection.map.note":
+	{
+		"en_US": "The path requires a specific format to work properly. For example, \"arid.town-1\", which points to \"assets/data/maps/arid/town-1.json\"."
+	},
+	"inspector.selection.connection":
+	{
+		"en_US": "Current Connection"
+	},
+	"inspector.selection.connection.position":
+	{
+		"en_US": "Position"
+	},
+	"inspector.selection.connection.direction":
+	{
+		"en_US": "Direction"
+	},
+	"inspector.selection.connection.size":
+	{
+		"en_US": "Size"
+	},
+	"inspector.selection.connection.maps":
+	{
+		"en_US": "Bound Maps"
+	},
+	"inspector.selection.connection.condition":
+	{
+		"en_US": "Condition (optional)"
+	},
+	"inspector.selection.icon":
+	{
+		"en_US": "Current Icon"
+	},
+	"inspector.selection.icon.position":
+	{
+		"en_US": "Position"
+	},
+	"inspector.selection.icon.icon":
+	{
+		"en_US": "Icon"
+	},
+	"inspector.selection.icon.map":
+	{
+		"en_US": "Bound Map"
+	},
+	"inspector.selection.icon.data":
+	{
+		"en_US": "Icon Metadata"
+	},
+	"inspector.selection.icon.data.area":
+	{
+		"en_US": "Area"
+	},
+	"inspector.selection.icon.data.map":
+	{
+		"en_US": "Map"
+	},
+	"inspector.selection.icon.data.note":
+	{
+		"en_US": "This is required for area pointer icons. For the area field, put in the area identifier (like \"arid-dng-2\") and the map that it's pointing to (like \"arid-dng.first.room-01\")."
+	},
+	"inspector.selection.landmark":
+	{
+		"en_US": "Current Landmark"
+	},
+	"inspector.selection.landmark.position":
+	{
+		"en_US": "Position"
+	},
+	"inspector.selection.landmark.id":
+	{
+		"en_US": "ID"
+	},
+	"inspector.selection.landmark.map":
+	{
+		"en_US": "Bound Map"
+	},
+	"preferences":
+	{
+		"en_US": "Preferences"
+	},
+	"preferences.language":
+	{
+		"en_US": "Language"
+	},
+	"preferences.language.note":
+	{
+		"en_US": "This setting will be used to determine both the language that will appear in this program (if it's supported) as well as the default language that appears when you edit a map's name. Below, you'll see two fields: The first is a dropdown menu of all the fully-supported languages. The second is a text field where you can enter in any language code such as \"en_US\" in order to automatically switch to that language when editing map names. The two are intertwined."
+	},
+	"preferences.language.success":
+	{
+		"en_US": "Successfully set your language to %language_name% (%language_tag%)! Reload the page for these changes to take place."
+	},
+	"preferences.language.failure":
+	{
+		"en_US": "Failed to set your language to %language_name% (%language_tag%)! Your browser most likely doesn't support the local storage module."
+	},
+	"help":
+	{
+		"en_US": "Need some help?"
+	},
+	"help.controls":
+	{
+		"en_US": "Controls: %link%"
+	},
+	"error":
+	{
+		"en_US": "There are currently some errors with the program! Press F12 to list out what those errors were and submit an issue on GitHub."
 	}
 }

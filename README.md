@@ -7,6 +7,7 @@ A tool that allows you to graphically edit areas. Extended from my general 2D Ma
 - Middle Click: Pan
 - Shift + Middle Click: Cycle View Modes
 - Right Click: Select/Inspect
+- Shift + Right Click: Link Selected Connection/Icon/Landmark to Map
 - Scroll Wheel: Zoom
 - Shift + Scroll Wheel: Switch Floors
 
@@ -22,6 +23,7 @@ The most I'm willing to accommodate for is a laptop with only one button on its 
 - Q/E: Switch Floors
 
 # Specifications
+- When instantiating elements like the renderer, instead of relying on a reference from the DOM and then passing down it to the code, go the other way around and create an element which will be attached to the DOM.
 - The only time you render the canvas without modifying the data first is when prevewing a result. Otherwise, it should accurately reflect what the data looks like.
 - Windows:
 	- Inspector: Lets you edit the selected element.
@@ -38,6 +40,7 @@ The entry point to the program is `src/index` which pretty much calls everything
 - `controller`: Lists in on the mouse clicks and keyboard keys that activate functions from the `gateway`.
 - `floor`: The class which controls a floor's data and displaying it.
 - `gateway`: Contains a list of functions that serves as the glue between the renderer, the area data, and the controller.
+- `inspector`: Exports an instance of a class which lets you see and edit the area data.
 - `lang`: Holds the `LangLabel` class and initializes `lexicon.json` into a dictionary of `LangLabel`s.
 - `lexicon.json`: The localization file. It's unlikely that this'll be expanded upon, but it can't hurt to add the functionality, right?
 - `matrix`: The class that handles grid data.

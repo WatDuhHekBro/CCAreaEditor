@@ -1,4 +1,4 @@
-import {LangLabel, lexicon} from "./lang";
+import lang, {LangLabel} from "./lang";
 import Matrix from "./matrix";
 import Renderer from "./renderer";
 import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "./common";
@@ -64,11 +64,11 @@ export class Floor
 		if(this.handle)
 			return this.handle.getClean();
 		else if(this.level === 0)
-			return lexicon.floorGround.get();
+			return lang("floor.ground");
 		else if(this.level > 0)
-			return Math.abs(this.level) + lexicon.floorUpper.get();
+			return Math.abs(this.level) + lang("floor.upper");
 		else if(this.level < 0)
-			return lexicon.floorLower.get() + Math.abs(this.level);
+			return lang("floor.lower") + Math.abs(this.level);
 		else
 			return "N/A";
 	}
@@ -77,9 +77,12 @@ export class Floor
 	// For everything else, you'd need to redraw the canvas to avoid ghost elements lingering around.
 	public render(resultModeEnabled: boolean, options?: RenderOptions)
 	{
+		Renderer.setRenderingMode(false);
+		
 		if(resultModeEnabled)
 		{
 			Renderer.generateTilesAdvanced(this.tiles, options?.isolate);
+			Renderer.setRenderingMode(true);
 			
 			if(options?.debugConnectionsMode)
 			{
@@ -120,6 +123,8 @@ export class Floor
 		}
 		else
 			Renderer.generateTiles(this.tiles, options?.isolate);
+	
+		Renderer.setRenderingMode(true);
 	}
 	
 	// DO NOT CALL THIS FROM ANYWHERE EXCEPT THE AREA CLASS! (Because of this, I'm assuming width and height are already checked for negative values.)

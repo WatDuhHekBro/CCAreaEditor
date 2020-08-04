@@ -11,12 +11,12 @@ let lastBoxX = 0;
 let lastBoxY = 0;
 let hasMovedLeft = false;
 
-export function bindController(canvas: HTMLCanvasElement)
+export function bindController(element: HTMLElement)
 {
-	canvas.onmousedown = mouseEventStart;
-	canvas.onmousemove = mouseEventMove;
-	canvas.onmouseup = mouseEventStop;
-	canvas.onmouseleave = mouseEventStop;
+	element.onmousedown = mouseEventStart;
+	element.onmousemove = mouseEventMove;
+	element.onmouseup = mouseEventStop;
+	element.onmouseleave = mouseEventStop;
 	window.onwheel = (event: WheelEvent) => {
 		const shift = event.shiftKey;
 		
@@ -37,7 +37,7 @@ export function bindController(canvas: HTMLCanvasElement)
 				Gateway.switchZoom(-1);
 		}
 	};
-	canvas.oncontextmenu = event => event.preventDefault();
+	element.oncontextmenu = event => event.preventDefault();
 	//window.oncontextmenu = (event: MouseEvent) => event.preventDefault();
 	window.onkeydown = (event: KeyboardEvent) => {event.code in KeyMap && KeyMap[event.code](event.shiftKey)};
 }
