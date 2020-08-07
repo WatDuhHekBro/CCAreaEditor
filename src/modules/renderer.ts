@@ -193,9 +193,7 @@ class Renderer
 		if(factor <= 0)
 			factor = Math.abs(1 / (factor - 2));
 		
-		const newPosition = `translate(${this.offsetX}px, ${this.offsetY}px) scale(${factor})`;
-		this.background.style.transform = newPosition;
-		this.foreground.style.transform = newPosition;
+		this.container.style.transform = `translate(-50%, -50%) translate(${this.offsetX}px, ${this.offsetY}px) scale(${factor})`;
 	}
 	
 	public generateTiles(matrix: Matrix, isolate?: number[])

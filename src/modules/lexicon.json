@@ -48,6 +48,22 @@
 		"en_US": "Inspector",
 		"ko_KR": "인스펙터"
 	},
+	"inspector.tabs.transfer":
+	{
+		"en_US": "Transfer"
+	},
+	"inspector.tabs.area":
+	{
+		"en_US": "Area"
+	},
+	"inspector.tabs.floor":
+	{
+		"en_US": "Floor"
+	},
+	"inspector.tabs.selection":
+	{
+		"en_US": "Selected"
+	},
 	"inspector.transfer":
 	{
 		"en_US": "Create/Load Area"
@@ -59,10 +75,6 @@
 	"inspector.transfer.create":
 	{
 		"en_US": "Create New Area"
-	},
-	"inspector.transfer.create.dimensions":
-	{
-		"en_US": "Dimensions"
 	},
 	"inspector.transfer.textfield":
 	{
@@ -83,6 +95,10 @@
 	"inspector.transfer.textfield.note":
 	{
 		"en_US": "Copy and paste a valid area JSON file here to load it into the editor."
+	},
+	"inspector.transfer.textfield.placeholder":
+	{
+		"en_US": "Paste JSON here."
 	},
 	"inspector.transfer.upload":
 	{

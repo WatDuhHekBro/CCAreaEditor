@@ -92,7 +92,7 @@ export class TextField extends HTMLWrapper<HTMLInputElement>
 	{
 		super(document.createElement("input"));
 		this.element.oninput = inputViaTextField;
-		//this.element.placeholder = lang("inspector.transfer.textfield.placeholder");
+		this.element.placeholder = lang("inspector.transfer.textfield.placeholder");
 	}
 }
 

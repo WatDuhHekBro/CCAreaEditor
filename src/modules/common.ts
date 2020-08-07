@@ -18,6 +18,12 @@ export abstract class HTMLWrapper<T extends HTMLElement>
 		return this;
 	}
 	
+	public attachElement(element: HTMLElement)
+	{
+		this.element.appendChild(element);
+		return this;
+	}
+	
 	public attachTo(element: HTMLElement)
 	{
 		element.appendChild(this.element);
