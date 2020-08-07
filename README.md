@@ -59,7 +59,12 @@ The entry point to the program is `src/index` which pretty much calls everything
 - `map.zMax` (number|null): Same as above.
 - `landmark.option` (string = `DEFAULT`): This can be found in `sc.LANDMARK_OPTIONS` which only has one option and isn't even used in the code besides declaring that.
 
-# Possible Features
+# Future Stuff
+- Optimize rendering to no longer be horribly inefficient, especially with moving operations
+- Hover effect for tile editor
+- Floor Buttons
+- Error Bubble (expand it to show errors)
+- Help Bubble
 - Auto-saving
 - History
 - Custom Palette

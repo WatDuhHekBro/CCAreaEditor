@@ -5,12 +5,6 @@ import {createArea} from "./gateway";
 
 class Inspector extends HTMLWrapper<HTMLDivElement>
 {
-	private isWindowed = false;
-	private lastX = 0;
-	private lastY = 0;
-	private isActivelyMoving = false;
-	private offsetX = 0;
-	private offsetY = 0;
 	private titleTab: HTMLHeadingElement;
 	private tabs: GenericTab[];
 	private static readonly tabNames = ["transfer", "area", "floor", "selection"];
@@ -84,47 +78,7 @@ class Inspector extends HTMLWrapper<HTMLDivElement>
 			this.setActiveTab(3);
 		}));
 		
-		const resizeButton = document.createElement("span");
-		resizeButton.className = "corner-button";
-		resizeButton.innerText = "⚪";
-		resizeButton.onclick = () => {
-			this.setWindowedMode();
-		};
-		this.element.appendChild(resizeButton);
-		
-		this.element.onmousedown = event => {
-			if(event.button === 1)
-			{
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				this.lastX = event.offsetX;
-				this.lastY = event.offsetY;
-				this.isActivelyMoving = true;
-			}
-		};
-		this.element.onmousemove = event => {
-			if(this.isActivelyMoving && this.isWindowed)
-			{
-				const x = event.offsetX;
-				const y = event.offsetY;
-				const deltaX = x - this.lastX;
-				const deltaY = y - this.lastY;
-				this.offsetX += deltaX;
-				this.offsetY += deltaY;
-				this.lastX = x - deltaX;
-				this.lastY = y - deltaY;
-				this.element.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px)`;
-			}
-		};
-		this.element.onmouseup = event => {
-			this.isActivelyMoving = false;
-		};
-		this.element.onmouseleave = event => {
-			this.isActivelyMoving = false;
-		};
-		
 		this.setActiveTab(0);
-		this.setWindowedMode(true);
 	}
 	
 	private setActiveTab(index: number)
@@ -136,26 +90,6 @@ class Inspector extends HTMLWrapper<HTMLDivElement>
 			
 			if(i === index)
 				this.titleTab.innerText = lang(`inspector.${Inspector.tabNames[i]}${tag}`);
-		}
-	}
-	
-	private setWindowedMode(setting?: boolean)
-	{
-		const willHaveWindowedModeEnabled = setting ?? !this.isWindowed;
-		this.isWindowed = willHaveWindowedModeEnabled;
-		this.element.style.transform = "";
-		this.offsetX = 0;
-		this.offsetY = 0;
-		
-		if(willHaveWindowedModeEnabled)
-		{
-			this.element.classList.add("window");
-			this.element.classList.remove("sidebar");
-		}
-		else
-		{
-			this.element.classList.add("sidebar");
-			this.element.classList.remove("window");
 		}
 	}
 	

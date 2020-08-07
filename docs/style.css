@@ -38,6 +38,7 @@ input[type=number]
 	background-color: lightgray;
 	border: 5px double darkgray;
 	text-align: center;
+	height: 99%;
 }
 
 .ui *
@@ -77,31 +78,4 @@ input[type=number]
 {
 	border: 2px solid gray;
 	border-top: 2px solid lightgray;
-}
-
-.corner-button
-{
-	position: absolute;
-	top: 0;
-	left: 0;
-	border-radius: 50%;
-	cursor: pointer;
-}
-
-.sidebar
-{
-	height: 99%;
-	left: -275px;
-	transition: left 0.25s ease-in-out;
-}
-
-.sidebar:hover
-{
-	left: 0;
-}
-
-.window
-{
-	height: 450px;
-	border-radius: 15px;
 }
