@@ -1,6 +1,7 @@
 import Renderer from "./renderer";
 import {Area, currentArea, setCurrentArea} from "./area";
 import {Floor} from "./floor";
+import Inspector from "./inspector"; // The idea here is that the inspector will be able to send and receive data once it's linked here.
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};
 const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;

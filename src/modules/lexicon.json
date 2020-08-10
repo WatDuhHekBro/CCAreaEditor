@@ -48,6 +48,10 @@
 		"en_US": "Inspector",
 		"ko_KR": "인스펙터"
 	},
+	"inspector.genericListNote":
+	{
+		"en_US": "To add an entry, click the [+] button to add a new entry at that location. Likewise, click the [-] button to remove that entry. You can also select two entries and click the \"Swap\" button."
+	},
 	"inspector.tabs.transfer":
 	{
 		"en_US": "Transfer"
@@ -62,7 +66,7 @@
 	},
 	"inspector.tabs.selection":
 	{
-		"en_US": "Selected"
+		"en_US": "Selection"
 	},
 	"inspector.transfer":
 	{
@@ -70,15 +74,7 @@
 	},
 	"inspector.transfer.note":
 	{
-		"en_US": "You can either create an area or load an existing one. To load an existing area, you can either copy and paste its data or upload it. To get the area from the editor, you can either copy it from the text field or download it."
-	},
-	"inspector.transfer.create":
-	{
-		"en_US": "Create New Area"
-	},
-	"inspector.transfer.textfield":
-	{
-		"en_US": "Text Field"
+		"en_US": "Here is where you can import existing data or export data from the editor for use in-game. To create a new area, go into the \"Area\" tab and set the area's dimensions there. Here, you can import an existing area by either copying and pasting the data or by uploading it. To export the area from the editor, you can either copy it from the text field or download it."
 	},
 	"inspector.transfer.textfield.paste":
 	{
@@ -92,17 +88,9 @@
 	{
 		"en_US": "Copied to clipboard!"
 	},
-	"inspector.transfer.textfield.note":
-	{
-		"en_US": "Copy and paste a valid area JSON file here to load it into the editor."
-	},
 	"inspector.transfer.textfield.placeholder":
 	{
 		"en_US": "Paste JSON here."
-	},
-	"inspector.transfer.upload":
-	{
-		"en_US": "Upload"
 	},
 	"inspector.transfer.upload.note":
 	{
@@ -116,10 +104,6 @@
 	{
 		"en_US": "Area Settings"
 	},
-	"inspector.area.genericListNote":
-	{
-		"en_US": "To add an entry, click the [+] button to add a new entry at that location. Likewise, click the [-] button to remove that entry. You can also select two entries and click the \"Swap\" button."
-	},
 	"inspector.area.dimensions":
 	{
 		"en_US": "Dimensions"
@@ -127,10 +111,6 @@
 	"inspector.area.move":
 	{
 		"en_US": "Move Current Grid"
-	},
-	"inspector.area.dimensions.confirm":
-	{
-		"en_US": "Set these as my new dimensions and offsets."
 	},
 	"inspector.area.defaultFloor":
 	{
@@ -202,7 +182,7 @@
 	},
 	"inspector.selection":
 	{
-		"en_US": "Current Item"
+		"en_US": "Current Selection"
 	},
 	"inspector.selection.map.path":
 	{

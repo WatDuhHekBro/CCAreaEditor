@@ -1,7 +1,6 @@
 import {HTMLWrapper, create} from "./common";
-import {TextField, FileUploader, DownloadButton} from "./transfer";
+import {inputViaFileUpload, inputViaTextField, outputViaDownload, outputViaTextField} from "./transfer";
 import lang from "./lang";
-import {createArea} from "./gateway";
 
 class Inspector extends HTMLWrapper<HTMLDivElement>
 {
@@ -27,14 +26,13 @@ class Inspector extends HTMLWrapper<HTMLDivElement>
 		this.element.appendChild(this.titleTab);
 		
 		const transferTab = new GenericTab();
-		const widthField = create("input", {
+		const textfield = create("input", {
 			attributes: {
-				type: "number"
-			}
-		});
-		const heightField = create("input", {
-			attributes: {
-				type: "number"
+				type: "text",
+				placeholder: lang("inspector.transfer.textfield.placeholder")
+			},
+			events: {
+				input: inputViaTextField
 			}
 		});
 		transferTab
@@ -42,26 +40,33 @@ class Inspector extends HTMLWrapper<HTMLDivElement>
 				text: lang("inspector.transfer.note")
 			}))
 			.attachElement(create("div", {
-				append: [
-					widthField,
-					create("span", {
-						text: " x "
-					}),
-					heightField,
-					create("span", {
-						text: "".padStart(5, "\u00A0")
-					}),
-					create("button", {
-						text: lang("inspector.transfer.create"),
-						events: {
-							click: () => createArea(parseInt(widthField.value), parseInt(heightField.value))
-						}
-					})
-				]
+				append: [textfield, create("button", {
+					text: lang("inspector.transfer.textfield.copy"),
+					events: {
+						click: outputViaTextField(textfield)
+					}
+				})]
 			}))
-			.attach(new TextField())
-			.attach(new FileUploader())
-			.attach(new DownloadButton());
+			.attachElement(create("div", {
+				append: [create("input", {
+					attributes: {
+						type: "file"
+					},
+					events: {
+						change: inputViaFileUpload
+					}
+				}), create("span", {
+					text: lang("inspector.transfer.upload.note")
+				})]
+			}))
+			.attachElement(create("div", {
+				append: create("button", {
+					text: lang("inspector.transfer.download"),
+					events: {
+						click: outputViaDownload
+					}
+				})
+			}));
 		this.attach(transferTab);
 		this.tabs.push(transferTab);
 		tabs.appendChild(createTabButton(lang("inspector.tabs.transfer"), () => {
@@ -69,6 +74,16 @@ class Inspector extends HTMLWrapper<HTMLDivElement>
 		}));
 		
 		const areaTab = new GenericTab();
+		/*areaTab
+			.attachElement(create("div", {
+				
+			}))
+			.attachElement(create("div", {
+				
+			}))
+			.attachElement(create("div", {
+				
+			}))*/
 		this.attach(areaTab);
 		this.tabs.push(areaTab);
 		tabs.appendChild(createTabButton(lang("inspector.tabs.area"), () => {
@@ -114,14 +129,6 @@ class GenericTab extends HTMLWrapper<HTMLDivElement>
 	{
 		super(document.createElement("div"));
 		this.setDisplay(false);
-	}
-	
-	public attach<K extends HTMLElement>(wrapper: HTMLWrapper<K>)
-	{
-		const container = document.createElement("div");
-		wrapper.attachTo(container);
-		super.attachElement(container);
-		return this;
 	}
 	
 	public setDisplay(state?: boolean)
