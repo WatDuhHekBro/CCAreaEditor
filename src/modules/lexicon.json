@@ -66,7 +66,7 @@
 	},
 	"inspector.transfer":
 	{
-		"en_US": "Create/Load Area"
+		"en_US": "Transfer Data"
 	},
 	"inspector.transfer.note":
 	{
@@ -200,9 +200,9 @@
 	{
 		"en_US": "This will override the level property so instead of displaying \"F5\", you can instead display \"F??\" with this setting."
 	},
-	"inspector.selection.map":
+	"inspector.selection":
 	{
-		"en_US": "Current Map"
+		"en_US": "Current Item"
 	},
 	"inspector.selection.map.path":
 	{
@@ -225,10 +225,6 @@
 	{
 		"en_US": "The path requires a specific format to work properly. For example, \"arid.town-1\", which points to \"assets/data/maps/arid/town-1.json\"."
 	},
-	"inspector.selection.connection":
-	{
-		"en_US": "Current Connection"
-	},
 	"inspector.selection.connection.position":
 	{
 		"en_US": "Position"
@@ -248,10 +244,6 @@
 	"inspector.selection.connection.condition":
 	{
 		"en_US": "Condition (optional)"
-	},
-	"inspector.selection.icon":
-	{
-		"en_US": "Current Icon"
 	},
 	"inspector.selection.icon.position":
 	{
@@ -280,10 +272,6 @@
 	"inspector.selection.icon.data.note":
 	{
 		"en_US": "This is required for area pointer icons. For the area field, put in the area identifier (like \"arid-dng-2\") and the map that it's pointing to (like \"arid-dng.first.room-01\")."
-	},
-	"inspector.selection.landmark":
-	{
-		"en_US": "Current Landmark"
 	},
 	"inspector.selection.landmark.position":
 	{

@@ -1,4 +1,4 @@
-import {HTMLWrapper} from "./common";
+import {HTMLWrapper, create} from "./common";
 import {TextField, FileUploader, DownloadButton} from "./transfer";
 import lang from "./lang";
 import {createArea} from "./gateway";
@@ -8,7 +8,6 @@ class Inspector extends HTMLWrapper<HTMLDivElement>
 	private titleTab: HTMLHeadingElement;
 	private tabs: GenericTab[];
 	private static readonly tabNames = ["transfer", "area", "floor", "selection"];
-	public tag: "map"|"connection"|"icon"|"landmark" = "map";
 	
 	constructor()
 	{
@@ -27,27 +26,39 @@ class Inspector extends HTMLWrapper<HTMLDivElement>
 		this.titleTab = document.createElement("h1");
 		this.element.appendChild(this.titleTab);
 		
-		// Unholy dumpster fire of """code""", how do I modularize this?
 		const transferTab = new GenericTab();
-		const createFieldWidth = document.createElement("input");
-		createFieldWidth.type = "number";
-		const createFieldX = document.createElement("span");
-		createFieldX.innerText = " x ";
-		const createFieldHeight = document.createElement("input");
-		createFieldHeight.type = "number";
-		const createFieldSpace = document.createElement("span");
-		createFieldSpace.innerText = "".padStart(5, "\u00A0");
-		const createFieldButton = document.createElement("button");
-		createFieldButton.innerText = lang("inspector.transfer.create");
-		createFieldButton.onclick = () => {
-			createArea(parseInt(createFieldWidth.value), parseInt(createFieldHeight.value));
-		};
+		const widthField = create("input", {
+			attributes: {
+				type: "number"
+			}
+		});
+		const heightField = create("input", {
+			attributes: {
+				type: "number"
+			}
+		});
 		transferTab
-			.attachElement(createFieldWidth)
-			.attachElement(createFieldX)
-			.attachElement(createFieldHeight)
-			.attachElement(createFieldSpace)
-			.attachElement(createFieldButton)
+			.attachElement(create("div", {
+				text: lang("inspector.transfer.note")
+			}))
+			.attachElement(create("div", {
+				append: [
+					widthField,
+					create("span", {
+						text: " x "
+					}),
+					heightField,
+					create("span", {
+						text: "".padStart(5, "\u00A0")
+					}),
+					create("button", {
+						text: lang("inspector.transfer.create"),
+						events: {
+							click: () => createArea(parseInt(widthField.value), parseInt(heightField.value))
+						}
+					})
+				]
+			}))
 			.attach(new TextField())
 			.attach(new FileUploader())
 			.attach(new DownloadButton());
@@ -85,11 +96,10 @@ class Inspector extends HTMLWrapper<HTMLDivElement>
 	{
 		for(let i = 0; i < this.tabs.length; i++)
 		{
-			const tag = i === 3 ? `.${this.tag}` : "";
 			this.tabs[i]?.setDisplay(i === index);
 			
 			if(i === index)
-				this.titleTab.innerText = lang(`inspector.${Inspector.tabNames[i]}${tag}`);
+				this.titleTab.innerText = lang(`inspector.${Inspector.tabNames[i]}`);
 		}
 	}
 	
