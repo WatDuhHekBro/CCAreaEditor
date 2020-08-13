@@ -1,4 +1,4 @@
-import {GenericJSON} from "./common";
+import {GenericJSON, HTMLWrapper, create} from "./common";
 import Settings from "./config";
 import lexiconJSON from "./lexicon.json";
 
@@ -37,6 +37,95 @@ export class LangLabel
 	public toJSON()
 	{
 		return this.languages;
+	}
+}
+
+// This is the document element that'll let you send and receive LangLabel data. It will remain on the document, and to change the focus, you swap out the langlabel property.
+export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
+{
+	private input: HTMLInputElement;
+	private menu: HTMLSelectElement;
+	private langlabel: LangLabel;
+	private tag: string;
+	
+	constructor(langlabel: LangLabel, placeholder: string)
+	{
+		super(document.createElement("div"));
+		const self = this;
+		this.input = create("input", {
+			attributes: {
+				type: "text",
+				placeholder: placeholder
+			},
+			events: {
+				input() {
+					self.langlabel.languages[self.tag] = this.value;
+					console.log(self);
+				}
+			}
+		});
+		this.menu = create("select", {
+			events: {
+				change() {
+					self.tag = this.value;
+					self.input.value = self.langlabel.get(self.tag);
+				}
+			}
+		});
+		this.langlabel = langlabel;
+		this.tag = Settings.language;
+		this.element.appendChild(this.input);
+		this.element.appendChild(this.menu);
+		this.createMenu();
+	}
+	
+	public setLangLabel(langlabel: LangLabel)
+	{
+		this.langlabel = langlabel;
+		
+		while(this.menu.firstChild)
+			this.menu.removeChild(this.menu.firstChild);
+		
+		this.input.value = "";
+		this.createMenu();
+	}
+	
+	private createMenu()
+	{
+		let found = false;
+		
+		// A generated LangLabel will show the existing language tags plus the user's current language.
+		for(const tag in this.langlabel.languages)
+		{
+			const element = create("option", {
+				text: tag in lexiconJSON.languages ? lexicon.languages.get(tag) : tag,
+				attributes: {
+					value: tag
+				}
+			});
+			
+			if(tag === Settings.language)
+			{
+				this.input.value = this.langlabel.get(tag);
+				element.selected = true;
+				found = true;
+			}
+			
+			this.menu.appendChild(element);
+		}
+		
+		if(!found)
+		{
+			const tag = Settings.language;
+			const element = create("option", {
+				text: tag in lexiconJSON.languages ? lexicon.languages.get(tag) : tag,
+				attributes: {
+					value: tag
+				}
+			});
+			element.selected = true;
+			this.menu.appendChild(element);
+		}
 	}
 }
 

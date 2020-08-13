@@ -1,5 +1,4 @@
 import {Area, currentArea, setCurrentArea} from "./area";
-import {HTMLWrapper} from "./common";
 import lang from "./lang";
 
 let currentFileName = "area.json";
@@ -10,7 +9,7 @@ function parseAndSendToEditor(data: string)
 	catch {setCurrentArea(new Area())}
 }
 
-function inputViaDragAndDrop(event: DragEvent)
+export function inputViaDragAndDrop(event: DragEvent)
 {
 	event.preventDefault();
 	
@@ -31,7 +30,7 @@ function inputViaDragAndDrop(event: DragEvent)
 	}
 }
 
-function inputViaFileUpload()
+export function inputViaFileUpload()
 {
 	const file = this.files?.[0];
 	
@@ -45,13 +44,16 @@ function inputViaFileUpload()
 	}
 }
 
-function inputViaTextField()
+export function inputViaTextField()
 {
 	parseAndSendToEditor(this.value);
-	this.value = lang("inspector.transfer.textfield.paste");
+	this.blur();
+	this.value = "";
+	this.placeholder = lang("inspector.transfer.textfield.paste");
+	setTimeout(() => this.placeholder = lang("inspector.transfer.textfield.placeholder"), 1500);
 }
 
-function outputViaDownload()
+export function outputViaDownload()
 {
 	if(currentArea)
 	{
@@ -63,51 +65,19 @@ function outputViaDownload()
 	}
 }
 
-function outputViaTextField(element: HTMLTextAreaElement)
+export function outputViaTextField(element: HTMLInputElement): () => void
 {
-	if(currentArea)
-	{
-		element.value = JSON.stringify(currentArea);
-		element.select();
-		element.setSelectionRange(0, 99999);
-		document.execCommand("copy");
-		element.blur();
-		element.value = lang("inspector.transfer.textfield.copy.status");
-	}
-}
-
-export class FileUploader extends HTMLWrapper<HTMLInputElement>
-{
-	constructor()
-	{
-		super(document.createElement("input"));
-		this.element.type = "file";
-		this.element.onchange = inputViaFileUpload;
-	}
-}
-
-export class TextField extends HTMLWrapper<HTMLInputElement>
-{
-	constructor()
-	{
-		super(document.createElement("input"));
-		this.element.oninput = inputViaTextField;
-		this.element.placeholder = lang("inspector.transfer.textfield.placeholder");
-	}
-}
-
-export class DownloadButton extends HTMLWrapper<HTMLButtonElement>
-{
-	constructor()
-	{
-		super(document.createElement("button"));
-		this.element.onclick = outputViaDownload;
-		this.element.innerText = lang("inspector.transfer.download");
-	}
-}
-
-export function activateDragAndDrop()
-{
-	document.body.ondrop = inputViaDragAndDrop;
-	document.body.ondragover = event => event.preventDefault();
+	return function() {
+		if(currentArea)
+		{
+			element.value = JSON.stringify(currentArea);
+			element.select();
+			element.setSelectionRange(0, 99999);
+			document.execCommand("copy");
+			element.blur();
+			element.value = "";
+			element.placeholder = lang("inspector.transfer.textfield.copy.status");
+			setTimeout(() => element.placeholder = lang("inspector.transfer.textfield.placeholder"), 1500);
+		}
+	};
 }

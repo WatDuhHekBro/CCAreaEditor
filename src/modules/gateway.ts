@@ -1,10 +1,11 @@
 import Renderer from "./renderer";
 import {Area, currentArea, setCurrentArea} from "./area";
 import {Floor} from "./floor";
+import {elements} from "./inspector";
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};
 const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
-let currentFloor: Floor|undefined;
+export let currentFloor: Floor|undefined;
 let currentFloorIndex = 0;
 let currentMode = VIEWS.TILES;
 let selected = 0;
@@ -54,6 +55,7 @@ export function loadArea()
 	{
 		currentFloor = currentArea.getFloorByLevel(currentArea.defaultFloor ?? 0) ?? currentArea.getFloorByIndex(0);
 		currentFloorIndex = currentArea.getIndexByLevel(currentArea.defaultFloor ?? 0) ?? 0;
+		elements.level.value = currentFloor.level.toString();
 		render();
 		Renderer.bind();
 	}
@@ -121,6 +123,18 @@ export function setBoxPreview(x1: number, y1: number, x2: number, y2: number)
 			for(let x = x1; x <= x2; x++)
 				Renderer.setTile(x, y, selected);
 	}
+}
+
+export function resizeArea(options: {width?: number, height?: number, offsetX?: number, offsetY?: number})
+{
+	if(!currentArea)
+		setCurrentArea(new Area({
+			width: options.width,
+			height: options.height
+		}));
+	else
+		currentArea.resize(options.width ?? currentArea.getWidth(), options.height ?? currentArea.getHeight(), options.offsetX, options.offsetY);
+	render();
 }
 
 export function moveConnection(x: number, y: number)
@@ -207,6 +221,12 @@ export function select(x: number, y: number, modeRequired?: VIEWS)
 	}
 }
 
+// Potentially more dangerous than select() but allows you to get map indexes that aren't present on the area.
+export function selectById(id: number)
+{
+	selected = id;
+}
+
 // Isolates the current selection. Use render() to reset it.
 export function highlight()
 {
@@ -276,6 +296,7 @@ export function switchFloor(delta: number)
 		{
 			currentFloor = currentArea.getFloorByIndex(newIndex);
 			currentFloorIndex = newIndex;
+			elements.level.value = currentFloor.level.toString();
 			render();
 		}
 	}

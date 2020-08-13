@@ -48,7 +48,6 @@ input[type=number]
 
 .ui div
 {
-	text-align: right;
 	background-color: darkgray;
 	color: white;
 	border: 2px solid black;
@@ -57,7 +56,6 @@ input[type=number]
 .ui div.separator
 {
 	display: inline-block;
-	text-align: left;
 }
 
 .ui div.separator *
@@ -72,6 +70,11 @@ input[type=number]
 .ui div.separator *:not(:first-child)
 {
 	border-left: 2px solid black;
+}
+
+.ui div.separator *.selected
+{
+	background-color: lightgreen;
 }
 
 .ui div div

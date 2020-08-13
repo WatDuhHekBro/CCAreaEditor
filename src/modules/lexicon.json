@@ -48,6 +48,10 @@
 		"en_US": "Inspector",
 		"ko_KR": "인스펙터"
 	},
+	"inspector.genericListNote":
+	{
+		"en_US": "To add an entry, click the [+] button to add a new entry at that location. Likewise, click the [-] button to remove that entry. You can also select two entries and click the \"Swap\" button."
+	},
 	"inspector.tabs.transfer":
 	{
 		"en_US": "Transfer"
@@ -62,23 +66,15 @@
 	},
 	"inspector.tabs.selection":
 	{
-		"en_US": "Selected"
+		"en_US": "Selection"
 	},
 	"inspector.transfer":
 	{
-		"en_US": "Create/Load Area"
+		"en_US": "Transfer Data"
 	},
 	"inspector.transfer.note":
 	{
-		"en_US": "You can either create an area or load an existing one. To load an existing area, you can either copy and paste its data or upload it. To get the area from the editor, you can either copy it from the text field or download it."
-	},
-	"inspector.transfer.create":
-	{
-		"en_US": "Create New Area"
-	},
-	"inspector.transfer.textfield":
-	{
-		"en_US": "Text Field"
+		"en_US": "Here is where you can import existing data or export data from the editor for use in-game. To create a new area, go into the \"Area\" tab and set the area's dimensions there. Here, you can import an existing area by either copying and pasting the data or by uploading it. To export the area from the editor, you can either copy it from the text field or download it."
 	},
 	"inspector.transfer.textfield.paste":
 	{
@@ -92,17 +88,9 @@
 	{
 		"en_US": "Copied to clipboard!"
 	},
-	"inspector.transfer.textfield.note":
-	{
-		"en_US": "Copy and paste a valid area JSON file here to load it into the editor."
-	},
 	"inspector.transfer.textfield.placeholder":
 	{
 		"en_US": "Paste JSON here."
-	},
-	"inspector.transfer.upload":
-	{
-		"en_US": "Upload"
 	},
 	"inspector.transfer.upload.note":
 	{
@@ -116,21 +104,25 @@
 	{
 		"en_US": "Area Settings"
 	},
-	"inspector.area.genericListNote":
+	"inspector.area.width":
 	{
-		"en_US": "To add an entry, click the [+] button to add a new entry at that location. Likewise, click the [-] button to remove that entry. You can also select two entries and click the \"Swap\" button."
+		"en_US": "Width"
 	},
-	"inspector.area.dimensions":
+	"inspector.area.height":
 	{
-		"en_US": "Dimensions"
+		"en_US": "Height"
 	},
-	"inspector.area.move":
+	"inspector.area.offsetX":
 	{
-		"en_US": "Move Current Grid"
+		"en_US": "Offset X"
 	},
-	"inspector.area.dimensions.confirm":
+	"inspector.area.offsetY":
 	{
-		"en_US": "Set these as my new dimensions and offsets."
+		"en_US": "Offset Y"
+	},
+	"inspector.area.confirm":
+	{
+		"en_US": "Confirm"
 	},
 	"inspector.area.defaultFloor":
 	{
@@ -172,6 +164,22 @@
 	{
 		"en_US": "The level property only determines the display of this floor in the floor buttons. So you can have -2 then -4, which will show up in that order. A default floor property that doesn't match anything will just show a blank screen until you select a floor."
 	},
+	"inspector.floor.handle":
+	{
+		"en_US": "Custom Handler"
+	},
+	"inspector.floor.handle.note":
+	{
+		"en_US": "This will override the level property so instead of displaying \"F5\", you can instead display \"F??\" with this setting."
+	},
+	"inspector.floor.handle.add":
+	{
+		"en_US": "Add"
+	},
+	"inspector.floor.handle.remove":
+	{
+		"en_US": "Remove"
+	},
 	"inspector.floor.maps":
 	{
 		"en_US": "Maps"
@@ -188,21 +196,13 @@
 	{
 		"en_US": "Landmarks"
 	},
-	"inspector.floor.genericSelect":
+	"inspector.floor.select":
 	{
 		"en_US": "Select"
 	},
-	"inspector.floor.handle":
+	"inspector.selection":
 	{
-		"en_US": "Custom Handler"
-	},
-	"inspector.floor.handle.note":
-	{
-		"en_US": "This will override the level property so instead of displaying \"F5\", you can instead display \"F??\" with this setting."
-	},
-	"inspector.selection.map":
-	{
-		"en_US": "Current Map"
+		"en_US": "Current Selection"
 	},
 	"inspector.selection.map.path":
 	{
@@ -225,10 +225,6 @@
 	{
 		"en_US": "The path requires a specific format to work properly. For example, \"arid.town-1\", which points to \"assets/data/maps/arid/town-1.json\"."
 	},
-	"inspector.selection.connection":
-	{
-		"en_US": "Current Connection"
-	},
 	"inspector.selection.connection.position":
 	{
 		"en_US": "Position"
@@ -248,10 +244,6 @@
 	"inspector.selection.connection.condition":
 	{
 		"en_US": "Condition (optional)"
-	},
-	"inspector.selection.icon":
-	{
-		"en_US": "Current Icon"
 	},
 	"inspector.selection.icon.position":
 	{
@@ -280,10 +272,6 @@
 	"inspector.selection.icon.data.note":
 	{
 		"en_US": "This is required for area pointer icons. For the area field, put in the area identifier (like \"arid-dng-2\") and the map that it's pointing to (like \"arid-dng.first.room-01\")."
-	},
-	"inspector.selection.landmark":
-	{
-		"en_US": "Current Landmark"
 	},
 	"inspector.selection.landmark.position":
 	{

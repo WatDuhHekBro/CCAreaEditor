@@ -1,100 +1,8 @@
-import {HTMLWrapper} from "./common";
-import {TextField, FileUploader, DownloadButton} from "./transfer";
+import {HTMLWrapper, create} from "./common";
+import {inputViaFileUpload, inputViaTextField, outputViaDownload, outputViaTextField} from "./transfer";
+import * as Gateway from "./gateway";
 import lang from "./lang";
-import {createArea} from "./gateway";
-
-class Inspector extends HTMLWrapper<HTMLDivElement>
-{
-	private titleTab: HTMLHeadingElement;
-	private tabs: GenericTab[];
-	private static readonly tabNames = ["transfer", "area", "floor", "selection"];
-	public tag: "map"|"connection"|"icon"|"landmark" = "map";
-	
-	constructor()
-	{
-		super(document.createElement("div"));
-		this.element.classList.add("ui");
-		
-		const title = document.createElement("h1");
-		title.innerText = lang("inspector");
-		this.element.appendChild(title);
-		
-		const tabs = document.createElement("div");
-		tabs.classList.add("separator");
-		this.element.appendChild(tabs);
-		this.tabs = [];
-		
-		this.titleTab = document.createElement("h1");
-		this.element.appendChild(this.titleTab);
-		
-		// Unholy dumpster fire of """code""", how do I modularize this?
-		const transferTab = new GenericTab();
-		const createFieldWidth = document.createElement("input");
-		createFieldWidth.type = "number";
-		const createFieldX = document.createElement("span");
-		createFieldX.innerText = " x ";
-		const createFieldHeight = document.createElement("input");
-		createFieldHeight.type = "number";
-		const createFieldSpace = document.createElement("span");
-		createFieldSpace.innerText = "".padStart(5, "\u00A0");
-		const createFieldButton = document.createElement("button");
-		createFieldButton.innerText = lang("inspector.transfer.create");
-		createFieldButton.onclick = () => {
-			createArea(parseInt(createFieldWidth.value), parseInt(createFieldHeight.value));
-		};
-		transferTab
-			.attachElement(createFieldWidth)
-			.attachElement(createFieldX)
-			.attachElement(createFieldHeight)
-			.attachElement(createFieldSpace)
-			.attachElement(createFieldButton)
-			.attach(new TextField())
-			.attach(new FileUploader())
-			.attach(new DownloadButton());
-		this.attach(transferTab);
-		this.tabs.push(transferTab);
-		tabs.appendChild(createTabButton(lang("inspector.tabs.transfer"), () => {
-			this.setActiveTab(0);
-		}));
-		
-		const areaTab = new GenericTab();
-		this.attach(areaTab);
-		this.tabs.push(areaTab);
-		tabs.appendChild(createTabButton(lang("inspector.tabs.area"), () => {
-			this.setActiveTab(1);
-		}));
-		
-		const floorTab = new GenericTab();
-		this.attach(floorTab);
-		this.tabs.push(floorTab);
-		tabs.appendChild(createTabButton(lang("inspector.tabs.floor"), () => {
-			this.setActiveTab(2);
-		}));
-		
-		const selectTab = new GenericTab();
-		this.attach(selectTab);
-		this.tabs.push(selectTab);
-		tabs.appendChild(createTabButton(lang("inspector.tabs.selection"), () => {
-			this.setActiveTab(3);
-		}));
-		
-		this.setActiveTab(0);
-	}
-	
-	private setActiveTab(index: number)
-	{
-		for(let i = 0; i < this.tabs.length; i++)
-		{
-			const tag = i === 3 ? `.${this.tag}` : "";
-			this.tabs[i]?.setDisplay(i === index);
-			
-			if(i === index)
-				this.titleTab.innerText = lang(`inspector.${Inspector.tabNames[i]}${tag}`);
-		}
-	}
-	
-	//public setSelectMode
-}
+import {currentArea} from "./area";
 
 class GenericTab extends HTMLWrapper<HTMLDivElement>
 {
@@ -106,19 +14,17 @@ class GenericTab extends HTMLWrapper<HTMLDivElement>
 		this.setDisplay(false);
 	}
 	
-	public attach<K extends HTMLElement>(wrapper: HTMLWrapper<K>)
-	{
-		const container = document.createElement("div");
-		wrapper.attachTo(container);
-		super.attachElement(container);
-		return this;
-	}
-	
 	public setDisplay(state?: boolean)
 	{
 		const target = state ?? !this.enabled;
 		this.enabled = target;
 		this.element.style.display = target ? "block" : "none";
+		return this;
+	}
+	
+	public getElement()
+	{
+		return this.element;
 	}
 }
 
@@ -130,4 +36,232 @@ function createTabButton(text: string, callback: () => void)
 	return e;
 }
 
-export default new Inspector();
+function setActiveTab(index: number)
+{
+	for(let i = 0; i < tabs.length; i++)
+	{
+		tabs[i]?.setDisplay(i === index);
+		
+		if (i === index)
+			elements.title.innerText = lang(`inspector.${tabNames[i]}`);
+	}
+}
+
+// This is so you don't have to write a bunch of verification code to access and modify element values (from the gateway).
+export const elements = {
+	title: create("h1"),
+	textfield: create("input", {
+		attributes: {
+			type: "text",
+			placeholder: lang("inspector.transfer.textfield.placeholder")
+		},
+		events: {
+			input: inputViaTextField
+		}
+	}),
+	width: create("input", {
+		attributes: {
+			type: "number",
+			value: "1"
+		}
+	}),
+	height: create("input", {
+		attributes: {
+			type: "number",
+			value: "1"
+		}
+	}),
+	offsetX: create("input", {
+		attributes: {
+			type: "number"
+		}
+	}),
+	offsetY: create("input", {
+		attributes: {
+			type: "number"
+		}
+	}),
+	defaultFloor: create("input", {
+		attributes: {
+			type: "number"
+		},
+		events: {
+			input() {
+				if(currentArea)
+					currentArea.defaultFloor = parseInt(this.value);
+				else
+					this.value = "";
+			}
+		}
+	}),
+	level: create("input", {
+		attributes: {
+			type: "number"
+		},
+		events: {
+			input() {
+				if(Gateway.currentFloor)
+					Gateway.currentFloor.level = parseInt(this.value);
+				else
+					this.value = "";
+			}
+		}
+	})
+};
+
+const tabs: GenericTab[] = [
+	// Transfer Tab //
+	new GenericTab()
+		.attachElement(create("div", {
+			text: lang("inspector.transfer.note")
+		}))
+		.attachElement(create("div", {
+			append: [elements.textfield, create("button", {
+				text: lang("inspector.transfer.textfield.copy"),
+				events: {
+					click: outputViaTextField(elements.textfield)
+				}
+			})]
+		}))
+		.attachElement(create("div", {
+			append: [create("input", {
+				attributes: {
+					type: "file"
+				},
+				events: {
+					change: inputViaFileUpload
+				}
+			}), create("span", {
+				text: lang("inspector.transfer.upload.note")
+			})]
+		}))
+		.attachElement(create("div", {
+			append: create("button", {
+				text: lang("inspector.transfer.download"),
+				events: {
+					click: outputViaDownload
+				}
+			})
+		}))
+		.setDisplay(),
+	// Area Tab //
+	new GenericTab()
+		.attachElement(create("div", {
+			append: [
+				create("span", {
+					text: lang("inspector.area.width") + ' '
+				}),
+				elements.width,
+				create("span", {
+					text: ' ' + lang("inspector.area.height") + ' '
+				}),
+				elements.height,
+				create("br"),
+				create("span", {
+					text: lang("inspector.area.offsetX") + ' '
+				}),
+				elements.offsetX,
+				create("span", {
+					text: ' ' + lang("inspector.area.offsetY") + ' '
+				}),
+				elements.offsetY,
+				create("br"),
+				create("button", {
+					text: lang("inspector.area.confirm"),
+					events: {
+						click() {
+							// In this case, || is fine because 0 isn't a useful value.
+							Gateway.resizeArea({
+								width: parseInt(elements.width.value) || undefined,
+								height: parseInt(elements.height.value) || undefined,
+								offsetX: parseInt(elements.offsetX.value) || undefined,
+								offsetY: parseInt(elements.offsetY.value) || undefined
+							});
+							elements.offsetX.value = "";
+							elements.offsetY.value = "";
+						}
+					}
+				})
+			]
+		}))
+		.attachElement(create("div", {
+			append: [
+				create("span", {
+					text: lang("inspector.area.defaultFloor") + ' '
+				}),
+				elements.defaultFloor,
+				create("p", {
+					text: lang("inspector.area.defaultFloor.note")
+				})
+			]
+		}))
+		.attachElement(create("div", {
+			append: [
+				create("h2", {
+					text: lang("inspector.area.floors")
+				})
+				// inspector.area.floors.swap
+				// inspector.area.floors.swap.success
+				// inspector.area.floors.swap.failure
+			]
+		}))
+		.attachElement(create("div", {
+			append: create("p", {
+				text: lang("inspector.area.note")
+			})
+		})),
+	// Floor Tab //
+	new GenericTab()
+		.attachElement(create("div", {
+			append: [
+				create("span", {
+					text: lang("inspector.floor.level") + ' '
+				}),
+				elements.level,
+				create("p", {
+					text: lang("inspector.floor.level.note")
+				})
+			]
+		}))
+		.attachElement(create("div"))
+		.attachElement(create("div"))
+		.attachElement(create("div"))
+		.attachElement(create("div")),
+	// Selection Tab //
+	new GenericTab()
+];
+
+const tabNames = ["transfer", "area", "floor", "selection"];
+
+setActiveTab(0);
+
+export default create("div", {
+	classes: ["ui"],
+	append: [
+		create("h1", {
+			text: lang("inspector")
+		}),
+		create("div", {
+			classes: ["separator"],
+			append: [
+				createTabButton(lang("inspector.tabs.transfer"), () => {
+					setActiveTab(0);
+				}),
+				createTabButton(lang("inspector.tabs.area"), () => {
+					setActiveTab(1);
+				}),
+				createTabButton(lang("inspector.tabs.floor"), () => {
+					setActiveTab(2);
+				}),
+				createTabButton(lang("inspector.tabs.selection"), () => {
+					setActiveTab(3);
+				})
+			]
+		}),
+		elements.title,
+		tabs[0].getElement(),
+		tabs[1].getElement(),
+		tabs[2].getElement(),
+		tabs[3].getElement()
+	]
+});

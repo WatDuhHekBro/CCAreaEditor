@@ -51,6 +51,43 @@ export function removeGeneric(array: any[], index?: number)
 		array.pop();
 }
 
+interface createElementOptions
+{
+	text?: string;
+	classes?: string[];
+	attributes?: {[property: string]: string};
+	events?: {[name: string]: ((ev: Event) => any)};
+	append?: HTMLElement|HTMLElement[];
+};
+
+export function create<K extends keyof HTMLElementTagNameMap>(tag: K, options?: createElementOptions): HTMLElementTagNameMap[K];
+export function create(tag: string, options?: createElementOptions): HTMLElement
+{
+	const element = document.createElement(tag);
+	
+	if(options?.text)
+		element.innerText = options.text;
+	if(options?.classes)
+		for(const className of options.classes)
+			element.classList.add(className);
+	if(options?.attributes)
+		for(const name in options.attributes)
+			element.setAttribute(name, options.attributes[name]);
+	if(options?.events)
+		for(const event in options.events)
+			element.addEventListener(event, options.events[event]);
+	if(options?.append)
+	{
+		if(Array.isArray(options.append))
+			for(const child of options.append)
+				element.appendChild(child);
+		else
+			element.appendChild(options.append);
+	}
+	
+	return element;
+}
+
 /**
  * Allows you to store a template string with variable markers and parse it later.
  * - Use `%name%` for variables

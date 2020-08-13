@@ -1,12 +1,13 @@
 import Renderer from "./modules/renderer";
-import {activateDragAndDrop, DownloadButton} from "./modules/transfer";
+import {inputViaDragAndDrop} from "./modules/transfer";
 import Inspector from "./modules/inspector";
 import * as Gateway from "./modules/gateway";
 import Settings from "./modules/config";
 
 Renderer.attach();
-activateDragAndDrop();
-Inspector/*.attach(new DownloadButton())*/.attachTo(document.body);
+document.body.appendChild(Inspector)
+document.body.ondrop = inputViaDragAndDrop;
+document.body.ondragover = event => event.preventDefault();
 
 // @ts-ignore
 Object.assign(window, {
