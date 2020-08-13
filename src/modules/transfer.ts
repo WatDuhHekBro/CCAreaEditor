@@ -47,6 +47,7 @@ export function inputViaFileUpload()
 export function inputViaTextField()
 {
 	parseAndSendToEditor(this.value);
+	this.blur();
 	this.value = "";
 	this.placeholder = lang("inspector.transfer.textfield.paste");
 	setTimeout(() => this.placeholder = lang("inspector.transfer.textfield.placeholder"), 1500);

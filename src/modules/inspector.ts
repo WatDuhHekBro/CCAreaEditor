@@ -1,125 +1,8 @@
 import {HTMLWrapper, create} from "./common";
 import {inputViaFileUpload, inputViaTextField, outputViaDownload, outputViaTextField} from "./transfer";
+import * as Gateway from "./gateway";
 import lang from "./lang";
-
-class Inspector extends HTMLWrapper<HTMLDivElement>
-{
-	private titleTab: HTMLHeadingElement;
-	private tabs: GenericTab[];
-	private static readonly tabNames = ["transfer", "area", "floor", "selection"];
-	
-	constructor()
-	{
-		super(document.createElement("div"));
-		this.element.classList.add("ui");
-		
-		const title = document.createElement("h1");
-		title.innerText = lang("inspector");
-		this.element.appendChild(title);
-		
-		const tabs = document.createElement("div");
-		tabs.classList.add("separator");
-		this.element.appendChild(tabs);
-		this.tabs = [];
-		
-		this.titleTab = document.createElement("h1");
-		this.element.appendChild(this.titleTab);
-		
-		const transferTab = new GenericTab();
-		const textfield = create("input", {
-			attributes: {
-				type: "text",
-				placeholder: lang("inspector.transfer.textfield.placeholder")
-			},
-			events: {
-				input: inputViaTextField
-			}
-		});
-		transferTab
-			.attachElement(create("div", {
-				text: lang("inspector.transfer.note")
-			}))
-			.attachElement(create("div", {
-				append: [textfield, create("button", {
-					text: lang("inspector.transfer.textfield.copy"),
-					events: {
-						click: outputViaTextField(textfield)
-					}
-				})]
-			}))
-			.attachElement(create("div", {
-				append: [create("input", {
-					attributes: {
-						type: "file"
-					},
-					events: {
-						change: inputViaFileUpload
-					}
-				}), create("span", {
-					text: lang("inspector.transfer.upload.note")
-				})]
-			}))
-			.attachElement(create("div", {
-				append: create("button", {
-					text: lang("inspector.transfer.download"),
-					events: {
-						click: outputViaDownload
-					}
-				})
-			}));
-		this.attach(transferTab);
-		this.tabs.push(transferTab);
-		tabs.appendChild(createTabButton(lang("inspector.tabs.transfer"), () => {
-			this.setActiveTab(0);
-		}));
-		
-		const areaTab = new GenericTab();
-		/*areaTab
-			.attachElement(create("div", {
-				
-			}))
-			.attachElement(create("div", {
-				
-			}))
-			.attachElement(create("div", {
-				
-			}))*/
-		this.attach(areaTab);
-		this.tabs.push(areaTab);
-		tabs.appendChild(createTabButton(lang("inspector.tabs.area"), () => {
-			this.setActiveTab(1);
-		}));
-		
-		const floorTab = new GenericTab();
-		this.attach(floorTab);
-		this.tabs.push(floorTab);
-		tabs.appendChild(createTabButton(lang("inspector.tabs.floor"), () => {
-			this.setActiveTab(2);
-		}));
-		
-		const selectTab = new GenericTab();
-		this.attach(selectTab);
-		this.tabs.push(selectTab);
-		tabs.appendChild(createTabButton(lang("inspector.tabs.selection"), () => {
-			this.setActiveTab(3);
-		}));
-		
-		this.setActiveTab(0);
-	}
-	
-	private setActiveTab(index: number)
-	{
-		for(let i = 0; i < this.tabs.length; i++)
-		{
-			this.tabs[i]?.setDisplay(i === index);
-			
-			if(i === index)
-				this.titleTab.innerText = lang(`inspector.${Inspector.tabNames[i]}`);
-		}
-	}
-	
-	//public setSelectMode
-}
+import {currentArea} from "./area";
 
 class GenericTab extends HTMLWrapper<HTMLDivElement>
 {
@@ -136,6 +19,12 @@ class GenericTab extends HTMLWrapper<HTMLDivElement>
 		const target = state ?? !this.enabled;
 		this.enabled = target;
 		this.element.style.display = target ? "block" : "none";
+		return this;
+	}
+	
+	public getElement()
+	{
+		return this.element;
 	}
 }
 
@@ -147,4 +36,204 @@ function createTabButton(text: string, callback: () => void)
 	return e;
 }
 
-export default new Inspector();
+function setActiveTab(index: number)
+{
+	for(let i = 0; i < tabs.length; i++)
+	{
+		tabs[i]?.setDisplay(i === index);
+		
+		if (i === index)
+			elements.title.innerText = lang(`inspector.${tabNames[i]}`);
+	}
+}
+
+// This is so you don't have to write a bunch of verification code to access and modify element values (from the gateway).
+export const elements = {
+	title: create("h1"),
+	textfield: create("input", {
+		attributes: {
+			type: "text",
+			placeholder: lang("inspector.transfer.textfield.placeholder")
+		},
+		events: {
+			input: inputViaTextField
+		}
+	}),
+	width: create("input", {
+		attributes: {
+			type: "number",
+			value: "1"
+		}
+	}),
+	height: create("input", {
+		attributes: {
+			type: "number",
+			value: "1"
+		}
+	}),
+	offsetX: create("input", {
+		attributes: {
+			type: "number"
+		}
+	}),
+	offsetY: create("input", {
+		attributes: {
+			type: "number"
+		}
+	}),
+	defaultFloor: create("input", {
+		attributes: {
+			type: "number"
+		},
+		events: {
+			input() {
+				if(currentArea)
+					currentArea.defaultFloor = parseInt(this.value);
+				else
+					this.value = "";
+			}
+		}
+	})
+};
+
+const tabs: GenericTab[] = [
+	// Transfer Tab //
+	new GenericTab()
+		.attachElement(create("div", {
+			text: lang("inspector.transfer.note")
+		}))
+		.attachElement(create("div", {
+			append: [elements.textfield, create("button", {
+				text: lang("inspector.transfer.textfield.copy"),
+				events: {
+					click: outputViaTextField(elements.textfield)
+				}
+			})]
+		}))
+		.attachElement(create("div", {
+			append: [create("input", {
+				attributes: {
+					type: "file"
+				},
+				events: {
+					change: inputViaFileUpload
+				}
+			}), create("span", {
+				text: lang("inspector.transfer.upload.note")
+			})]
+		}))
+		.attachElement(create("div", {
+			append: create("button", {
+				text: lang("inspector.transfer.download"),
+				events: {
+					click: outputViaDownload
+				}
+			})
+		}))
+		.setDisplay(),
+	// Area Tab //
+	new GenericTab()
+		.attachElement(create("div", {
+			append: [
+				create("span", {
+					text: lang("inspector.area.width") + ' '
+				}),
+				elements.width,
+				create("span", {
+					text: ' ' + lang("inspector.area.height") + ' '
+				}),
+				elements.height,
+				create("br"),
+				create("span", {
+					text: lang("inspector.area.offsetX") + ' '
+				}),
+				elements.offsetX,
+				create("span", {
+					text: ' ' + lang("inspector.area.offsetY") + ' '
+				}),
+				elements.offsetY,
+				create("br"),
+				create("button", {
+					text: lang("inspector.area.confirm"),
+					events: {
+						click() {
+							// In this case, || is fine because 0 isn't a useful value.
+							Gateway.resizeArea({
+								width: parseInt(elements.width.value) || undefined,
+								height: parseInt(elements.height.value) || undefined,
+								offsetX: parseInt(elements.offsetX.value) || undefined,
+								offsetY: parseInt(elements.offsetY.value) || undefined
+							});
+							elements.offsetX.value = "";
+							elements.offsetY.value = "";
+						}
+					}
+				})
+			]
+		}))
+		.attachElement(create("div", {
+			append: [
+				create("span", {
+					text: lang("inspector.area.defaultFloor") + ' '
+				}),
+				elements.defaultFloor,
+				create("p", {
+					text: lang("inspector.area.defaultFloor.note")
+				})
+			]
+		}))
+		.attachElement(create("div", {
+			append: [
+				create("h2", {
+					text: lang("inspector.area.floors")
+				})
+				// inspector.area.floors.swap
+				// inspector.area.floors.swap.success
+				// inspector.area.floors.swap.failure
+			]
+		}))
+		.attachElement(create("div", {
+			append: create("p", {
+				text: lang("inspector.area.note")
+			})
+		})),
+	// Floor Tab //
+	new GenericTab(),
+	// Selection Tab //
+	new GenericTab()
+];
+
+const tabNames = ["transfer", "area", "floor", "selection"];
+
+export default create("div", {
+	classes: ["ui"],
+	append: [
+		create("h1", {
+			text: lang("inspector")
+		}),
+		create("div", {
+			classes: ["separator"],
+			append: [
+				createTabButton(lang("inspector.tabs.transfer"), () => {
+					setActiveTab(0);
+				}),
+				createTabButton(lang("inspector.tabs.area"), () => {
+					setActiveTab(1);
+				}),
+				createTabButton(lang("inspector.tabs.floor"), () => {
+					setActiveTab(2);
+				}),
+				createTabButton(lang("inspector.tabs.selection"), () => {
+					setActiveTab(3);
+				})
+			]
+		}),
+		elements.title,
+		tabs[0].getElement(),
+		tabs[1].getElement(),
+		tabs[2].getElement(),
+		tabs[3].getElement()
+	]
+});
+
+setActiveTab(0);

@@ -56,7 +56,7 @@ interface createElementOptions
 	text?: string;
 	classes?: string[];
 	attributes?: {[property: string]: string};
-	events?: {[name: string]: ((this: GlobalEventHandlers, ev: Event) => any)};
+	events?: {[name: string]: ((ev: Event) => any)};
 	append?: HTMLElement|HTMLElement[];
 };
 

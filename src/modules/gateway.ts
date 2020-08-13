@@ -1,7 +1,6 @@
 import Renderer from "./renderer";
 import {Area, currentArea, setCurrentArea} from "./area";
 import {Floor} from "./floor";
-import Inspector from "./inspector"; // The idea here is that the inspector will be able to send and receive data once it's linked here.
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};
 const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
@@ -124,6 +123,18 @@ export function setBoxPreview(x1: number, y1: number, x2: number, y2: number)
 	}
 }
 
+export function resizeArea(options: {width?: number, height?: number, offsetX?: number, offsetY?: number})
+{
+	if(!currentArea)
+		setCurrentArea(new Area({
+			width: options.width,
+			height: options.height
+		}));
+	else
+		currentArea.resize(options.width ?? currentArea.getWidth(), options.height ?? currentArea.getHeight(), options.offsetX, options.offsetY);
+	render();
+}
+
 export function moveConnection(x: number, y: number)
 {
 	if(currentFloor && currentMode === VIEWS.CONNECTIONS)
@@ -206,6 +217,12 @@ export function select(x: number, y: number, modeRequired?: VIEWS)
 		else if(currentMode === VIEWS.RESULT)
 			selected = currentFloor.getIconIndexByPosition(x, y);
 	}
+}
+
+// Potentially more dangerous than select() but allows you to get map indexes that aren't present on the area.
+export function selectById(id: number)
+{
+	selected = id;
 }
 
 // Isolates the current selection. Use render() to reset it.

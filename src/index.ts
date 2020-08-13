@@ -5,7 +5,7 @@ import * as Gateway from "./modules/gateway";
 import Settings from "./modules/config";
 
 Renderer.attach();
-Inspector.attachTo(document.body);
+document.body.appendChild(Inspector)
 document.body.ondrop = inputViaDragAndDrop;
 document.body.ondragover = event => event.preventDefault();
 

@@ -104,13 +104,25 @@
 	{
 		"en_US": "Area Settings"
 	},
-	"inspector.area.dimensions":
+	"inspector.area.width":
 	{
-		"en_US": "Dimensions"
+		"en_US": "Width"
 	},
-	"inspector.area.move":
+	"inspector.area.height":
 	{
-		"en_US": "Move Current Grid"
+		"en_US": "Height"
+	},
+	"inspector.area.offsetX":
+	{
+		"en_US": "Offset X"
+	},
+	"inspector.area.offsetY":
+	{
+		"en_US": "Offset Y"
+	},
+	"inspector.area.confirm":
+	{
+		"en_US": "Confirm"
 	},
 	"inspector.area.defaultFloor":
 	{
