@@ -93,6 +93,19 @@ export const elements = {
 					this.value = "";
 			}
 		}
+	}),
+	level: create("input", {
+		attributes: {
+			type: "number"
+		},
+		events: {
+			input() {
+				if(Gateway.currentFloor)
+					Gateway.currentFloor.level = parseInt(this.value);
+				else
+					this.value = "";
+			}
+		}
 	})
 };
 
@@ -198,12 +211,29 @@ const tabs: GenericTab[] = [
 			})
 		})),
 	// Floor Tab //
-	new GenericTab(),
+	new GenericTab()
+		.attachElement(create("div", {
+			append: [
+				create("span", {
+					text: lang("inspector.floor.level") + ' '
+				}),
+				elements.level,
+				create("p", {
+					text: lang("inspector.floor.level.note")
+				})
+			]
+		}))
+		.attachElement(create("div"))
+		.attachElement(create("div"))
+		.attachElement(create("div"))
+		.attachElement(create("div")),
 	// Selection Tab //
 	new GenericTab()
 ];
 
 const tabNames = ["transfer", "area", "floor", "selection"];
+
+setActiveTab(0);
 
 export default create("div", {
 	classes: ["ui"],
@@ -235,5 +265,3 @@ export default create("div", {
 		tabs[3].getElement()
 	]
 });
-
-setActiveTab(0);

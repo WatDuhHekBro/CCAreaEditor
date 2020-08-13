@@ -164,6 +164,22 @@
 	{
 		"en_US": "The level property only determines the display of this floor in the floor buttons. So you can have -2 then -4, which will show up in that order. A default floor property that doesn't match anything will just show a blank screen until you select a floor."
 	},
+	"inspector.floor.handle":
+	{
+		"en_US": "Custom Handler"
+	},
+	"inspector.floor.handle.note":
+	{
+		"en_US": "This will override the level property so instead of displaying \"F5\", you can instead display \"F??\" with this setting."
+	},
+	"inspector.floor.handle.add":
+	{
+		"en_US": "Add"
+	},
+	"inspector.floor.handle.remove":
+	{
+		"en_US": "Remove"
+	},
 	"inspector.floor.maps":
 	{
 		"en_US": "Maps"
@@ -180,17 +196,9 @@
 	{
 		"en_US": "Landmarks"
 	},
-	"inspector.floor.genericSelect":
+	"inspector.floor.select":
 	{
 		"en_US": "Select"
-	},
-	"inspector.floor.handle":
-	{
-		"en_US": "Custom Handler"
-	},
-	"inspector.floor.handle.note":
-	{
-		"en_US": "This will override the level property so instead of displaying \"F5\", you can instead display \"F??\" with this setting."
 	},
 	"inspector.selection":
 	{

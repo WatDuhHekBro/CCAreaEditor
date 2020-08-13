@@ -1,10 +1,11 @@
 import Renderer from "./renderer";
 import {Area, currentArea, setCurrentArea} from "./area";
 import {Floor} from "./floor";
+import {elements} from "./inspector";
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};
 const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
-let currentFloor: Floor|undefined;
+export let currentFloor: Floor|undefined;
 let currentFloorIndex = 0;
 let currentMode = VIEWS.TILES;
 let selected = 0;
@@ -54,6 +55,7 @@ export function loadArea()
 	{
 		currentFloor = currentArea.getFloorByLevel(currentArea.defaultFloor ?? 0) ?? currentArea.getFloorByIndex(0);
 		currentFloorIndex = currentArea.getIndexByLevel(currentArea.defaultFloor ?? 0) ?? 0;
+		elements.level.value = currentFloor.level.toString();
 		render();
 		Renderer.bind();
 	}
@@ -294,6 +296,7 @@ export function switchFloor(delta: number)
 		{
 			currentFloor = currentArea.getFloorByIndex(newIndex);
 			currentFloorIndex = newIndex;
+			elements.level.value = currentFloor.level.toString();
 			render();
 		}
 	}
