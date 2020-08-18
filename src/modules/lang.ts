@@ -127,6 +127,11 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 			this.menu.appendChild(element);
 		}
 	}
+	
+	public getElement()
+	{
+		return this.element;
+	}
 }
 
 // Initialize the lexicon into an indexable format //

@@ -28,6 +28,97 @@ class GenericTab extends HTMLWrapper<HTMLDivElement>
 	}
 }
 
+class Table extends HTMLWrapper<HTMLTableElement>
+{
+	private readonly button: HTMLButtonElement;
+	private tmpIndex: number;
+	
+	constructor()
+	{
+		super(document.createElement("table"));
+		this.tmpIndex = -1;
+		this.addRow();
+		this.button = create("button", {
+			text: "+",
+			events: {
+				click: this.addRow.bind(this)
+			}
+		});
+	}
+	
+	public addRow()
+	{
+		const self = this;
+		
+		this.element.appendChild(create("tr", {
+			append: [
+				create("td", {
+					append: create("button", {
+						text: "-",
+						events: {
+							click(this: HTMLButtonElement) {
+								const row = this.parentElement?.parentElement;
+								
+								if(!row)
+									throw "This event was called outside of a table!";
+								
+								self.element.removeChild(row);
+							}
+						}
+					})
+				}),
+				create("td", {
+					append: create("input", {
+						attributes: {
+							type: "checkbox"
+						},
+						events: {
+							click(this: HTMLInputElement) {
+								const row = this.parentElement?.parentElement;
+								
+								if(!row)
+									throw "This event was called outside of a table!";
+								
+								const index = (row as HTMLTableRowElement).rowIndex;
+								
+								if(self.tmpIndex === -1)
+									self.tmpIndex = index;
+								else
+								{
+									const otherRow = self.element.rows[self.tmpIndex];
+									(otherRow.children[1].children[0] as HTMLInputElement).checked = false;
+									this.checked = false;
+									self.tmpIndex = -1;
+									const tmp = create("span");
+									
+									// swap "index" and "self.tmpIndex"
+									row.after(tmp);
+									otherRow.after(row);
+									tmp.after(otherRow);
+									self.element.removeChild(tmp);
+								}
+							}
+						}
+					})
+				}),
+				create("span", {
+					text: Math.random().toString()
+				})
+			]
+		}));
+	}
+	
+	public getTable()
+	{
+		return this.element;
+	}
+	
+	public getButton()
+	{
+		return this.button;
+	}
+}
+
 function createTabButton(text: string, callback: () => void)
 {
 	const e = document.createElement("span");
@@ -42,7 +133,7 @@ function setActiveTab(index: number)
 	{
 		tabs[i]?.setDisplay(i === index);
 		
-		if (i === index)
+		if(i === index)
 			elements.title.innerText = lang(`inspector.${tabNames[i]}`);
 	}
 }
@@ -108,6 +199,8 @@ export const elements = {
 		}
 	})
 };
+
+const floors = new Table();
 
 const tabs: GenericTab[] = [
 	// Transfer Tab //
@@ -199,10 +292,14 @@ const tabs: GenericTab[] = [
 			append: [
 				create("h2", {
 					text: lang("inspector.area.floors")
-				})
-				// inspector.area.floors.swap
-				// inspector.area.floors.swap.success
-				// inspector.area.floors.swap.failure
+				}),
+				floors.getTable(),
+				floors.getButton()
+				// table, [+], [-] [ ] [index #], auto swap
+				// [-] [ ] [...]
+				// ...
+				// [+]
+				// ui on right side for preferences, hover box, 250px height
 			]
 		}))
 		.attachElement(create("div", {

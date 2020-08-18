@@ -63,6 +63,22 @@ export function loadArea()
 		console.warn("Tried to load an area without first initializing it!");
 }
 
+export function switchFloor(delta: number)
+{
+	if(currentArea && currentFloor)
+	{
+		const newIndex = currentFloorIndex + delta;
+		
+		if(newIndex >= 0 && newIndex < currentArea.getAmountOfFloors())
+		{
+			currentFloor = currentArea.getFloorByIndex(newIndex);
+			currentFloorIndex = newIndex;
+			elements.level.value = currentFloor.level.toString();
+			render();
+		}
+	}
+}
+
 export function setTile(x: number, y: number)
 {
 	if(currentFloor && currentMode === VIEWS.TILES)
@@ -284,20 +300,4 @@ export function setView(mode?: VIEWS)
 export function switchZoom(delta: number)
 {
 	Renderer.changeZoom(delta);
-}
-
-export function switchFloor(delta: number)
-{
-	if(currentArea && currentFloor)
-	{
-		const newIndex = currentFloorIndex + delta;
-		
-		if(newIndex >= 0 && newIndex < currentArea.getAmountOfFloors())
-		{
-			currentFloor = currentArea.getFloorByIndex(newIndex);
-			currentFloorIndex = newIndex;
-			elements.level.value = currentFloor.level.toString();
-			render();
-		}
-	}
 }

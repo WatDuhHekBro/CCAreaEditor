@@ -48,10 +48,6 @@
 		"en_US": "Inspector",
 		"ko_KR": "인스펙터"
 	},
-	"inspector.genericListNote":
-	{
-		"en_US": "To add an entry, click the [+] button to add a new entry at that location. Likewise, click the [-] button to remove that entry. You can also select two entries and click the \"Swap\" button."
-	},
 	"inspector.tabs.transfer":
 	{
 		"en_US": "Transfer"
@@ -136,18 +132,6 @@
 	{
 		"en_US": "Floors"
 	},
-	"inspector.area.floors.swap":
-	{
-		"en_US": "Swap Floors"
-	},
-	"inspector.area.floors.swap.success":
-	{
-		"en_US": "Successfully swapped the two selected floors!"
-	},
-	"inspector.area.floors.swap.failure":
-	{
-		"en_US": "You need to select exactly two floors in order to swap them!"
-	},
 	"inspector.area.note":
 	{
 		"en_US": "Note: Area metadata is stored in \"assets/data/database.json/areas/<area>/...\". This is where properties like the amount of chests in the area, names/descriptions, and its position on the global map are stored. The area data structure itself is for storing the grid and any other grid-specific data like maps, connections, icons, and landmarks."
@@ -204,6 +188,10 @@
 	{
 		"en_US": "Current Selection"
 	},
+	"inspector.selection.map":
+	{
+		"en_US": "Map"
+	},
 	"inspector.selection.map.path":
 	{
 		"en_US": "Path"
@@ -212,18 +200,13 @@
 	{
 		"en_US": "Map Name"
 	},
-	"inspector.selection.map.name.untitled":
-	{
-		"en_US": "untitled",
-		"de_DE": "unbetitelt",
-		"zh_CN": "未命名",
-		"ja_JP": "無題",
-		"ko_KR": "미정",
-		"zh_TW": "未命名"
-	},
 	"inspector.selection.map.note":
 	{
 		"en_US": "The path requires a specific format to work properly. For example, \"arid.town-1\", which points to \"assets/data/maps/arid/town-1.json\"."
+	},
+	"inspector.selection.connection":
+	{
+		"en_US": "Connection"
 	},
 	"inspector.selection.connection.position":
 	{
@@ -244,6 +227,10 @@
 	"inspector.selection.connection.condition":
 	{
 		"en_US": "Condition (optional)"
+	},
+	"inspector.selection.icon":
+	{
+		"en_US": "Icon"
 	},
 	"inspector.selection.icon.position":
 	{
@@ -272,6 +259,10 @@
 	"inspector.selection.icon.data.note":
 	{
 		"en_US": "This is required for area pointer icons. For the area field, put in the area identifier (like \"arid-dng-2\") and the map that it's pointing to (like \"arid-dng.first.room-01\")."
+	},
+	"inspector.selection.landmark":
+	{
+		"en_US": "Landmark"
 	},
 	"inspector.selection.landmark.position":
 	{
@@ -304,17 +295,5 @@
 	"preferences.language.failure":
 	{
 		"en_US": "Failed to set your language to %language_name% (%language_tag%)! Your browser most likely doesn't support the local storage module."
-	},
-	"help":
-	{
-		"en_US": "Need some help?"
-	},
-	"help.controls":
-	{
-		"en_US": "Controls: %link%"
-	},
-	"error":
-	{
-		"en_US": "There are currently some errors with the program! Press F12 to list out what those errors were and submit an issue on GitHub."
 	}
 }
