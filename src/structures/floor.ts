@@ -1,7 +1,7 @@
-import lang, {LangLabel} from "./lang";
+import lang, {LangLabel} from "../modules/lang";
 import Matrix from "./matrix";
-import Renderer from "./renderer";
-import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "./common";
+import Renderer from "../display/renderer";
+import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "../modules/common";
 
 // I decided that it'd be better to just stick with using a matrix per floor. While you're going to be resizing the entire grid if you're modifying width or height, for floors, it'd be better to have it splice individual floors which will take the entire matrix with it. Also, methods like setTile in the area object will just call the current floor's setTile method.
 export class Floor

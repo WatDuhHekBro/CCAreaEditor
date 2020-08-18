@@ -1,6 +1,6 @@
-import Renderer from "./renderer";
-import {Area, currentArea, setCurrentArea} from "./area";
-import {Floor} from "./floor";
+import Renderer from "../display/renderer";
+import {Area, currentArea, setCurrentArea} from "../structures/area";
+import {Floor} from "../structures/floor";
 import {elements} from "./inspector";
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};

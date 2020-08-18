@@ -1,7 +1,7 @@
-import Renderer from "./modules/renderer";
-import {inputViaDragAndDrop} from "./modules/transfer";
-import Inspector from "./modules/inspector";
-import * as Gateway from "./modules/gateway";
+import Renderer from "./display/renderer";
+import {inputViaDragAndDrop} from "./document/transfer";
+import Inspector from "./document/inspector";
+import * as Gateway from "./document/gateway";
 import Settings from "./modules/config";
 
 Renderer.attach();

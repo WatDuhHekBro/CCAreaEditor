@@ -1,6 +1,6 @@
 import Palette from "./palette";
-import Matrix from "./matrix";
-import {bindController} from "./controller";
+import Matrix from "../structures/matrix";
+import {bindController} from "../document/controller";
 
 const tiles = new Image();
 tiles.src = "tiles.png";

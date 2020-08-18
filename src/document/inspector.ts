@@ -1,8 +1,8 @@
-import {HTMLWrapper, create} from "./common";
+import {HTMLWrapper, create} from "../modules/common";
 import {inputViaFileUpload, inputViaTextField, outputViaDownload, outputViaTextField} from "./transfer";
 import * as Gateway from "./gateway";
-import lang from "./lang";
-import {currentArea} from "./area";
+import lang from "../modules/lang";
+import {currentArea} from "../structures/area";
 
 class GenericTab extends HTMLWrapper<HTMLDivElement>
 {

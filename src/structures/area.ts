@@ -1,7 +1,7 @@
 import {Floor} from "./floor";
-import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "./common";
-import {loadArea} from "./gateway";
-import {elements} from "./inspector"; // The idea here is that the inspector will be able to send and receive data once it's linked here.
+import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "../modules/common";
+import {loadArea} from "../document/gateway";
+import {elements} from "../document/inspector"; // The idea here is that the inspector will be able to send and receive data once it's linked here.
 
 // When the data is stringified, it'll skip over undefined keys unless it has a value. However, the order of these keys will remain.
 // This is just a gateway to access/manage all the floors. Individual floor logic should be done on a floor instance itself, but operations for all floors (like resizing an area) should go through here.
