@@ -1,33 +1,9 @@
-import {HTMLWrapper, create} from "../modules/common";
+import {create} from "../modules/common";
 import lang from "../modules/lang";
 import TransferTab, {elements as transferElements} from "./inspector/transfer";
 import AreaTab, {elements as areaElements} from "./inspector/area";
 import FloorTab, {elements as floorElements} from "./inspector/floor";
 import SelectionTab, {elements as selectionElements} from "./inspector/selection";
-
-export class GenericTab extends HTMLWrapper<HTMLDivElement>
-{
-	private enabled = true;
-	
-	constructor()
-	{
-		super(document.createElement("div"));
-		this.setDisplay(false);
-	}
-	
-	public setDisplay(state?: boolean)
-	{
-		const target = state ?? !this.enabled;
-		this.enabled = target;
-		this.element.style.display = target ? "block" : "none";
-		return this;
-	}
-	
-	public getElement()
-	{
-		return this.element;
-	}
-}
 
 function createTabButton(text: string, callback: () => void)
 {

@@ -1,8 +1,11 @@
 import Renderer from "../display/renderer";
 import {Area, currentArea, setCurrentArea} from "../structures/area";
 import {Floor} from "../structures/floor";
-import {elements, floors} from "./inspector";
+import {elements} from "./inspector";
+import {floors} from "./inspector/area";
+import {setHandleActive, setHandleInactive} from "./inspector/floor";
 import renderer from "../display/renderer";
+import lang, {HTMLLangLabel} from "../modules/lang";
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};
 const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
@@ -54,10 +57,9 @@ export function loadArea()
 {
 	if(currentArea)
 	{
-		currentFloor = currentArea.getFloorByLevel(currentArea.defaultFloor ?? 0) ?? currentArea.getFloorByIndex(0);
 		currentFloorIndex = currentArea.getIndexByLevel(currentArea.defaultFloor ?? 0) ?? 0;
-		elements.level.value = currentFloor.level.toString();
-		render();
+		currentFloor = currentArea.getFloorByIndex(currentFloorIndex);
+		setFloorView(currentFloorIndex);
 		Renderer.bind();
 		floors.clearRows();
 		
@@ -89,6 +91,11 @@ export function setFloorView(index: number)
 			currentFloorIndex = index;
 			elements.level.value = currentFloor.level.toString();
 			render();
+			
+			if(currentFloor.handle)
+				setHandleActive(currentFloor.handle);
+			else
+				setHandleInactive();
 		}
 	}
 }

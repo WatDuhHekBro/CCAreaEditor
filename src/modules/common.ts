@@ -30,6 +30,30 @@ export abstract class HTMLWrapper<T extends HTMLElement>
 	}
 }
 
+export class GenericTab extends HTMLWrapper<HTMLDivElement>
+{
+	private enabled = true;
+	
+	constructor()
+	{
+		super(document.createElement("div"));
+		this.setDisplay(false);
+	}
+	
+	public setDisplay(state?: boolean)
+	{
+		const target = state ?? !this.enabled;
+		this.enabled = target;
+		this.element.style.display = target ? "block" : "none";
+		return this;
+	}
+	
+	public getElement()
+	{
+		return this.element;
+	}
+}
+
 interface TableOptions
 {
 	readonly onadd?: (element: HTMLDivElement, index: number, clickedByUser: boolean) => void;

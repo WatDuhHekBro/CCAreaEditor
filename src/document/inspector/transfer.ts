@@ -1,5 +1,4 @@
-import {GenericTab} from "../inspector";
-import {create} from "../../modules/common";
+import {GenericTab, create} from "../../modules/common";
 import lang from "../../modules/lang";
 import {inputViaFileUpload, inputViaTextField, outputViaDownload, outputViaTextField} from "../transfer";
 

@@ -1,5 +1,4 @@
-import {GenericTab} from "../inspector";
-import {create, Table} from "../../modules/common";
+import {GenericTab, create, Table} from "../../modules/common";
 import lang from "../../modules/lang";
 import * as Gateway from "../gateway";
 import {currentArea} from "../../structures/area";

@@ -48,19 +48,18 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 	private langlabel: LangLabel;
 	private tag: string;
 	
-	constructor(langlabel: LangLabel, placeholder: string)
+	constructor(langlabel: LangLabel, placeholder?: string)
 	{
 		super(document.createElement("div"));
 		const self = this;
 		this.input = create("input", {
 			attributes: {
 				type: "text",
-				placeholder: placeholder
+				placeholder: placeholder ?? ""
 			},
 			events: {
 				input() {
 					self.langlabel.languages[self.tag] = this.value;
-					console.log(self);
 				}
 			}
 		});
