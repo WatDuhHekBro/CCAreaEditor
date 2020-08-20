@@ -30,6 +30,123 @@ export abstract class HTMLWrapper<T extends HTMLElement>
 	}
 }
 
+interface TableOptions
+{
+	readonly onadd?: (element: HTMLDivElement, index: number, clickedByUser: boolean) => void;
+	readonly onremove?: (index: number) => void;
+	readonly onswap?: (index1: number, index2: number) => void;
+}
+
+export class Table extends HTMLWrapper<HTMLTableElement>
+{
+	public readonly button: HTMLButtonElement;
+	private readonly onadd: (element: HTMLDivElement, index: number, clickedByUser: boolean) => void;
+	private readonly onremove: (index: number) => void;
+	private readonly onswap: (index1: number, index2: number) => void;
+	private tmpIndex: number;
+	
+	constructor(options?: TableOptions)
+	{
+		super(document.createElement("table"));
+		this.button = create("button", {
+			text: "+",
+			events: {
+				click: () => this.addRow(true)
+			}
+		});
+		this.onadd = options?.onadd ?? (() => {});
+		this.onremove = options?.onremove ?? (() => {});
+		this.onswap = options?.onswap ?? (() => {});
+		this.tmpIndex = -1;
+	}
+	
+	public addRow(clickedByUser = false)
+	{
+		const self = this;
+		const box = create("div", {
+			classes: ["left"]
+		});
+		const row = this.element.appendChild(create("tr", {
+			append: [
+				create("td", {
+					classes: ["collapse"],
+					append: create("button", {
+						text: "-",
+						events: {
+							click(this: HTMLButtonElement) {
+								const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
+								
+								if(!row)
+									throw "This event was called outside of a table!";
+								
+								const index = row.rowIndex;
+								self.element.removeChild(row);
+								self.onremove(index);
+							}
+						}
+					})
+				}),
+				create("td", {
+					classes: ["collapse"],
+					append: create("input", {
+						attributes: {
+							type: "checkbox"
+						},
+						events: {
+							click(this: HTMLInputElement) {
+								const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
+								
+								if(!row)
+									throw "This event was called outside of a table!";
+								
+								const index = row.rowIndex;
+								
+								if(self.tmpIndex === -1)
+									self.tmpIndex = index;
+								else
+								{
+									self.onswap(self.tmpIndex, index);
+									const otherRow = self.element.rows[self.tmpIndex];
+									(otherRow.children[1].children[0] as HTMLInputElement).checked = false;
+									this.checked = false;
+									self.tmpIndex = -1;
+									const tmp = create("span");
+									
+									// swap "index" and "self.tmpIndex"
+									row.after(tmp);
+									otherRow.after(row);
+									tmp.after(otherRow);
+									self.element.removeChild(tmp);
+								}
+							}
+						}
+					})
+				}),
+				create("td", {
+					append: box
+				})
+			]
+		}));
+		this.onadd(box, row.rowIndex, clickedByUser);
+	}
+	
+	public getRow(index: number)
+	{
+		return this.element.rows[index];
+	}
+	
+	public clearRows()
+	{
+		while(this.element.firstChild)
+			this.element.removeChild(this.element.firstChild);
+	}
+	
+	public getTable()
+	{
+		return this.element;
+	}
+}
+
 export function addGeneric(array: any[], element: any, index?: number)
 {
 	if(index !== undefined && index < array.length)
