@@ -1,12 +1,13 @@
 import Renderer from "../display/renderer";
 import {Area, currentArea, setCurrentArea} from "../structures/area";
 import {Floor} from "../structures/floor";
-import {elements} from "./inspector";
+import {elements, floors} from "./inspector";
+import renderer from "../display/renderer";
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};
 const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
 export let currentFloor: Floor|undefined;
-let currentFloorIndex = 0;
+export let currentFloorIndex = 0;
 let currentMode = VIEWS.TILES;
 let selected = 0;
 
@@ -58,24 +59,70 @@ export function loadArea()
 		elements.level.value = currentFloor.level.toString();
 		render();
 		Renderer.bind();
+		floors.clearRows();
+		
+		for(let amount = currentArea.getAmountOfFloors(); amount--;)
+			floors.addRow();
 	}
 	else
 		console.warn("Tried to load an area without first initializing it!");
 }
 
+export function generateNewPalette()
+{
+	renderer.generateNewPalette();
+	render();
+}
+
 export function switchFloor(delta: number)
+{
+	setFloorView(currentFloorIndex + delta);
+}
+
+export function setFloorView(index: number)
 {
 	if(currentArea && currentFloor)
 	{
-		const newIndex = currentFloorIndex + delta;
-		
-		if(newIndex >= 0 && newIndex < currentArea.getAmountOfFloors())
+		if(index >= 0 && index < currentArea.getAmountOfFloors())
 		{
-			currentFloor = currentArea.getFloorByIndex(newIndex);
-			currentFloorIndex = newIndex;
+			currentFloor = currentArea.getFloorByIndex(index);
+			currentFloorIndex = index;
 			elements.level.value = currentFloor.level.toString();
 			render();
 		}
+	}
+}
+
+export function addFloor()
+{
+	if(currentArea && currentFloor)
+	{
+		currentArea.addFloor();
+		elements.level.value = currentFloor.level.toString();
+		render();
+	}
+}
+
+export function removeFloor(index: number)
+{
+	if(currentArea && currentFloor)
+	{
+		currentArea.removeFloor(index);
+		currentFloor = currentArea.getFloorByIndex(currentFloorIndex);
+		elements.level.value = currentFloor.level.toString();
+		render();
+	}
+}
+
+export function swapFloors(index1: number, index2: number)
+{
+	if(currentArea && currentFloor)
+	{
+		currentArea.moveFloor(index1, index2 + 1);
+		currentArea.moveFloor(index2 - 1, index1);
+		currentFloor = currentArea.getFloorByIndex(currentFloorIndex);
+		elements.level.value = currentFloor.level.toString();
+		render();
 	}
 }
 

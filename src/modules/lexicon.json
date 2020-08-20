@@ -48,6 +48,10 @@
 		"en_US": "Inspector",
 		"ko_KR": "인스펙터"
 	},
+	"inspector.select":
+	{
+		"en_US": "Select"
+	},
 	"inspector.tabs.transfer":
 	{
 		"en_US": "Transfer"
@@ -132,6 +136,10 @@
 	{
 		"en_US": "Floors"
 	},
+	"inspector.area.palette":
+	{
+		"en_US": "Generate New Palette"
+	},
 	"inspector.area.note":
 	{
 		"en_US": "Note: Area metadata is stored in \"assets/data/database.json/areas/<area>/...\". This is where properties like the amount of chests in the area, names/descriptions, and its position on the global map are stored. The area data structure itself is for storing the grid and any other grid-specific data like maps, connections, icons, and landmarks."
@@ -179,10 +187,6 @@
 	"inspector.floor.landmarks":
 	{
 		"en_US": "Landmarks"
-	},
-	"inspector.floor.select":
-	{
-		"en_US": "Select"
 	},
 	"inspector.selection":
 	{

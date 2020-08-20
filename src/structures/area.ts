@@ -45,12 +45,12 @@ export class Area
 		return undefined;
 	}
 	
-	public getIndexByLevel(level: number): number|undefined
+	public getIndexByLevel(level: number): number
 	{
 		for(let i = 0; i < this.floors.length; i++)
 			if(level === this.floors[i].level)
 				return i;
-		return undefined;
+		return -1;
 	}
 	
 	public resize(width: number, height: number, offsetX = 0, offsetY = 0)

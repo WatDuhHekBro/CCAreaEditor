@@ -329,6 +329,11 @@ class Renderer
 		return [x1, y1, x2, y2];
 	}
 	
+	public generateNewPalette()
+	{
+		Palette.generateNewPalette();
+	}
+	
 	public bind()
 	{
 		bindController(this.container);

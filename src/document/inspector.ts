@@ -4,6 +4,8 @@ import * as Gateway from "./gateway";
 import lang from "../modules/lang";
 import {currentArea} from "../structures/area";
 
+// ui on right side for preferences, hover box, 250px height
+
 class GenericTab extends HTMLWrapper<HTMLDivElement>
 {
 	private enabled = true;
@@ -28,63 +30,82 @@ class GenericTab extends HTMLWrapper<HTMLDivElement>
 	}
 }
 
+interface TableOptions
+{
+	readonly onadd?: (element: HTMLDivElement, index: number, clickedByUser: boolean) => void;
+	readonly onremove?: (index: number) => void;
+	readonly onswap?: (index1: number, index2: number) => void;
+}
+
 class Table extends HTMLWrapper<HTMLTableElement>
 {
-	private readonly button: HTMLButtonElement;
+	public readonly button: HTMLButtonElement;
+	private readonly onadd: (element: HTMLDivElement, index: number, clickedByUser: boolean) => void;
+	private readonly onremove: (index: number) => void;
+	private readonly onswap: (index1: number, index2: number) => void;
 	private tmpIndex: number;
 	
-	constructor()
+	constructor(options?: TableOptions)
 	{
 		super(document.createElement("table"));
-		this.tmpIndex = -1;
-		this.addRow();
 		this.button = create("button", {
 			text: "+",
 			events: {
-				click: this.addRow.bind(this)
+				click: () => this.addRow(true)
 			}
 		});
+		this.onadd = options?.onadd ?? (() => {});
+		this.onremove = options?.onremove ?? (() => {});
+		this.onswap = options?.onswap ?? (() => {});
+		this.tmpIndex = -1;
 	}
 	
-	public addRow()
+	public addRow(clickedByUser = false)
 	{
 		const self = this;
-		
-		this.element.appendChild(create("tr", {
+		const box = create("div", {
+			classes: ["left"]
+		});
+		const row = this.element.appendChild(create("tr", {
 			append: [
 				create("td", {
+					classes: ["collapse"],
 					append: create("button", {
 						text: "-",
 						events: {
 							click(this: HTMLButtonElement) {
-								const row = this.parentElement?.parentElement;
+								const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
 								
 								if(!row)
 									throw "This event was called outside of a table!";
 								
+								const index = row.rowIndex;
 								self.element.removeChild(row);
+								self.onremove(index);
 							}
 						}
 					})
 				}),
 				create("td", {
+					classes: ["collapse"],
 					append: create("input", {
 						attributes: {
 							type: "checkbox"
 						},
 						events: {
 							click(this: HTMLInputElement) {
-								const row = this.parentElement?.parentElement;
+								const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
 								
 								if(!row)
 									throw "This event was called outside of a table!";
 								
-								const index = (row as HTMLTableRowElement).rowIndex;
+								const index = row.rowIndex;
 								
 								if(self.tmpIndex === -1)
 									self.tmpIndex = index;
 								else
 								{
+									self.onswap(self.tmpIndex, index);
 									const otherRow = self.element.rows[self.tmpIndex];
 									(otherRow.children[1].children[0] as HTMLInputElement).checked = false;
 									this.checked = false;
@@ -101,21 +122,28 @@ class Table extends HTMLWrapper<HTMLTableElement>
 						}
 					})
 				}),
-				create("span", {
-					text: Math.random().toString()
+				create("td", {
+					append: box
 				})
 			]
 		}));
+		this.onadd(box, row.rowIndex, clickedByUser);
+	}
+	
+	public getRow(index: number)
+	{
+		return this.element.rows[index];
+	}
+	
+	public clearRows()
+	{
+		while(this.element.firstChild)
+			this.element.removeChild(this.element.firstChild);
 	}
 	
 	public getTable()
 	{
 		return this.element;
-	}
-	
-	public getButton()
-	{
-		return this.button;
 	}
 }
 
@@ -191,8 +219,18 @@ export const elements = {
 		},
 		events: {
 			input() {
-				if(Gateway.currentFloor)
-					Gateway.currentFloor.level = parseInt(this.value);
+				if(Gateway.currentFloor && currentArea)
+				{
+					const floor = parseInt(this.value);
+					Gateway.currentFloor.level = floor;
+					const row = floors.getRow(Gateway.currentFloorIndex);
+					const span = row?.children[2]?.children[0]?.children[0] as HTMLSpanElement|undefined;
+					
+					if(!span)
+						throw "Invalid span type assertion at inspector.elements.level.events.input!"
+					
+					span.innerText = Gateway.currentFloor.getFloorName() + ' ';
+				}
 				else
 					this.value = "";
 			}
@@ -200,7 +238,30 @@ export const elements = {
 	})
 };
 
-const floors = new Table();
+export const floors = new Table({
+	onadd: (element, index, clickedByUser) => {
+		if(clickedByUser)
+			Gateway.addFloor();
+		element.appendChild(create("span", {
+			text: (currentArea?.getFloorByIndex(index).getFloorName() ?? "N/A") + ' '
+		}));
+		element.appendChild(create("button", {
+			text: lang("inspector.select"),
+			events: {
+				click: function(this: HTMLButtonElement) {
+					const row = this.parentElement?.parentElement?.parentElement as HTMLTableRowElement|undefined;
+					
+					if(!row)
+						throw "This event was called outside of a table!";
+					
+					Gateway.setFloorView(row.rowIndex);
+				}
+			}
+		}));
+	},
+	onremove: Gateway.removeFloor,
+	onswap: Gateway.swapFloors
+});
 
 const tabs: GenericTab[] = [
 	// Transfer Tab //
@@ -294,13 +355,16 @@ const tabs: GenericTab[] = [
 					text: lang("inspector.area.floors")
 				}),
 				floors.getTable(),
-				floors.getButton()
-				// table, [+], [-] [ ] [index #], auto swap
-				// [-] [ ] [...]
-				// ...
-				// [+]
-				// ui on right side for preferences, hover box, 250px height
+				floors.button
 			]
+		}))
+		.attachElement(create("div", {
+			append: create("button", {
+				text: lang("inspector.area.palette"),
+				events: {
+					click: Gateway.generateNewPalette
+				}
+			})
 		}))
 		.attachElement(create("div", {
 			append: create("p", {
