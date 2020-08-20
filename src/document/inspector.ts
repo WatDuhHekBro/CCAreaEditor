@@ -4,8 +4,6 @@ import * as Gateway from "./gateway";
 import lang from "../modules/lang";
 import {currentArea} from "../structures/area";
 
-// ui on right side for preferences, hover box, 250px height
-
 class GenericTab extends HTMLWrapper<HTMLDivElement>
 {
 	private enabled = true;
@@ -248,7 +246,7 @@ export const floors = new Table({
 		element.appendChild(create("button", {
 			text: lang("inspector.select"),
 			events: {
-				click: function(this: HTMLButtonElement) {
+				click(this: HTMLButtonElement) {
 					const row = this.parentElement?.parentElement?.parentElement as HTMLTableRowElement|undefined;
 					
 					if(!row)

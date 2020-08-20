@@ -292,6 +292,10 @@
 	{
 		"en_US": "This setting will be used to determine both the language that will appear in this program (if it's supported) as well as the default language that appears when you edit a map's name. Below, you'll see two fields: The first is a dropdown menu of all the fully-supported languages. The second is a text field where you can enter in any language code such as \"en_US\" in order to automatically switch to that language when editing map names. The two are intertwined."
 	},
+	"preferences.language.submit":
+	{
+		"en_US": "Submit"
+	},
 	"preferences.language.success":
 	{
 		"en_US": "Successfully set your language to %language_name% (%language_tag%)! Reload the page for these changes to take place."

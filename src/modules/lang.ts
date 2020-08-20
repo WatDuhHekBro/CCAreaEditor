@@ -98,7 +98,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 		for(const tag in this.langlabel.languages)
 		{
 			const element = create("option", {
-				text: tag in lexiconJSON.languages ? lexicon.languages.get(tag) : tag,
+				text: getLanguageNameByTag(tag),
 				attributes: {
 					value: tag
 				}
@@ -118,7 +118,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 		{
 			const tag = Settings.language;
 			const element = create("option", {
-				text: tag in lexiconJSON.languages ? lexicon.languages.get(tag) : tag,
+				text: getLanguageNameByTag(tag),
 				attributes: {
 					value: tag
 				}
@@ -132,6 +132,11 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 	{
 		return this.element;
 	}
+}
+
+export function getLanguageNameByTag(tag: string): string
+{
+	return tag in lexiconJSON.languages ? lexicon.languages.get(tag) : tag;
 }
 
 // Initialize the lexicon into an indexable format //

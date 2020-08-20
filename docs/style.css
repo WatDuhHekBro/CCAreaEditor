@@ -98,3 +98,15 @@ table
 	border: 2px solid gray;
 	border-top: 2px solid lightgray;
 }
+
+.sidebar
+{
+	height: 99%;
+	right: -275px;
+	transition: right 0.25s ease-in-out;
+}
+
+.sidebar:hover
+{
+	right: 0;
+}
