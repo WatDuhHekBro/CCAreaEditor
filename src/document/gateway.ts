@@ -5,13 +5,13 @@ import {elements} from "./inspector";
 import {floors} from "./inspector/area";
 import {setHandleActive, setHandleInactive, maps, connections, icons, landmarks} from "./inspector/floor";
 import renderer from "../display/renderer";
-import {LangLabel} from "../modules/lang";
+import {lexicon} from "../modules/lang";
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};
 const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
 export let currentFloor: Floor|undefined;
 export let currentFloorIndex = 0;
-let currentMode = VIEWS.TILES;
+export let currentMode = VIEWS.TILES;
 let selected = 0;
 
 // With functions like setBoxPreview and moveConnection, you really need to figure out a way to make it faster. Find some way to keep track of what changed so it's more efficient.
@@ -65,6 +65,8 @@ export function loadArea()
 		
 		for(let amount = currentArea.getAmountOfFloors(); amount--;)
 			floors.addRow();
+		
+		setSelectedIndicator();
 	}
 	else
 		console.warn("Tried to load an area without first initializing it!");
@@ -81,7 +83,7 @@ export function switchFloor(delta: number)
 	setFloorView(currentFloorIndex + delta);
 }
 
-export function setFloorView(index: number)
+export function setFloorView(index = currentFloorIndex)
 {
 	if(currentArea && currentFloor)
 	{
@@ -96,6 +98,20 @@ export function setFloorView(index: number)
 				setHandleActive(currentFloor.handle);
 			else
 				setHandleInactive();
+			
+			maps.clearRows();
+			connections.clearRows();
+			icons.clearRows();
+			landmarks.clearRows();
+			
+			for(let i = 0; i < currentFloor.maps.length; i++)
+				maps.addRow();
+			for(let i = 0; i < currentFloor.connections.length; i++)
+				connections.addRow();
+			for(let i = 0; i < currentFloor.icons.length; i++)
+				icons.addRow();
+			for(let i = 0; i < currentFloor.landmarks.length; i++)
+				landmarks.addRow();
 		}
 	}
 }
@@ -105,8 +121,7 @@ export function addFloor()
 	if(currentArea && currentFloor)
 	{
 		currentArea.addFloor();
-		elements.level.value = currentFloor.level.toString();
-		render();
+		setFloorView();
 	}
 }
 
@@ -125,9 +140,7 @@ export function removeFloor(index: number)
 		else if(currentFloorIndex === currentArea.getAmountOfFloors())
 			currentFloorIndex--;
 		
-		currentFloor = currentArea.getFloorByIndex(currentFloorIndex);
-		elements.level.value = currentFloor.level.toString();
-		render();
+		setFloorView();
 	}
 }
 
@@ -135,24 +148,38 @@ export function swapFloors(index1: number, index2: number)
 {
 	if(currentArea && currentFloor)
 	{
-		currentArea.moveFloor(index1, index2 + 1);
-		currentArea.moveFloor(index2 - 1, index1);
-		currentFloor = currentArea.getFloorByIndex(currentFloorIndex);
-		elements.level.value = currentFloor.level.toString();
-		render();
+		currentArea.swapFloors(index1, index2);
+		setFloorView();
 	}
 }
 
-export function addMap() {currentFloor?.addMap("", new LangLabel())}
-export function removeMap(index: number) {currentFloor?.removeMap(index)}
-export function swapMaps(index1: number, index2: number)
-{
-	if(currentFloor)
-	{
-		currentFloor.moveMap(index1, index2 + 1);
-		currentFloor.moveMap(index2 - 1, index1);
-	}
+export function addMap() {currentFloor?.addMap("", lexicon.untitled)}
+export function removeMap(index: number) {
+	currentFloor?.removeMap(index);
+	render();
 }
+export function swapMaps(index1: number, index2: number) {currentFloor?.swapMaps(index1, index2)}
+
+export function addConnection() {currentFloor?.addConnection(0, 0, 0, 0, 1, false)}
+export function removeConnection(index: number) {
+	currentFloor?.removeConnection(index);
+	render();
+}
+export function swapConnections(index1: number, index2: number) {currentFloor?.swapConnections(index1, index2)}
+
+export function addIcon() {currentFloor?.addIcon("arrow_up", 0, 0, 0)}
+export function removeIcon(index: number) {
+	currentFloor?.removeIcon(index);
+	render();
+}
+export function swapIcons(index1: number, index2: number) {currentFloor?.swapIcons(index1, index2)}
+
+export function addLandmark() {currentFloor?.addLandmark("landmark", 0, 0, 0)}
+export function removeLandmark(index: number) {
+	currentFloor?.removeLandmark(index);
+	render();
+}
+export function swapLandmarks(index1: number, index2: number) {currentFloor?.swapLandmarks(index1, index2)}
 
 export function setTile(x: number, y: number)
 {
@@ -309,13 +336,24 @@ export function select(x: number, y: number, modeRequired?: VIEWS)
 			selected = currentFloor.getConnectionIndexByPosition(tx, ty);
 		else if(currentMode === VIEWS.RESULT)
 			selected = currentFloor.getIconIndexByPosition(x, y);
+		
+		setSelectedIndicator();
 	}
 }
 
 // Potentially more dangerous than select() but allows you to get map indexes that aren't present on the area.
-export function selectById(id: number)
+export function selectByIndex(index: number)
 {
-	selected = id;
+	selected = index;
+	setSelectedIndicator();
+}
+
+function setSelectedIndicator()
+{
+	if(currentMode === VIEWS.TILES)
+		elements.selected.innerText = (selected - 1).toString();
+	else
+		elements.selected.innerText = selected === -1 ? "N/A" : (selected < 0 ? ~selected - 1 : selected).toString();
 }
 
 // Isolates the current selection. Use render() to reset it.
@@ -368,7 +406,8 @@ export function setView(mode?: VIEWS)
 			currentMode = 0;
 	}
 	
-	selected = 0;
+	selected = currentMode === VIEWS.TILES ? 0 : -1;
+	setSelectedIndicator();
 	render();
 }
 

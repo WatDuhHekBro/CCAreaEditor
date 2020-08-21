@@ -43,6 +43,15 @@
 		"ko_KR": "U",
 		"zh_TW": "U"
 	},
+	"untitled":
+	{
+		"en_US": "untitled",
+		"de_DE": "unbetitelt",
+		"zh_CN": "未命名",
+		"ja_JP": "無題",
+		"ko_KR": "미정",
+		"zh_TW": "未命名"
+	},
 	"inspector":
 	{
 		"en_US": "Inspector",
@@ -142,7 +151,7 @@
 	},
 	"inspector.area.note":
 	{
-		"en_US": "Note: Area metadata is stored in \"assets/data/database.json/areas/<area>/...\". This is where properties like the amount of chests in the area, names/descriptions, and its position on the global map are stored. The area data structure itself is for storing the grid and any other grid-specific data like maps, connections, icons, and landmarks."
+		"en_US": "Note: Area metadata is stored in \"assets/data/database.json/areas/<area>\". This is where properties like the amount of chests in the area, names/descriptions, and its position on the global map are stored. The area data structure itself is for storing the grid and any other grid-specific data like maps, connections, icons, and landmarks."
 	},
 	"inspector.floor":
 	{
@@ -187,6 +196,10 @@
 	"inspector.floor.landmarks":
 	{
 		"en_US": "Landmarks"
+	},
+	"inspector.floor.selected":
+	{
+		"en_US": "Selected Index"
 	},
 	"inspector.selection":
 	{

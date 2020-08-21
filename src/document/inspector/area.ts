@@ -49,7 +49,7 @@ export const floors = new Table({
 			text: (currentArea?.getFloorByIndex(index).getFloorName() ?? "N/A") + ' ',
 			events: {
 				click(this: HTMLButtonElement) {
-					const row = this.parentElement?.parentElement?.parentElement as HTMLTableRowElement|undefined;
+					const row = this?.parentElement?.parentElement?.parentElement as HTMLTableRowElement|undefined;
 					
 					if(!row)
 						throw "This event was called outside of a table!";

@@ -27,6 +27,8 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button
 table
 {
 	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
 }
 
 table.reverse tbody
@@ -38,11 +40,6 @@ table.reverse tbody
 .collapse
 {
 	width: 1%;
-}
-
-.left
-{
-	text-align: left;
 }
 
 .center
@@ -61,6 +58,7 @@ table.reverse tbody
 	border: 5px double darkgray;
 	text-align: center;
 	height: 99%;
+	overflow: auto;
 }
 
 .ui *

@@ -1,17 +1,17 @@
 import lang, {LangLabel} from "../modules/lang";
 import Matrix from "./matrix";
 import Renderer from "../display/renderer";
-import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "../modules/common";
+import {GenericJSON, addGeneric, moveGeneric, removeGeneric, swapGeneric} from "../modules/common";
 
 // I decided that it'd be better to just stick with using a matrix per floor. While you're going to be resizing the entire grid if you're modifying width or height, for floors, it'd be better to have it splice individual floors which will take the entire matrix with it. Also, methods like setTile in the area object will just call the current floor's setTile method.
 export class Floor
 {
 	public level: number; // The level property only determines the display of that level. So you can have -2 then -4, which will show up in that order. A defaultFloor property that doesn't match anything will just show a blank screen until you select a floor.
 	private tiles: Matrix;
-	private icons: Icon[];
-	private maps: Map[]; // maps[0] describes tiles with a value of 1, as tiles with a value of 0 indicate that there is no map there.
-	private connections: Connection[];
-	private landmarks: Landmark[];
+	public readonly icons: Icon[];
+	public readonly maps: Map[]; // maps[0] describes tiles with a value of 1, as tiles with a value of 0 indicate that there is no map there.
+	public readonly connections: Connection[];
+	public readonly landmarks: Landmark[];
 	public handle?: LangLabel; // new LangLabel(), overrides default F#
 	
 	constructor(level: number, widthOrGrid: number|Matrix, height?: number)
@@ -90,7 +90,7 @@ export class Floor
 				{
 					const connection = this.connections[i];
 					
-					if(!options.select || (i === options.select))
+					if(options.select === undefined || i === options.select)
 						Renderer.drawDebugConnection(connection.tx, connection.ty, connection.dir === "VERTICAL", connection.size);
 				}
 			}
@@ -100,7 +100,7 @@ export class Floor
 				{
 					const icon = this.icons[i];
 					
-					if(options.isolate.includes(icon.map + 1) && (!options.select || (i === options.select)))
+					if(options.isolate.includes(icon.map + 1) && (options.select === undefined || i === options.select))
 						Renderer.drawIcon(icon.x, icon.y, icon.icon);
 				}
 				for(let i = 0; i < this.landmarks.length; i++)
@@ -185,7 +185,39 @@ export class Floor
 		}), index);
 	}
 	public moveMap(from: number, to: number) {moveGeneric(this.maps, from, to)}
-	public removeMap(index?: number) {removeGeneric(this.maps, index)}
+	public swapMaps(index1: number, index2: number)
+	{
+		swapGeneric(this.maps, index1, index2);
+		const a = index1 + 1;
+		const b = index2 + 1;
+		
+		this.tiles.iterate((x, y, value) => {
+			if(a === value)
+				return b;
+			else if(b === value)
+				return a;
+			else
+				return value;
+		});
+	}
+	public removeMap(index?: number)
+	{
+		removeGeneric(this.maps, index);
+		const split = (index ?? this.maps.length - 1) + 1;
+		this.tiles.iterate((x, y, value) => value === split ? 0 : (value > split ? value - 1 : value));
+		
+		for(const connection of this.connections)
+		{
+			connection.map1--;
+			connection.map2--;
+		}
+		
+		for(const icon of this.icons)
+			icon.map--;
+		
+		for(const landmark of this.landmarks)
+			landmark.map--;
+	}
 	
 	public addConnection(x: number, y: number, map1: number, map2: number, size: number, isVertical: boolean, index?: number)
 	{
@@ -199,6 +231,7 @@ export class Floor
 		}), index);
 	}
 	public moveConnection(from: number, to: number) {moveGeneric(this.connections, from, to)}
+	public swapConnections(index1: number, index2: number) {swapGeneric(this.connections, index1, index2)}
 	public removeConnection(index?: number) {removeGeneric(this.connections, index)}
 	
 	public addIcon(icon: string, x: number, y: number, map: number, index?: number)
@@ -211,6 +244,7 @@ export class Floor
 		}), index);
 	}
 	public moveIcon(from: number, to: number) {moveGeneric(this.icons, from, to)}
+	public swapIcons(index1: number, index2: number) {swapGeneric(this.icons, index1, index2)}
 	public removeIcon(index?: number) {removeGeneric(this.icons, index)}
 	
 	public addLandmark(id: string, x: number, y: number, map: number, index?: number)
@@ -223,7 +257,8 @@ export class Floor
 		}), index);
 	}
 	public moveLandmark(from: number, to: number) {moveGeneric(this.landmarks, from, to)}
-	public removeLandmark(index?: number) {removeGeneric(this.icons, index)}
+	public swapLandmarks(index1: number, index2: number) {swapGeneric(this.landmarks, index1, index2)}
+	public removeLandmark(index?: number) {removeGeneric(this.landmarks, index)}
 	
 	public getMapIndexByPosition(x: number, y: number): number
 	{

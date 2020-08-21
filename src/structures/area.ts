@@ -1,5 +1,5 @@
 import {Floor} from "./floor";
-import {GenericJSON, addGeneric, moveGeneric, removeGeneric} from "../modules/common";
+import {GenericJSON, addGeneric, moveGeneric, removeGeneric, swapGeneric} from "../modules/common";
 import {loadArea} from "../document/gateway";
 import {elements} from "../document/inspector"; // The idea here is that the inspector will be able to send and receive data once it's linked here.
 
@@ -86,6 +86,7 @@ export class Area
 		addGeneric(this.floors, new Floor(level, this.width, this.height), index);
 	}
 	public moveFloor(from: number, to: number) {moveGeneric(this.floors, from, to)}
+	public swapFloors(index1: number, index2: number) {swapGeneric(this.floors, index1, index2)}
 	public removeFloor(index?: number) {removeGeneric(this.floors, index)}
 	
 	public getWidth()

@@ -48,7 +48,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 	private langlabel: LangLabel;
 	private tag: string;
 	
-	constructor(langlabel: LangLabel, placeholder?: string)
+	constructor(langlabel?: LangLabel, placeholder?: string, callback?: (text: string, lang: string) => void)
 	{
 		super(document.createElement("div"));
 		const self = this;
@@ -60,6 +60,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 			events: {
 				input() {
 					self.langlabel.languages[self.tag] = this.value;
+					callback && callback(this.value, self.tag);
 				}
 			}
 		});
@@ -71,7 +72,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 				}
 			}
 		});
-		this.langlabel = langlabel;
+		this.langlabel = langlabel ?? new LangLabel();
 		this.tag = Settings.language;
 		this.element.appendChild(this.input);
 		this.element.appendChild(this.menu);
@@ -142,7 +143,7 @@ export function getLanguageNameByTag(tag: string): string
 export const supportedLanguages = lexiconJSON.supportedLanguages;
 delete lexiconJSON.supportedLanguages;
 
-const lexicon: {[key: string]: LangLabel} = {};
+export const lexicon: {[key: string]: LangLabel} = {};
 for(const key in lexiconJSON)
 	lexicon[key] = new LangLabel((lexiconJSON as any)[key]);
 

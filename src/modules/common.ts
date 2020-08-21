@@ -64,6 +64,7 @@ interface TableOptions
 export class Table extends HTMLWrapper<HTMLTableElement>
 {
 	public readonly button: HTMLButtonElement;
+	private readonly tbody: HTMLTableSectionElement;
 	private readonly onadd: (element: HTMLDivElement, index: number, clickedByUser: boolean) => void;
 	private readonly onremove: (index: number) => void;
 	private readonly onswap: (index1: number, index2: number) => void;
@@ -72,7 +73,8 @@ export class Table extends HTMLWrapper<HTMLTableElement>
 	constructor(options?: TableOptions, reverse = false)
 	{
 		super(document.createElement("table"));
-		this.element.appendChild(document.createElement("tbody"));
+		this.tbody = document.createElement("tbody");
+		this.element.appendChild(this.tbody);
 		this.button = create("button", {
 			text: "+",
 			events: {
@@ -107,7 +109,7 @@ export class Table extends HTMLWrapper<HTMLTableElement>
 						throw "This event was called outside of a table!";
 					
 					const index = row.rowIndex;
-					self.element.removeChild(row);
+					self.tbody.removeChild(row);
 					self.onremove(index);
 				}
 			}
@@ -142,15 +144,13 @@ export class Table extends HTMLWrapper<HTMLTableElement>
 						row.after(tmp);
 						otherRow.after(row);
 						tmp.after(otherRow);
-						self.element.removeChild(tmp);
+						self.tbody.removeChild(tmp);
 					}
 				}
 			}
 		}));
 		
-		const box = create("div", {
-			classes: ["left"]
-		});
+		const box = create("div");
 		other.appendChild(box);
 		
 		this.onadd(box, row.rowIndex, clickedByUser);
@@ -184,6 +184,13 @@ export function addGeneric(array: any[], element: any, index?: number)
 export function moveGeneric(array: any[], from: number, to: number)
 {
 	array.splice(to, 0, array.splice(from, 1)[0]);
+}
+
+export function swapGeneric(array: any[], index1: number, index2: number)
+{
+	const tmp = array[index1];
+	array[index1] = array[index2];
+	array[index2] = tmp;
 }
 
 export function removeGeneric(array: any[], index?: number)

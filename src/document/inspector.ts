@@ -59,5 +59,9 @@ export default create("div", {
 		tabs[1].getElement(),
 		tabs[2].getElement(),
 		tabs[3].getElement()
-	]
+	],
+	events: {
+		wheel: event => event.stopPropagation(),
+		keydown: event => event.stopPropagation()
+	}
 });
