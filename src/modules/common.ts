@@ -30,6 +30,149 @@ export abstract class HTMLWrapper<T extends HTMLElement>
 	}
 }
 
+export class GenericTab extends HTMLWrapper<HTMLDivElement>
+{
+	private enabled = true;
+	
+	constructor()
+	{
+		super(document.createElement("div"));
+		this.setDisplay(false);
+	}
+	
+	public setDisplay(state?: boolean)
+	{
+		const target = state ?? !this.enabled;
+		this.enabled = target;
+		this.element.style.display = target ? "block" : "none";
+		return this;
+	}
+	
+	public getElement()
+	{
+		return this.element;
+	}
+}
+
+interface TableOptions
+{
+	readonly onadd?: (element: HTMLDivElement, index: number, clickedByUser: boolean) => void;
+	readonly onremove?: (index: number) => void;
+	readonly onswap?: (index1: number, index2: number) => void;
+}
+
+export class Table extends HTMLWrapper<HTMLTableElement>
+{
+	public readonly button: HTMLButtonElement;
+	private readonly tbody: HTMLTableSectionElement;
+	private readonly onadd: (element: HTMLDivElement, index: number, clickedByUser: boolean) => void;
+	private readonly onremove: (index: number) => void;
+	private readonly onswap: (index1: number, index2: number) => void;
+	private tmpIndex: number;
+	
+	constructor(options?: TableOptions, reverse = false)
+	{
+		super(document.createElement("table"));
+		this.tbody = document.createElement("tbody");
+		this.element.appendChild(this.tbody);
+		this.button = create("button", {
+			text: "+",
+			events: {
+				click: () => this.addRow(true)
+			}
+		});
+		this.onadd = options?.onadd ?? (() => {});
+		this.onremove = options?.onremove ?? (() => {});
+		this.onswap = options?.onswap ?? (() => {});
+		this.tmpIndex = -1;
+		
+		if(reverse)
+			this.element.classList.add("reverse");
+	}
+	
+	public addRow(clickedByUser = false)
+	{
+		const self = this;
+		const row = this.element.insertRow();
+		const del = row.insertCell();
+		const swap = row.insertCell();
+		const other = row.insertCell();
+		
+		del.classList.add("collapse");
+		del.appendChild(create("button", {
+			text: "-",
+			events: {
+				click(this: HTMLButtonElement) {
+					const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
+					
+					if(!row)
+						throw "This event was called outside of a table!";
+					
+					const index = row.rowIndex;
+					self.tbody.removeChild(row);
+					self.onremove(index);
+				}
+			}
+		}));
+		
+		swap.classList.add("collapse");
+		swap.appendChild(create("input", {
+			attributes: {
+				type: "checkbox"
+			},
+			events: {
+				click(this: HTMLInputElement) {
+					const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
+					
+					if(!row)
+						throw "This event was called outside of a table!";
+					
+					const index = row.rowIndex;
+					
+					if(self.tmpIndex === -1)
+						self.tmpIndex = index;
+					else
+					{
+						self.onswap(self.tmpIndex, index);
+						const otherRow = self.element.rows[self.tmpIndex];
+						(otherRow.children[1].children[0] as HTMLInputElement).checked = false;
+						this.checked = false;
+						self.tmpIndex = -1;
+						const tmp = create("span");
+						
+						// swap "index" and "self.tmpIndex"
+						row.after(tmp);
+						otherRow.after(row);
+						tmp.after(otherRow);
+						self.tbody.removeChild(tmp);
+					}
+				}
+			}
+		}));
+		
+		const box = create("div");
+		other.appendChild(box);
+		
+		this.onadd(box, row.rowIndex, clickedByUser);
+	}
+	
+	public getRow(index: number)
+	{
+		return this.element.rows[index];
+	}
+	
+	public clearRows()
+	{
+		for(let amount = this.element.rows.length; amount--;)
+			this.element.deleteRow(0);
+	}
+	
+	public getTable()
+	{
+		return this.element;
+	}
+}
+
 export function addGeneric(array: any[], element: any, index?: number)
 {
 	if(index !== undefined && index < array.length)
@@ -41,6 +184,13 @@ export function addGeneric(array: any[], element: any, index?: number)
 export function moveGeneric(array: any[], from: number, to: number)
 {
 	array.splice(to, 0, array.splice(from, 1)[0]);
+}
+
+export function swapGeneric(array: any[], index1: number, index2: number)
+{
+	const tmp = array[index1];
+	array[index1] = array[index2];
+	array[index2] = tmp;
 }
 
 export function removeGeneric(array: any[], index?: number)

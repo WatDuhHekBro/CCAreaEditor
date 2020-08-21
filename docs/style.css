@@ -12,15 +12,34 @@ canvas
 	position: absolute;
 }
 
+input[type=number]
+{
+	width: 30px;
+	text-align: center;
+	-moz-appearance: textfield;
+}
+
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button
 {
 	-webkit-appearance: none;
 }
 
-input[type=number]
+table
 {
-	-moz-appearance:textfield;
-	width: 30px;
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table.reverse tbody
+{
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+.collapse
+{
+	width: 1%;
 }
 
 .center
@@ -39,6 +58,7 @@ input[type=number]
 	border: 5px double darkgray;
 	text-align: center;
 	height: 99%;
+	overflow: auto;
 }
 
 .ui *
@@ -81,4 +101,16 @@ input[type=number]
 {
 	border: 2px solid gray;
 	border-top: 2px solid lightgray;
+}
+
+.sidebar
+{
+	height: 99%;
+	right: -275px;
+	transition: right 0.25s ease-in-out;
+}
+
+.sidebar:hover
+{
+	right: 0;
 }

@@ -1,6 +1,6 @@
 import Palette from "./palette";
-import Matrix from "./matrix";
-import {bindController} from "./controller";
+import Matrix from "../structures/matrix";
+import {bindController} from "../document/controller";
 
 const tiles = new Image();
 tiles.src = "tiles.png";
@@ -327,6 +327,11 @@ class Renderer
 		const y2 = y1 + (icon[3] || 12);
 		
 		return [x1, y1, x2, y2];
+	}
+	
+	public generateNewPalette()
+	{
+		Palette.generateNewPalette();
 	}
 	
 	public bind()

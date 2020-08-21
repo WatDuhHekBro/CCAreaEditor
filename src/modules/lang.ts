@@ -48,19 +48,19 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 	private langlabel: LangLabel;
 	private tag: string;
 	
-	constructor(langlabel: LangLabel, placeholder: string)
+	constructor(langlabel?: LangLabel, placeholder?: string, callback?: (text: string, lang: string) => void)
 	{
 		super(document.createElement("div"));
 		const self = this;
 		this.input = create("input", {
 			attributes: {
 				type: "text",
-				placeholder: placeholder
+				placeholder: placeholder ?? ""
 			},
 			events: {
 				input() {
 					self.langlabel.languages[self.tag] = this.value;
-					console.log(self);
+					callback && callback(this.value, self.tag);
 				}
 			}
 		});
@@ -72,7 +72,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 				}
 			}
 		});
-		this.langlabel = langlabel;
+		this.langlabel = langlabel ?? new LangLabel();
 		this.tag = Settings.language;
 		this.element.appendChild(this.input);
 		this.element.appendChild(this.menu);
@@ -98,7 +98,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 		for(const tag in this.langlabel.languages)
 		{
 			const element = create("option", {
-				text: tag in lexiconJSON.languages ? lexicon.languages.get(tag) : tag,
+				text: getLanguageNameByTag(tag),
 				attributes: {
 					value: tag
 				}
@@ -118,7 +118,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 		{
 			const tag = Settings.language;
 			const element = create("option", {
-				text: tag in lexiconJSON.languages ? lexicon.languages.get(tag) : tag,
+				text: getLanguageNameByTag(tag),
 				attributes: {
 					value: tag
 				}
@@ -127,13 +127,23 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 			this.menu.appendChild(element);
 		}
 	}
+	
+	public getElement()
+	{
+		return this.element;
+	}
+}
+
+export function getLanguageNameByTag(tag: string): string
+{
+	return tag in lexiconJSON.languages ? lexicon.languages.get(tag) : tag;
 }
 
 // Initialize the lexicon into an indexable format //
 export const supportedLanguages = lexiconJSON.supportedLanguages;
 delete lexiconJSON.supportedLanguages;
 
-const lexicon: {[key: string]: LangLabel} = {};
+export const lexicon: {[key: string]: LangLabel} = {};
 for(const key in lexiconJSON)
 	lexicon[key] = new LangLabel((lexiconJSON as any)[key]);
 

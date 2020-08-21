@@ -1,5 +1,5 @@
-import {Area, currentArea, setCurrentArea} from "./area";
-import lang from "./lang";
+import {Area, currentArea, setCurrentArea} from "../structures/area";
+import lang from "../modules/lang";
 
 let currentFileName = "area.json";
 

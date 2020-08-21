@@ -1,11 +1,13 @@
-import Renderer from "./modules/renderer";
-import {inputViaDragAndDrop} from "./modules/transfer";
-import Inspector from "./modules/inspector";
-import * as Gateway from "./modules/gateway";
+import Renderer from "./display/renderer";
+import {inputViaDragAndDrop} from "./document/transfer";
+import Inspector from "./document/inspector";
+import Preferences from "./document/preferences";
+import * as Gateway from "./document/gateway";
 import Settings from "./modules/config";
 
 Renderer.attach();
-document.body.appendChild(Inspector)
+document.body.appendChild(Inspector);
+document.body.appendChild(Preferences);
 document.body.ondrop = inputViaDragAndDrop;
 document.body.ondragover = event => event.preventDefault();
 
