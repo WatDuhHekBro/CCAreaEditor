@@ -29,6 +29,12 @@ table
 	width: 100%;
 }
 
+table.reverse tbody
+{
+	display: flex;
+	flex-direction: column-reverse;
+}
+
 .collapse
 {
 	width: 1%;

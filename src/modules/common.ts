@@ -69,9 +69,10 @@ export class Table extends HTMLWrapper<HTMLTableElement>
 	private readonly onswap: (index1: number, index2: number) => void;
 	private tmpIndex: number;
 	
-	constructor(options?: TableOptions)
+	constructor(options?: TableOptions, reverse = false)
 	{
 		super(document.createElement("table"));
+		this.element.appendChild(document.createElement("tbody"));
 		this.button = create("button", {
 			text: "+",
 			events: {
@@ -82,75 +83,76 @@ export class Table extends HTMLWrapper<HTMLTableElement>
 		this.onremove = options?.onremove ?? (() => {});
 		this.onswap = options?.onswap ?? (() => {});
 		this.tmpIndex = -1;
+		
+		if(reverse)
+			this.element.classList.add("reverse");
 	}
 	
 	public addRow(clickedByUser = false)
 	{
 		const self = this;
+		const row = this.element.insertRow();
+		const del = row.insertCell();
+		const swap = row.insertCell();
+		const other = row.insertCell();
+		
+		del.classList.add("collapse");
+		del.appendChild(create("button", {
+			text: "-",
+			events: {
+				click(this: HTMLButtonElement) {
+					const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
+					
+					if(!row)
+						throw "This event was called outside of a table!";
+					
+					const index = row.rowIndex;
+					self.element.removeChild(row);
+					self.onremove(index);
+				}
+			}
+		}));
+		
+		swap.classList.add("collapse");
+		swap.appendChild(create("input", {
+			attributes: {
+				type: "checkbox"
+			},
+			events: {
+				click(this: HTMLInputElement) {
+					const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
+					
+					if(!row)
+						throw "This event was called outside of a table!";
+					
+					const index = row.rowIndex;
+					
+					if(self.tmpIndex === -1)
+						self.tmpIndex = index;
+					else
+					{
+						self.onswap(self.tmpIndex, index);
+						const otherRow = self.element.rows[self.tmpIndex];
+						(otherRow.children[1].children[0] as HTMLInputElement).checked = false;
+						this.checked = false;
+						self.tmpIndex = -1;
+						const tmp = create("span");
+						
+						// swap "index" and "self.tmpIndex"
+						row.after(tmp);
+						otherRow.after(row);
+						tmp.after(otherRow);
+						self.element.removeChild(tmp);
+					}
+				}
+			}
+		}));
+		
 		const box = create("div", {
 			classes: ["left"]
 		});
-		const row = this.element.appendChild(create("tr", {
-			append: [
-				create("td", {
-					classes: ["collapse"],
-					append: create("button", {
-						text: "-",
-						events: {
-							click(this: HTMLButtonElement) {
-								const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
-								
-								if(!row)
-									throw "This event was called outside of a table!";
-								
-								const index = row.rowIndex;
-								self.element.removeChild(row);
-								self.onremove(index);
-							}
-						}
-					})
-				}),
-				create("td", {
-					classes: ["collapse"],
-					append: create("input", {
-						attributes: {
-							type: "checkbox"
-						},
-						events: {
-							click(this: HTMLInputElement) {
-								const row = (this.parentElement?.parentElement as HTMLTableRowElement|undefined);
-								
-								if(!row)
-									throw "This event was called outside of a table!";
-								
-								const index = row.rowIndex;
-								
-								if(self.tmpIndex === -1)
-									self.tmpIndex = index;
-								else
-								{
-									self.onswap(self.tmpIndex, index);
-									const otherRow = self.element.rows[self.tmpIndex];
-									(otherRow.children[1].children[0] as HTMLInputElement).checked = false;
-									this.checked = false;
-									self.tmpIndex = -1;
-									const tmp = create("span");
-									
-									// swap "index" and "self.tmpIndex"
-									row.after(tmp);
-									otherRow.after(row);
-									tmp.after(otherRow);
-									self.element.removeChild(tmp);
-								}
-							}
-						}
-					})
-				}),
-				create("td", {
-					append: box
-				})
-			]
-		}));
+		other.appendChild(box);
+		
 		this.onadd(box, row.rowIndex, clickedByUser);
 	}
 	
@@ -161,8 +163,8 @@ export class Table extends HTMLWrapper<HTMLTableElement>
 	
 	public clearRows()
 	{
-		while(this.element.firstChild)
-			this.element.removeChild(this.element.firstChild);
+		for(let amount = this.element.rows.length; amount--;)
+			this.element.deleteRow(0);
 	}
 	
 	public getTable()

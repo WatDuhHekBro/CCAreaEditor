@@ -3,9 +3,9 @@ import {Area, currentArea, setCurrentArea} from "../structures/area";
 import {Floor} from "../structures/floor";
 import {elements} from "./inspector";
 import {floors} from "./inspector/area";
-import {setHandleActive, setHandleInactive} from "./inspector/floor";
+import {setHandleActive, setHandleInactive, maps, connections, icons, landmarks} from "./inspector/floor";
 import renderer from "../display/renderer";
-import lang, {HTMLLangLabel} from "../modules/lang";
+import {LangLabel} from "../modules/lang";
 
 export enum VIEWS {TILES, CONNECTIONS, RESULT};
 const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
@@ -115,6 +115,16 @@ export function removeFloor(index: number)
 	if(currentArea && currentFloor)
 	{
 		currentArea.removeFloor(index);
+		
+		if(currentArea.getAmountOfFloors() === 0)
+		{
+			currentArea.addFloor();
+			elements.level.value = currentFloor.level.toString();
+			floors.addRow();
+		}
+		else if(currentFloorIndex === currentArea.getAmountOfFloors())
+			currentFloorIndex--;
+		
 		currentFloor = currentArea.getFloorByIndex(currentFloorIndex);
 		elements.level.value = currentFloor.level.toString();
 		render();
@@ -130,6 +140,17 @@ export function swapFloors(index1: number, index2: number)
 		currentFloor = currentArea.getFloorByIndex(currentFloorIndex);
 		elements.level.value = currentFloor.level.toString();
 		render();
+	}
+}
+
+export function addMap() {currentFloor?.addMap("", new LangLabel())}
+export function removeMap(index: number) {currentFloor?.removeMap(index)}
+export function swapMaps(index1: number, index2: number)
+{
+	if(currentFloor)
+	{
+		currentFloor.moveMap(index1, index2 + 1);
+		currentFloor.moveMap(index2 - 1, index1);
 	}
 }
 

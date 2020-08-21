@@ -69,6 +69,18 @@ export function setHandleInactive()
 	elements.button.innerText = lang("inspector.floor.handle.add");
 }
 
+export const maps = new Table({
+	onadd: (element, index, clickedByUser) => {
+		if(clickedByUser)
+			Gateway.addMap();
+	},
+	onremove: Gateway.removeMap,
+	onswap: Gateway.swapMaps
+});
+export const connections = new Table();
+export const icons = new Table();
+export const landmarks = new Table();
+
 export default new GenericTab()
 	.attachElement(create("div", {
 		append: [
@@ -98,7 +110,8 @@ export default new GenericTab()
 			create("h2", {
 				text: lang("inspector.floor.maps")
 			}),
-			//...
+			maps.getTable(),
+			maps.button
 		]
 	}))
 	.attachElement(create("div", {
@@ -106,7 +119,8 @@ export default new GenericTab()
 			create("h2", {
 				text: lang("inspector.floor.connections")
 			}),
-			//...
+			connections.getTable(),
+			connections.button
 		]
 	}))
 	.attachElement(create("div", {
@@ -114,7 +128,8 @@ export default new GenericTab()
 			create("h2", {
 				text: lang("inspector.floor.icons")
 			}),
-			//...
+			icons.getTable(),
+			icons.button
 		]
 	}))
 	.attachElement(create("div", {
@@ -122,6 +137,7 @@ export default new GenericTab()
 			create("h2", {
 				text: lang("inspector.floor.landmarks")
 			}),
-			//...
+			landmarks.getTable(),
+			landmarks.button
 		]
 	}));

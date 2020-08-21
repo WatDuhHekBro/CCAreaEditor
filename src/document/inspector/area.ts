@@ -45,11 +45,8 @@ export const floors = new Table({
 	onadd: (element, index, clickedByUser) => {
 		if(clickedByUser)
 			Gateway.addFloor();
-		element.appendChild(create("span", {
-			text: (currentArea?.getFloorByIndex(index).getFloorName() ?? "N/A") + ' '
-		}));
 		element.appendChild(create("button", {
-			text: lang("inspector.select"),
+			text: (currentArea?.getFloorByIndex(index).getFloorName() ?? "N/A") + ' ',
 			events: {
 				click(this: HTMLButtonElement) {
 					const row = this.parentElement?.parentElement?.parentElement as HTMLTableRowElement|undefined;
@@ -64,7 +61,7 @@ export const floors = new Table({
 	},
 	onremove: Gateway.removeFloor,
 	onswap: Gateway.swapFloors
-});
+}, true);
 
 export default new GenericTab()
 	.attachElement(create("div", {
