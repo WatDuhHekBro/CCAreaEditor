@@ -113,6 +113,10 @@
 	{
 		"en_US": "Area Settings"
 	},
+	"inspector.area.dimensions":
+	{
+		"en_US": "Dimensions"
+	},
 	"inspector.area.width":
 	{
 		"en_US": "Width"
@@ -203,21 +207,25 @@
 	},
 	"inspector.selection":
 	{
-		"en_US": "Current Selection"
+		"en_US": "Nothing Selected"
+	},
+	"inspector.selection.none":
+	{
+		"en_US": "List of Controls"
 	},
 	"inspector.selection.map":
 	{
 		"en_US": "Map"
 	},
+	"inspector.selection.map.name":
+	{
+		"en_US": "Name"
+	},
 	"inspector.selection.map.path":
 	{
 		"en_US": "Path"
 	},
-	"inspector.selection.map.name":
-	{
-		"en_US": "Map Name"
-	},
-	"inspector.selection.map.note":
+	"inspector.selection.map.path.note":
 	{
 		"en_US": "The path requires a specific format to work properly. For example, \"arid.town-1\", which points to \"assets/data/maps/arid/town-1.json\"."
 	},
@@ -232,6 +240,14 @@
 	"inspector.selection.connection.direction":
 	{
 		"en_US": "Direction"
+	},
+	"inspector.selection.connection.direction.horizontal":
+	{
+		"en_US": "Horizontal"
+	},
+	"inspector.selection.connection.direction.vertical":
+	{
+		"en_US": "Vertical"
 	},
 	"inspector.selection.connection.size":
 	{

@@ -103,6 +103,24 @@ table.reverse tbody
 	border-top: 2px solid lightgray;
 }
 
+/* I have no clue how to make this work properly. */
+
+.ui .fixed
+{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	padding: 5px;
+	color: black;
+	cursor: default;
+	transition: left 0.25s ease-in-out 0.5s;
+}
+
+.ui .fixed:hover
+{
+	left: -15%;
+}
+
 .sidebar
 {
 	height: 99%;
@@ -113,4 +131,25 @@ table.reverse tbody
 .sidebar:hover
 {
 	right: 0;
+}
+
+.padded
+{
+	padding: 5px;
+}
+
+.rainbow
+{
+	animation: rainbow 15s linear 0s infinite normal;
+}
+
+@keyframes rainbow
+{
+	0% {background-color: red; color: white;}
+	12% {background-color: orange; color: black;}
+	25% {background-color: yellow; color: black;}
+	50% {background-color: green; color: white;}
+	67% {background-color: blue; color: white;}
+	83% {background-color: violet; color: white;}
+	100% {background-color: red; color: white;}
 }

@@ -23,10 +23,13 @@ const input = create("input", {
 	}
 });
 
-for(const lang of supportedLanguages)
+for(const tag of supportedLanguages)
 {
 	languages.appendChild(create("option", {
-		text: lang
+		text: getLanguageNameByTag(tag),
+		attributes: {
+			value: tag
+		}
 	}));
 }
 

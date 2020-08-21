@@ -1,6 +1,8 @@
 import Palette from "./palette";
 import Matrix from "../structures/matrix";
 import {bindController} from "../document/controller";
+import {elements} from "../document/inspector";
+import {create} from "../modules/common";
 
 const tiles = new Image();
 tiles.src = "tiles.png";
@@ -452,3 +454,12 @@ const ICONMAP: {[key: string]: number[]} = {
 	quest_hub: [72, 12],
 	landmark: [84, 12, 16, 16, -7, -8]
 };
+
+const ICONS = Object.keys(ICONMAP);
+
+for(const icon of ICONS)
+{
+	elements.iconType.appendChild(create("option", {
+		text: icon
+	}));
+}

@@ -66,6 +66,9 @@ export const floors = new Table({
 export default new GenericTab()
 	.attachElement(create("div", {
 		append: [
+			create("h2", {
+				text: lang("inspector.area.dimensions")
+			}),
 			create("span", {
 				text: lang("inspector.area.width") + ' '
 			}),
@@ -104,8 +107,8 @@ export default new GenericTab()
 	}))
 	.attachElement(create("div", {
 		append: [
-			create("span", {
-				text: lang("inspector.area.defaultFloor") + ' '
+			create("h2", {
+				text: lang("inspector.area.defaultFloor")
 			}),
 			elements.defaultFloor,
 			create("p", {

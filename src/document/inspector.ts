@@ -3,7 +3,10 @@ import lang from "../modules/lang";
 import TransferTab, {elements as transferElements} from "./inspector/transfer";
 import AreaTab, {elements as areaElements} from "./inspector/area";
 import FloorTab, {elements as floorElements} from "./inspector/floor";
-import SelectionTab, {elements as selectionElements} from "./inspector/selection";
+import SelectionTabs, {elements as selectionElements} from "./inspector/selection";
+import {currentTabOffset} from "./gateway";
+
+export let currentTab = 0;
 
 function createTabButton(text: string, callback: () => void)
 {
@@ -13,8 +16,10 @@ function createTabButton(text: string, callback: () => void)
 	return e;
 }
 
-function setActiveTab(index: number)
+export function setActiveTab(index: number)
 {
+	currentTab = index;
+	
 	for(let i = 0; i < tabs.length; i++)
 	{
 		tabs[i]?.setDisplay(i === index);
@@ -25,9 +30,21 @@ function setActiveTab(index: number)
 }
 
 // This is so you don't have to write a bunch of verification code to access and modify element values (from the gateway).
-export const elements = {title: create("h1"), ...transferElements, ...areaElements, ...floorElements, ...selectionElements};
-const tabs = [TransferTab, AreaTab, FloorTab, SelectionTab];
-const tabNames = ["transfer", "area", "floor", "selection"];
+export const elements = {
+	title: create("h1"),
+	selected: create("span", {
+		text: "N/A",
+		classes: ["rainbow", "padded"]
+	}),
+	...transferElements,
+	...areaElements,
+	...floorElements,
+	...selectionElements
+};
+const tabs = [TransferTab, AreaTab, FloorTab, ...SelectionTabs];
+const tabNames = ["transfer", "area", "floor", "selection", "selection.map", "selection.connection", "selection.icon", "selection.landmark"];
+const attachTabs: HTMLDivElement[] = [];
+tabs.forEach(tab => attachTabs.push(tab.getElement()));
 
 setActiveTab(0);
 
@@ -50,15 +67,21 @@ export default create("div", {
 					setActiveTab(2);
 				}),
 				createTabButton(lang("inspector.tabs.selection"), () => {
-					setActiveTab(3);
+					setActiveTab(3 + currentTabOffset);
 				})
 			]
 		}),
 		elements.title,
-		tabs[0].getElement(),
-		tabs[1].getElement(),
-		tabs[2].getElement(),
-		tabs[3].getElement()
+		...attachTabs,
+		create("div", {
+			classes: ["fixed"],
+			append: [
+				create("span", {
+					text: `${lang("inspector.floor.selected")}: `
+				}),
+				elements.selected
+			]
+		})
 	],
 	events: {
 		wheel: event => event.stopPropagation(),

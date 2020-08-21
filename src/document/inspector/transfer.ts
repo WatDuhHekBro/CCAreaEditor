@@ -19,24 +19,30 @@ export default new GenericTab()
 		text: lang("inspector.transfer.note")
 	}))
 	.attachElement(create("div", {
-		append: [elements.textfield, create("button", {
-			text: lang("inspector.transfer.textfield.copy"),
-			events: {
-				click: outputViaTextField(elements.textfield)
-			}
-		})]
+		append: [
+			elements.textfield,
+			create("button", {
+				text: lang("inspector.transfer.textfield.copy"),
+				events: {
+					click: outputViaTextField(elements.textfield)
+				}
+			})
+		]
 	}))
 	.attachElement(create("div", {
-		append: [create("input", {
-			attributes: {
-				type: "file"
-			},
-			events: {
-				change: inputViaFileUpload
-			}
-		}), create("span", {
-			text: lang("inspector.transfer.upload.note")
-		})]
+		append: [
+			create("input", {
+				attributes: {
+					type: "file"
+				},
+				events: {
+					change: inputViaFileUpload
+				}
+			}),
+			create("p", {
+				text: lang("inspector.transfer.upload.note")
+			})
+		]
 	}))
 	.attachElement(create("div", {
 		append: create("button", {

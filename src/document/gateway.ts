@@ -1,7 +1,7 @@
 import Renderer from "../display/renderer";
 import {Area, currentArea, setCurrentArea} from "../structures/area";
 import {Floor} from "../structures/floor";
-import {elements} from "./inspector";
+import {elements, setActiveTab, currentTab} from "./inspector";
 import {floors} from "./inspector/area";
 import {setHandleActive, setHandleInactive, maps, connections, icons, landmarks} from "./inspector/floor";
 import renderer from "../display/renderer";
@@ -13,6 +13,7 @@ export let currentFloor: Floor|undefined;
 export let currentFloorIndex = 0;
 export let currentMode = VIEWS.TILES;
 let selected = 0;
+export let currentTabOffset = 0;
 
 // With functions like setBoxPreview and moveConnection, you really need to figure out a way to make it faster. Find some way to keep track of what changed so it's more efficient.
 export function render(maps?: number[], select?: number)
@@ -112,6 +113,9 @@ export function setFloorView(index = currentFloorIndex)
 				icons.addRow();
 			for(let i = 0; i < currentFloor.landmarks.length; i++)
 				landmarks.addRow();
+			
+			selected = currentMode === VIEWS.TILES ? 0 : -1;
+			setSelectedIndicator();
 		}
 	}
 }
@@ -319,6 +323,24 @@ export function moveIcon(x: number, y: number)
 	}
 }
 
+// Set a specific view or cycle through the views.
+export function setView(mode?: VIEWS)
+{
+	if(typeof mode === "number" && mode in VIEWS)
+		currentMode = mode;
+	else
+	{
+		currentMode++;
+		
+		if(currentMode >= AMOUNT_OF_VIEWS)
+			currentMode = 0;
+	}
+	
+	selected = currentMode === VIEWS.TILES ? 0 : -1;
+	setSelectedIndicator();
+	render();
+}
+
 // Send in the absolute x and y and it'll resolve based on the current view.
 export function select(x: number, y: number, modeRequired?: VIEWS)
 {
@@ -350,10 +372,51 @@ export function selectByIndex(index: number)
 
 function setSelectedIndicator()
 {
+	let somethingSelected: boolean;
+	let isLandmark = false;
+	
 	if(currentMode === VIEWS.TILES)
+	{
 		elements.selected.innerText = (selected - 1).toString();
+		somethingSelected = selected !== 0;
+	}
 	else
-		elements.selected.innerText = selected === -1 ? "N/A" : (selected < 0 ? ~selected - 1 : selected).toString();
+	{
+		elements.selected.innerText = selected === -1 ? "N/A" : (selected < -1 ? ~selected - 1 : selected).toString();
+		somethingSelected = selected !== -1;
+		isLandmark = selected < -1;
+	}
+	
+	currentTabOffset = (somethingSelected ? currentMode + 1 : 0) + +isLandmark;
+	
+	if(currentTab >= 3)
+		setActiveTab(3 + currentTabOffset);
+	
+	setSelectedData();
+}
+
+function setSelectedData()
+{
+	// Map //
+	if(currentTabOffset === 1)
+	{
+		
+	}
+	// Connection //
+	else if(currentTabOffset === 2)
+	{
+		
+	}
+	// Icon //
+	else if(currentTabOffset === 3)
+	{
+		
+	}
+	// Landmark //
+	else if(currentTabOffset === 4)
+	{
+		
+	}
 }
 
 // Isolates the current selection. Use render() to reset it.
@@ -391,24 +454,6 @@ export function resetView()
 {
 	Renderer.resetPosition();
 	Renderer.setZoom(1);
-}
-
-// Set a specific view or cycle through the views.
-export function setView(mode?: VIEWS)
-{
-	if(typeof mode === "number" && mode in VIEWS)
-		currentMode = mode;
-	else
-	{
-		currentMode++;
-		
-		if(currentMode >= AMOUNT_OF_VIEWS)
-			currentMode = 0;
-	}
-	
-	selected = currentMode === VIEWS.TILES ? 0 : -1;
-	setSelectedIndicator();
-	render();
 }
 
 export function switchZoom(delta: number)

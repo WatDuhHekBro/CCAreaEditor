@@ -4,7 +4,7 @@ import * as Gateway from "../gateway";
 import {currentArea} from "../../structures/area";
 import {floors} from "./area";
 
-const handle = new HTMLLangLabel(new LangLabel(), "", setFloorHeader);
+const handle = new HTMLLangLabel({callback: setFloorHeader});
 
 export const elements = {
 	level: create("input", {
@@ -48,10 +48,7 @@ export const elements = {
 			}
 		}
 	}),
-	container: handle.getElement(),
-	selected: create("span", {
-		text: "N/A"
-	})
+	container: handle.getElement()
 };
 
 export function setHandleActive(data: LangLabel)
@@ -80,6 +77,8 @@ function setFloorHeader()
 	
 	span.innerText = Gateway.currentFloor.getFloorName() + ' ';
 }
+
+setHandleInactive();
 
 export const maps = new Table({
 	onadd: (element, index, clickedByUser) => {
@@ -209,8 +208,8 @@ export const landmarks = new Table({
 export default new GenericTab()
 	.attachElement(create("div", {
 		append: [
-			create("span", {
-				text: lang("inspector.floor.level") + ' '
+			create("h2", {
+				text: lang("inspector.floor.level")
 			}),
 			elements.level,
 			create("p", {
@@ -223,7 +222,7 @@ export default new GenericTab()
 			create("h2", {
 				text: lang("inspector.floor.handle")
 			}),
-			create("span", {
+			create("p", {
 				text: lang("inspector.floor.handle.note")
 			}),
 			elements.container,
@@ -264,13 +263,5 @@ export default new GenericTab()
 			}),
 			landmarks.getTable(),
 			landmarks.button
-		]
-	}))
-	.attachElement(create("div", {
-		append: [
-			create("span", {
-				text: `${lang("inspector.floor.selected")}: `
-			}),
-			elements.selected
 		]
 	}));

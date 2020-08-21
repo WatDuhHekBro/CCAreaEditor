@@ -40,6 +40,13 @@ export class LangLabel
 	}
 }
 
+interface HTMLLangLabelOptions
+{
+	langlabel?: LangLabel;
+	placeholder?: string;
+	callback?: (text: string, lang: string) => void;
+}
+
 // This is the document element that'll let you send and receive LangLabel data. It will remain on the document, and to change the focus, you swap out the langlabel property.
 export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 {
@@ -48,19 +55,19 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 	private langlabel: LangLabel;
 	private tag: string;
 	
-	constructor(langlabel?: LangLabel, placeholder?: string, callback?: (text: string, lang: string) => void)
+	constructor(options?: HTMLLangLabelOptions)
 	{
 		super(document.createElement("div"));
 		const self = this;
 		this.input = create("input", {
 			attributes: {
 				type: "text",
-				placeholder: placeholder ?? ""
+				placeholder: options?.placeholder ?? ""
 			},
 			events: {
 				input() {
 					self.langlabel.languages[self.tag] = this.value;
-					callback && callback(this.value, self.tag);
+					options?.callback?.(this.value, self.tag);
 				}
 			}
 		});
@@ -68,11 +75,11 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 			events: {
 				change() {
 					self.tag = this.value;
-					self.input.value = self.langlabel.get(self.tag);
+					self.input.value = self.langlabel.get(self.tag) ?? "";
 				}
 			}
 		});
-		this.langlabel = langlabel ?? new LangLabel();
+		this.langlabel = options?.langlabel ?? new LangLabel();
 		this.tag = Settings.language;
 		this.element.appendChild(this.input);
 		this.element.appendChild(this.menu);
