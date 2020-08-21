@@ -1,24 +1,59 @@
 import {GenericTab, create} from "../../modules/common";
-import lang, {HTMLLangLabel} from "../../modules/lang";
+import lang, {HTMLLangLabel, getCleanText} from "../../modules/lang";
 import * as Gateway from "../gateway";
+import Settings from "../../modules/config";
+import {maps} from "./floor";
 
-export const mapName = new HTMLLangLabel();
+export const mapName = new HTMLLangLabel({
+	callback(text, lang)
+	{
+		const index = Gateway.selected - 1;
+		
+		if(lang === Settings.language)
+		{
+			const button = maps.getRow(index).children[2].children[0].children[0] as HTMLButtonElement|undefined;
+			
+			if(!button)
+				throw "No button element is defined at mapName.callback!";
+			
+			button.innerText = getCleanText(text);
+		}
+	}
+});
 
 export const elements = {
 	mapName: mapName.getElement(),
 	mapPath: create("input", {
 		attributes: {
 			type: "text"
+		},
+		events: {
+			input() {
+				if(Gateway.currentMode !== Gateway.VIEWS.TILES)
+					throw "inspector.mapPath was edited without the tile editor being active!";
+				else if(Gateway.currentFloor)
+					Gateway.currentFloor.maps[Gateway.selected - 1].path = this.value;
+			}
 		}
 	}),
 	connectionX: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				Gateway.moveConnection(parseInt(this.value), parseInt(elements.connectionY.value), true);
+			}
 		}
 	}),
 	connectionY: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				Gateway.moveConnection(parseInt(elements.connectionX.value), parseInt(this.value), true);
+			}
 		}
 	}),
 	connectionDirection: create("select", {
@@ -37,39 +72,78 @@ export const elements = {
 			})
 		],
 		events: {
-			input() {
-				console.log(this.value);
-			}
+			input: () => Gateway.rotateConnection(true)
 		}
 	}),
 	connectionSize: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				const offset = parseInt(this.value) - 1;
+				
+				if(offset < 0)
+					this.value = '1';
+				
+				Gateway.resizeConnection(parseInt(elements.connectionX.value) + offset, parseInt(elements.connectionY.value) + offset, true);
+			}
 		}
 	}),
 	connectionMap1: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				if(Gateway.currentFloor)
+					Gateway.currentFloor.connections[Gateway.selected].map1 = parseInt(this.value);
+			}
 		}
 	}),
 	connectionMap2: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				if(Gateway.currentFloor)
+					Gateway.currentFloor.connections[Gateway.selected].map2 = parseInt(this.value);
+			}
 		}
 	}),
 	connectionCondition: create("input", {
 		attributes: {
 			type: "text"
+		},
+		events: {
+			input() {
+				if(Gateway.currentFloor)
+				{
+					const condition: string|undefined = this.value !== "" ? this.value : undefined;
+					Gateway.currentFloor.connections[Gateway.selected].condition = condition;
+				}
+			}
 		}
 	}),
 	iconX: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	}),
 	iconY: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	}),
 	// The initialization code for this is in "display/renderer" because the icons have to initialize first.
@@ -83,36 +157,71 @@ export const elements = {
 	iconMap: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	}),
 	iconDataArea: create("input", {
 		attributes: {
 			type: "text"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	}),
 	iconDataMap: create("input", {
 		attributes: {
 			type: "text"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	}),
 	landmarkX: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	}),
 	landmarkY: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	}),
 	landmarkID: create("input", {
 		attributes: {
 			type: "text"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	}),
 	landmarkMap: create("input", {
 		attributes: {
 			type: "number"
+		},
+		events: {
+			input() {
+				
+			}
 		}
 	})
 };

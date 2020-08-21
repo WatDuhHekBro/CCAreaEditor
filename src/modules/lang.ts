@@ -26,18 +26,20 @@ export class LangLabel
 	
 	public getClean(language = Settings.language): string
 	{
-		let text = this.get(language);
-		
-		if(/<<[AC]/g.test(text))
-			text = text.substring(0, text.search(/<<[AC]/g));
-		
-		return text;
+		return getCleanText(this.get(language));
 	}
 	
 	public toJSON()
 	{
 		return this.languages;
 	}
+}
+
+export function getCleanText(text: string): string
+{
+	if(/<<[AC]/g.test(text))
+		text = text.substring(0, text.search(/<<[AC]/g));
+	return text;
 }
 
 interface HTMLLangLabelOptions

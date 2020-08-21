@@ -4,6 +4,7 @@ import {Floor} from "../structures/floor";
 import {elements, setActiveTab, currentTab} from "./inspector";
 import {floors} from "./inspector/area";
 import {setHandleActive, setHandleInactive, maps, connections, icons, landmarks} from "./inspector/floor";
+import {mapName} from "./inspector/selection";
 import renderer from "../display/renderer";
 import {lexicon} from "../modules/lang";
 
@@ -12,8 +13,9 @@ const AMOUNT_OF_VIEWS = Object.keys(VIEWS).length / 2;
 export let currentFloor: Floor|undefined;
 export let currentFloorIndex = 0;
 export let currentMode = VIEWS.TILES;
-let selected = 0;
+export let selected = 0;
 export let currentTabOffset = 0;
+let connectionMapBindToggle = false;
 
 // With functions like setBoxPreview and moveConnection, you really need to figure out a way to make it faster. Find some way to keep track of what changed so it's more efficient.
 export function render(maps?: number[], select?: number)
@@ -259,7 +261,7 @@ export function resizeArea(options: {width?: number, height?: number, offsetX?: 
 	render();
 }
 
-export function moveConnection(x: number, y: number)
+export function moveConnection(x: number, y: number, avoidInspector = false)
 {
 	if(currentFloor && currentMode === VIEWS.CONNECTIONS)
 	{
@@ -269,12 +271,25 @@ export function moveConnection(x: number, y: number)
 		{
 			connection.tx = x;
 			connection.ty = y;
+			
+			if(!avoidInspector)
+			{
+				elements.connectionX.value = x.toString();
+				elements.connectionY.value = y.toString();
+			}
+			
+			const button = connections.getRow(selected).children[2].children[0].children[0] as HTMLButtonElement|undefined;
+			
+			if(!button)
+				throw "No button element is defined at Gateway.moveConnection!";
+			
+			button.innerText = `(${x}, ${y})`;
 			render();
 		}
 	}
 }
 
-export function rotateConnection()
+export function rotateConnection(avoidInspector = false)
 {
 	if(currentFloor && currentMode === VIEWS.CONNECTIONS)
 	{
@@ -283,13 +298,18 @@ export function rotateConnection()
 		if(connection)
 		{
 			const isVertical = connection.dir === "VERTICAL";
-			connection.dir = isVertical ? "HORIZONTAL": "VERTICAL";
+			const newDirection = isVertical ? "HORIZONTAL" : "VERTICAL";
+			connection.dir = newDirection;
+			
+			if(avoidInspector)
+				elements.connectionDirection.value = newDirection;
+			
 			render();
 		}
 	}
 }
 
-export function resizeConnection(x: number, y: number)
+export function resizeConnection(x: number, y: number, avoidInspector = false)
 {
 	if(currentFloor && currentMode === VIEWS.CONNECTIONS)
 	{
@@ -300,8 +320,12 @@ export function resizeConnection(x: number, y: number)
 			const isVertical = connection.dir === "VERTICAL";
 			const sizeX = Math.max(x - connection.tx + 1, 1);
 			const sizeY = Math.max(y - connection.ty + 1, 1);
-			connection.size = isVertical ? sizeX : sizeY;
-			console.log(isVertical, sizeX, sizeY);
+			const newSize = isVertical ? sizeX : sizeY;
+			connection.size = newSize;
+			
+			if(!avoidInspector)
+				elements.connectionSize.value = newSize.toString();
+			
 			render();
 		}
 	}
@@ -397,25 +421,79 @@ function setSelectedIndicator()
 
 function setSelectedData()
 {
+	if(!currentFloor)
+		throw "Gateway.setSelectedData was called outside of an active context!";
+	
 	// Map //
-	if(currentTabOffset === 1)
+	if(currentTabOffset === 1 && currentMode === VIEWS.TILES)
 	{
-		
+		const map = currentFloor.maps[selected - 1];
+		mapName.setLangLabel(map.name);
+		elements.mapPath.value = map.path;
 	}
 	// Connection //
-	else if(currentTabOffset === 2)
+	else if(currentTabOffset === 2 && currentMode === VIEWS.CONNECTIONS)
 	{
-		
+		const connection = currentFloor.connections[selected];
+		elements.connectionX.value = connection.tx.toString();
+		elements.connectionY.value = connection.ty.toString();
+		elements.connectionDirection.value = connection.dir;
+		elements.connectionSize.value = connection.size.toString();
+		elements.connectionMap1.value = connection.map1.toString();
+		elements.connectionMap2.value = connection.map2.toString();
+		elements.connectionCondition.value = connection.condition ?? "";
 	}
 	// Icon //
-	else if(currentTabOffset === 3)
+	else if(currentTabOffset === 3 && currentMode === VIEWS.RESULT)
 	{
-		
+		const icon = currentFloor.icons[selected];
+		elements.iconX.value = icon.x.toString();
+		elements.iconY.value = icon.y.toString();
+		elements.iconType.value = icon.icon;
+		elements.iconMap.value = icon.map.toString();
+		elements.iconDataArea.value = icon.data?.area ?? "";
+		elements.iconDataMap.value = icon.data?.map ?? "";
 	}
 	// Landmark //
-	else if(currentTabOffset === 4)
+	else if(currentTabOffset === 4 && currentMode === VIEWS.RESULT)
 	{
+		const landmark = currentFloor.landmarks[~selected - 1];
+		elements.landmarkX.value = landmark.x.toString();
+		elements.landmarkY.value = landmark.y.toString();
+		elements.landmarkID.value = landmark.id;
+		elements.landmarkMap.value = landmark.map.toString();
+	}
+}
+
+// Bind current selection with selected map.
+export function bind(x: number, y: number)
+{
+	if(currentFloor && selected !== -1 && currentMode !== VIEWS.TILES)
+	{
+		const tx = Math.floor(x / 8);
+		const ty = Math.floor(y / 8);
+		const map = currentFloor.getMapIndexByPosition(tx, ty) - 1;
 		
+		if(currentMode === VIEWS.CONNECTIONS)
+		{
+			const connection = currentFloor.connections[selected];
+			connectionMapBindToggle = !connectionMapBindToggle;
+			
+			if(connectionMapBindToggle)
+			{
+				connection.map1 = map;
+				elements.connectionMap1.value = map.toString();
+			}
+			else
+			{
+				connection.map2 = map;
+				elements.connectionMap2.value = map.toString();
+			}
+		}
+		else if(currentMode === VIEWS.RESULT)
+		{
+			
+		}
 	}
 }
 

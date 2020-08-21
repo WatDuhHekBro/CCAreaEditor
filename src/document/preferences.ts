@@ -65,7 +65,11 @@ export default create("div", {
 				})
 			]
 		})
-	]
+	],
+	events: {
+		wheel: event => event.stopPropagation(),
+		keydown: event => event.stopPropagation()
+	}
 });
 
 function setLanguage(code: string)

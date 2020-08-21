@@ -96,8 +96,12 @@ function mouseEventStart(event: MouseEvent)
 	// Right Click //
 	else if(event.button === 2)
 	{
-		SecondaryButtonController.start(x, y);
 		secondaryActive = true;
+		
+		if(shift)
+			Gateway.bind(x, y);
+		else
+			SecondaryButtonController.start(x, y);
 	}
 }
 
@@ -135,7 +139,14 @@ function mouseEventMove(event: MouseEvent)
 	if(middleActive)
 		MiddleButtonController.move(x, y);
 	if(secondaryActive)
-		SecondaryButtonController.move(x, y);
+	{
+		if(shift)
+		{
+			//...
+		}
+		else
+			SecondaryButtonController.move(x, y);
+	}
 }
 
 function mouseEventStop(event: MouseEvent)
@@ -157,7 +168,14 @@ function mouseEventStop(event: MouseEvent)
 	if(middleActive)
 		MiddleButtonController.stop(x, y);
 	if(secondaryActive)
-		SecondaryButtonController.stop(x, y);
+	{
+		if(shift)
+		{
+			//...
+		}
+		else
+			SecondaryButtonController.stop(x, y);
+	}
 	
 	primaryActive = false;
 	middleActive = false;

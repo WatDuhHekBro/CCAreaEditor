@@ -2,12 +2,12 @@
 A tool that allows you to graphically edit areas. Extended from my general 2D Matrix renderer. Currently WIP!
 
 # Controls
-- Left Click: Draw Tile / Move Connection/Icon/Landmark
-- Shift + Left Click: Draw Box / Rotate Connection / Extend Connection
+[T] = Tile, [C] = Connection, [I] = Icon, [L] = Landmark
+- Left Click: Draw [T] / Move [CIL]
+- Shift + Left Click: Draw Box / Rotate [C] / Extend [C]
 - Middle Click: Pan
-- Shift + Middle Click: Cycle View Modes
 - Right Click: Select/Inspect
-- Shift + Right Click: Link Selected Connection/Icon/Landmark to Map
+- Shift + Right Click: Link Selected [CIL] to Map (Alternates for [C] for both maps)
 - Scroll Wheel: Zoom
 - Shift + Scroll Wheel: Switch Floors
 
@@ -17,8 +17,7 @@ The most I'm willing to accommodate for is a laptop with only one button on its 
 - R: Reset View
 - 1: Tile Editor
 - 2: Connection Editor
-- 3: View Final Result / Icon/Landmark Editor
-- F: Select/Inspect
+- 3: View Final Result / [IL] Editor
 - -/+: Zoom
 - Q/E: Switch Floors
 
