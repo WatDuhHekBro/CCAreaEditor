@@ -3,7 +3,7 @@ import {Area, currentArea, setCurrentArea} from "../structures/area";
 import {Floor} from "../structures/floor";
 import {elements, setActiveTab, currentTab} from "./inspector";
 import {floors} from "./inspector/area";
-import {setHandleActive, setHandleInactive, maps, connections, icons, landmarks} from "./inspector/floor";
+import {setHandleActive, setHandleInactive, maps, connections, icons, landmarks, tabs} from "./inspector/floor";
 import {mapName} from "./inspector/selection";
 import renderer from "../display/renderer";
 import {lexicon} from "../modules/lang";
@@ -16,6 +16,7 @@ export let currentMode = VIEWS.TILES;
 export let selected = 0;
 export let currentTabOffset = 0;
 let connectionMapBindToggle = false;
+const indexesToDisplayActiveTables = [[0], [1], [2, 3]];
 
 // With functions like setBoxPreview and moveConnection, you really need to figure out a way to make it faster. Find some way to keep track of what changed so it's more efficient.
 export function render(maps?: number[], select?: number)
@@ -70,6 +71,7 @@ export function loadArea()
 			floors.addRow();
 		
 		setSelectedIndicator();
+		setViewTables();
 	}
 	else
 		console.warn("Tried to load an area without first initializing it!");
@@ -342,6 +344,18 @@ export function moveIcon(x: number, y: number)
 		{
 			icon.x = x;
 			icon.y = y;
+			
+			if(isLandmark)
+			{
+				elements.landmarkX.value = x.toString();
+				elements.landmarkY.value = y.toString();
+			}
+			else
+			{
+				elements.iconX.value = x.toString();
+				elements.iconY.value = y.toString();
+			}
+			
 			render();
 		}
 	}
@@ -362,7 +376,19 @@ export function setView(mode?: VIEWS)
 	
 	selected = currentMode === VIEWS.TILES ? 0 : -1;
 	setSelectedIndicator();
+	setViewTables();
 	render();
+}
+
+function setViewTables()
+{
+	const tableIndexes = indexesToDisplayActiveTables[currentMode];
+	
+	for(let i = 0; i < tabs.length; i++)
+	{
+		const tab = tabs[i];
+		tab.setDisplay(tableIndexes.includes(i));
+	}
 }
 
 // Send in the absolute x and y and it'll resolve based on the current view.
@@ -492,7 +518,21 @@ export function bind(x: number, y: number)
 		}
 		else if(currentMode === VIEWS.RESULT)
 		{
+			const isLandmark = selected < -1;
+			const index = isLandmark ? ~selected - 1 : selected;
 			
+			if(isLandmark)
+			{
+				const landmark = currentFloor.landmarks[index];
+				landmark.map = map;
+				elements.landmarkMap.value = map.toString();
+			}
+			else
+			{
+				const icon = currentFloor.icons[index];
+				icon.map = map;
+				elements.iconMap.value = map.toString();
+			}
 		}
 	}
 }

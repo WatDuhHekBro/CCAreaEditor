@@ -1,5 +1,5 @@
 # CCAreaEditor
-A tool that allows you to graphically edit areas. Extended from my general 2D Matrix renderer. Currently WIP!
+A CrossCode modding tool that allows you to graphically edit areas.
 
 # Controls
 [T] = Tile, [C] = Connection, [I] = Icon, [L] = Landmark

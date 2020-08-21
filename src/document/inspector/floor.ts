@@ -6,80 +6,6 @@ import {floors} from "./area";
 
 const handle = new HTMLLangLabel({callback: setFloorHeader});
 
-export const elements = {
-	level: create("input", {
-		attributes: {
-			type: "number"
-		},
-		events: {
-			input() {
-				if(Gateway.currentFloor && currentArea)
-				{
-					Gateway.currentFloor.level = parseInt(this.value);
-					setFloorHeader();
-				}
-				else
-					this.value = "";
-			}
-		}
-	}),
-	button: create("button", {
-		text: lang("inspector.floor.handle.add"),
-		events: {
-			click() {
-				if(Gateway.currentFloor)
-				{
-					let handle = Gateway.currentFloor.handle;
-					
-					if(handle)
-					{
-						Gateway.currentFloor.handle = undefined;
-						setHandleInactive();
-					}
-					else
-					{
-						handle = new LangLabel();
-						Gateway.currentFloor.handle = handle;
-						setHandleActive(handle);
-					}
-					
-					setFloorHeader();
-				}
-			}
-		}
-	}),
-	container: handle.getElement()
-};
-
-export function setHandleActive(data: LangLabel)
-{
-	handle.setLangLabel(data);
-	elements.container.style.display = "block";
-	elements.button.innerText = lang("inspector.floor.handle.remove");
-}
-
-export function setHandleInactive()
-{
-	elements.container.style.display = "none";
-	elements.button.innerText = lang("inspector.floor.handle.add");
-}
-
-function setFloorHeader()
-{
-	if(!Gateway.currentFloor)
-		throw "setFloorHeader was called in the wrong context!";
-	
-	const row = floors.getRow(Gateway.currentFloorIndex);
-	const span = row?.children[2]?.children[0]?.children[0] as HTMLSpanElement|undefined;
-	
-	if(!span)
-		throw "Invalid span type assertion at inspector.elements.level.events.input!"
-	
-	span.innerText = Gateway.currentFloor.getFloorName() + ' ';
-}
-
-setHandleInactive();
-
 export const maps = new Table({
 	onadd: (element, index, clickedByUser) => {
 		if(clickedByUser)
@@ -205,6 +131,112 @@ export const landmarks = new Table({
 	onswap: Gateway.swapLandmarks
 });
 
+// Is a GenericTab[] so you can easily toggle each one's visibility in Gateway.setView.
+export const tabs = [
+	// Maps //
+	new GenericTab()
+		.attachElement(create("h2", {
+			text: lang("inspector.floor.maps")
+		}))
+		.attachElement(maps.getTable())
+		.attachElement(maps.button),
+	// Connections //
+	new GenericTab()
+		.attachElement(create("h2", {
+			text: lang("inspector.floor.connections")
+		}))
+		.attachElement(connections.getTable())
+		.attachElement(connections.button),
+	// Icons //
+	new GenericTab()
+		.attachElement(create("h2", {
+			text: lang("inspector.floor.icons")
+		}))
+		.attachElement(icons.getTable())
+		.attachElement(icons.button),
+	// Landmarks //
+	new GenericTab()
+		.attachElement(create("h2", {
+			text: lang("inspector.floor.landmarks")
+		}))
+		.attachElement(landmarks.getTable())
+		.attachElement(landmarks.button)
+];
+
+export const elements = {
+	level: create("input", {
+		attributes: {
+			type: "number"
+		},
+		events: {
+			input() {
+				if(Gateway.currentFloor && currentArea)
+				{
+					Gateway.currentFloor.level = parseInt(this.value);
+					setFloorHeader();
+				}
+				else
+					this.value = "";
+			}
+		}
+	}),
+	button: create("button", {
+		text: lang("inspector.floor.handle.add"),
+		events: {
+			click() {
+				if(Gateway.currentFloor)
+				{
+					let handle = Gateway.currentFloor.handle;
+					
+					if(handle)
+					{
+						Gateway.currentFloor.handle = undefined;
+						setHandleInactive();
+					}
+					else
+					{
+						handle = new LangLabel();
+						Gateway.currentFloor.handle = handle;
+						setHandleActive(handle);
+					}
+					
+					setFloorHeader();
+				}
+			}
+		}
+	}),
+	container: handle.getElement()
+};
+
+export function setHandleActive(data: LangLabel)
+{
+	handle.setLangLabel(data);
+	elements.container.style.display = "block";
+	elements.button.innerText = lang("inspector.floor.handle.remove");
+}
+
+export function setHandleInactive()
+{
+	elements.container.style.display = "none";
+	elements.button.innerText = lang("inspector.floor.handle.add");
+}
+
+function setFloorHeader()
+{
+	if(!Gateway.currentFloor)
+		throw "setFloorHeader was called in the wrong context!";
+	
+	const row = floors.getRow(Gateway.currentFloorIndex);
+	const span = row?.children[2]?.children[0]?.children[0] as HTMLSpanElement|undefined;
+	
+	if(!span)
+		throw "Invalid span type assertion at inspector.elements.level.events.input!"
+	
+	span.innerText = Gateway.currentFloor.getFloorName() + ' ';
+}
+
+setHandleInactive();
+
 export default new GenericTab()
 	.attachElement(create("div", {
 		append: [
@@ -229,39 +261,7 @@ export default new GenericTab()
 			elements.button
 		]
 	}))
-	.attachElement(create("div", {
-		append: [
-			create("h2", {
-				text: lang("inspector.floor.maps")
-			}),
-			maps.getTable(),
-			maps.button
-		]
-	}))
-	.attachElement(create("div", {
-		append: [
-			create("h2", {
-				text: lang("inspector.floor.connections")
-			}),
-			connections.getTable(),
-			connections.button
-		]
-	}))
-	.attachElement(create("div", {
-		append: [
-			create("h2", {
-				text: lang("inspector.floor.icons")
-			}),
-			icons.getTable(),
-			icons.button
-		]
-	}))
-	.attachElement(create("div", {
-		append: [
-			create("h2", {
-				text: lang("inspector.floor.landmarks")
-			}),
-			landmarks.getTable(),
-			landmarks.button
-		]
-	}));
+	.attach(tabs[0])
+	.attach(tabs[1])
+	.attach(tabs[2])
+	.attach(tabs[3]);

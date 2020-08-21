@@ -2,7 +2,7 @@ import {GenericTab, create} from "../../modules/common";
 import lang, {HTMLLangLabel, getCleanText} from "../../modules/lang";
 import * as Gateway from "../gateway";
 import Settings from "../../modules/config";
-import {maps} from "./floor";
+import {maps, icons, landmarks} from "./floor";
 
 export const mapName = new HTMLLangLabel({
 	callback(text, lang)
@@ -132,7 +132,11 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+				{
+					Gateway.currentFloor.icons[Gateway.selected].x = parseInt(this.value);
+					Gateway.render();
+				}
 			}
 		}
 	}),
@@ -142,7 +146,11 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+				{
+					Gateway.currentFloor.icons[Gateway.selected].y = parseInt(this.value);
+					Gateway.render();
+				}
 			}
 		}
 	}),
@@ -150,7 +158,17 @@ export const elements = {
 	iconType: create("select", {
 		events: {
 			input() {
-				console.log(this.value);
+				if(Gateway.currentFloor)
+				{
+					Gateway.currentFloor.icons[Gateway.selected].icon = this.value;
+					Gateway.render();
+					const button = icons.getRow(Gateway.selected).children[2].children[0].children[0] as HTMLButtonElement|undefined;
+					
+					if(!button)
+						throw "No button element is defined at mapName.iconType!";
+					
+					button.innerText = this.value;
+				}
 			}
 		}
 	}),
@@ -160,7 +178,8 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+					Gateway.currentFloor.icons[Gateway.selected].map = parseInt(this.value);
 			}
 		}
 	}),
@@ -170,7 +189,22 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+				{
+					const icon = Gateway.currentFloor.icons[Gateway.selected];
+					const area = this.value;
+					const map = elements.iconDataMap.value;
+					
+					if(area === "" && map === "")
+						icon.data = undefined;
+					else
+					{
+						icon.data = {
+							area: area,
+							map: map
+						};
+					}
+				}
 			}
 		}
 	}),
@@ -180,7 +214,22 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+				{
+					const icon = Gateway.currentFloor.icons[Gateway.selected];
+					const area = elements.iconDataArea.value;
+					const map = this.value;
+					
+					if(area === "" && map === "")
+						icon.data = undefined;
+					else
+					{
+						icon.data = {
+							area: area,
+							map: map
+						};
+					}
+				}
 			}
 		}
 	}),
@@ -190,7 +239,12 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+				{
+					const index = ~Gateway.selected - 1;
+					Gateway.currentFloor.landmarks[index].x = parseInt(this.value);
+					Gateway.render();
+				}
 			}
 		}
 	}),
@@ -200,7 +254,12 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+				{
+					const index = ~Gateway.selected - 1;
+					Gateway.currentFloor.landmarks[index].y = parseInt(this.value);
+					Gateway.render();
+				}
 			}
 		}
 	}),
@@ -210,7 +269,17 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+				{
+					const index = ~Gateway.selected - 1;
+					Gateway.currentFloor.landmarks[index].id = this.value;
+					const button = landmarks.getRow(index).children[2].children[0].children[0] as HTMLButtonElement|undefined;
+					
+					if(!button)
+						throw "No button element is defined at mapName.landmarkID!";
+					
+					button.innerText = this.value;
+				}
 			}
 		}
 	}),
@@ -220,7 +289,8 @@ export const elements = {
 		},
 		events: {
 			input() {
-				
+				if(Gateway.currentFloor)
+					Gateway.currentFloor.landmarks[~Gateway.selected - 1].map = parseInt(this.value);
 			}
 		}
 	})
