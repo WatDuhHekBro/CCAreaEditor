@@ -56,7 +56,7 @@ export class Floor
 		// If you specify an area index but don't have a map specified for it, the game will crash (cannot read path of undefined).
 		if(map > this.maps.length) // For example, you can place a tile of 1 as long as there's at least 1 map specified.
 			throw `Error: Attempted to place a tile with the value of ${map}, but the maximum allowed index is ${this.maps.length}! If you want to use more maps, you have to do so by calling Floor.addMap(...)!`;
-		this.tiles.set(x, y, map);
+		this.tiles.set(x, y, map, true);
 	}
 	
 	public getFloorName(): string

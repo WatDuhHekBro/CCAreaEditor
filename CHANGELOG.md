@@ -1,3 +1,6 @@
+# 1.0.3
+- Fixed a bug which prevented users from drawing tiles on the left and top edges.
+
 # 1.0.2
 - Added an option in preferences to confirm closing the tab so users can avoid accidentally losing all their progress.
 - Updated the `Language` section of the preferences sidebar to more accurately reflect the user's language setting.

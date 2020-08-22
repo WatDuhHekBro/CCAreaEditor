@@ -117,7 +117,7 @@ function mouseEventMove(event: MouseEvent)
 	if(primaryActive)
 	{
 		// onmousemove fires off hundres of times in milliseconds, so you have to restrict the amount of times the renderer has to render the canvas again.
-		if(tx !== lastBoxX && ty !== lastBoxY)
+		if(tx !== lastBoxX || ty !== lastBoxY)
 		{
 			if(shift)
 			{
@@ -147,6 +147,9 @@ function mouseEventMove(event: MouseEvent)
 		else
 			SecondaryButtonController.move(x, y);
 	}
+	
+	lastBoxX = tx;
+	lastBoxY = ty;
 }
 
 function mouseEventStop(event: MouseEvent)

@@ -6,11 +6,6 @@ html, body
 	background-color: linen;
 }
 
-*::selection
-{
-	background-color: rgba(0, 0, 0, 0);
-}
-
 canvas
 {
 	image-rendering: pixelated;
