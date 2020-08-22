@@ -158,3 +158,29 @@ table.reverse tbody
 	83% {background-color: violet; color: white;}
 	100% {background-color: red; color: white;}
 }
+
+.version
+{
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	color: white;
+	text-shadow: 0 0 5px black;
+	font-size: larger;
+	background-color: #c8c8c8;
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 5px;
+}
+
+.error
+{
+	position: absolute;
+	background-color: red;
+	border: 3px solid darkred;
+	border-radius: 50%;
+	padding: 5px;
+	font-size: 125%;
+	cursor: pointer;
+	display: none;
+}

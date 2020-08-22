@@ -455,11 +455,12 @@ const ICONMAP: {[key: string]: number[]} = {
 	landmark: [84, 12, 16, 16, -7, -8]
 };
 
-const ICONS = Object.keys(ICONMAP);
-
-for(const icon of ICONS)
+for(const icon of Object.keys(ICONMAP))
 {
-	elements.iconType.appendChild(create("option", {
-		text: icon
-	}));
+	if(icon !== "landmark")
+	{
+		elements.iconType.appendChild(create("option", {
+			text: icon
+		}));
+	}
 }

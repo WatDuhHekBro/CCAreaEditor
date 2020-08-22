@@ -1,26 +1,26 @@
 {
-  "name": "ccareaeditor",
-  "version": "1.0.0",
-  "description": "A tool that allows you to graphically edit areas. Extended from my general 2D Matrix renderer. Currently WIP!",
-  "dependencies": {},
-  "devDependencies": {
-    "ts-loader": "^8.0.1",
-    "typescript": "^3.9.7",
-    "webpack": "^4.44.0",
-    "webpack-cli": "^3.3.12"
-  },
-  "scripts": {
-    "build": "webpack",
-    "dev": "webpack --watch"
-  },
-  "author": "WatDuhHekBro",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/WatDuhHekBro/CCAreaEditor.git"
-  },
-  "bugs": {
-    "url": "https://github.com/WatDuhHekBro/CCAreaEditor/issues"
-  },
-  "homepage": "https://github.com/WatDuhHekBro/CCAreaEditor#readme"
+	"name": "ccareaeditor",
+	"version": "1.0.1",
+	"description": "A CrossCode modding tool that allows you to graphically edit areas.",
+	"dependencies": {},
+	"devDependencies": {
+		"ts-loader": "^8.0.1",
+		"typescript": "^3.9.7",
+		"webpack": "^4.44.0",
+		"webpack-cli": "^3.3.12"
+	},
+	"scripts": {
+		"build": "webpack",
+		"dev": "webpack --watch"
+	},
+	"author": "WatDuhHekBro",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/WatDuhHekBro/CCAreaEditor.git"
+	},
+	"bugs": {
+		"url": "https://github.com/WatDuhHekBro/CCAreaEditor/issues"
+	},
+	"homepage": "https://github.com/WatDuhHekBro/CCAreaEditor#readme"
 }

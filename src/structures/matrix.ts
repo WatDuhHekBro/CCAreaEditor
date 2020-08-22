@@ -38,8 +38,9 @@ export default class Matrix
 	public set(x: number, y: number, value: number)
 	{
 		if(x >= this.width || x < 0 || y >= this.height || y < 0)
-			throw new RangeError(`Index out of bounds! Called (${x}, ${y}) of width ${this.width} x height ${this.height}.`);
-		this.data[this.width * y + x] = value;
+			console.warn(`Index out of bounds! Called (${x}, ${y}) of width ${this.width} x height ${this.height}.`);
+		else
+			this.data[this.width * y + x] = value;
 	}
 	
 	/** Resize and shift the current grid. It should be the only method that allocates memory for a new array. */

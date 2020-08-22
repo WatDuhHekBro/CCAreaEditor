@@ -181,7 +181,7 @@ export class Floor
 	{
 		addGeneric(this.maps, new Map({
 			path: path,
-			name: name
+			name: name.languages
 		}), index);
 	}
 	public moveMap(from: number, to: number) {moveGeneric(this.maps, from, to)}

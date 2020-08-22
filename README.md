@@ -33,19 +33,24 @@ The most I'm willing to accommodate for is a laptop with only one button on its 
 
 # List of Files
 The entry point to the program is `src/index` which pretty much calls everything else in `src/modules/`.
-- `area`: The class to manage floors. Also holds the current area.
-- `common`: Contains some common utility functions.
-- `config`: Uses `window.localStorage` to hold persistent settings.
-- `controller`: Lists in on the mouse clicks and keyboard keys that activate functions from the `gateway`.
-- `floor`: The class which controls a floor's data and displaying it.
-- `gateway`: Contains a list of functions that serves as the glue between the renderer, the area data, and the controller.
-- `inspector`: Exports an instance of a class which lets you see and edit the area data.
-- `lang`: Holds the `LangLabel` class and initializes `lexicon.json` into a dictionary of `LangLabel`s.
-- `lexicon.json`: The localization file. It's unlikely that this'll be expanded upon, but it can't hurt to add the functionality, right?
-- `matrix`: The class that handles grid data.
-- `palette`: Randomly generates a palette which stores colors for each numerical value.
-- `renderer`: Manages everything related to displaying area data.
-- `transfer`: Handles downloading and uploading area data.
+- `display/renderer`: Manages everything related to displaying area data.
+- `display/palette`: Randomly generates a palette which stores colors for each numerical value.
+- `structures/area`: The class to manage floors. Also holds the current area.
+- `structures/floor`: The class which controls a floor's data and displaying it.
+- `structures/matrix`: The class that handles grid data.
+- `modules/common`: Contains some common utility functions.
+- `modules/config`: Uses `window.localStorage` to hold persistent settings.
+- `modules/lang`: Holds the `LangLabel` class and initializes `lexicon.json` into a dictionary of `LangLabel`s.
+- `modules/lexicon.json`: The localization file. It's unlikely that this'll be expanded upon, but it can't hurt to add the functionality, right?
+- `document/gateway`: Contains a list of functions that serves as the glue between the renderer, the area data, and the controller.
+- `document/inspector`: Exports a sidebar which lets you see and edit the area data. Split up into different tabs.
+	- `document/inspector/transfer`: Transfers data into and out of the editor.
+	- `document/inspector/area`: Edits the area settings and its floors.
+	- `document/inspector/floor`: Edits the selected floor's settings and its maps/connections/icons/landmarks.
+	- `document/inspector/selection`: Edits an individual map/connection/icon/landmark and is the most specific editing tab.
+- `document/controller`: Lists in on the mouse clicks and keyboard keys that activate functions from the `gateway`.
+- `document/preferences`: Exports a sidebar which lets the user edit persistent settings.
+- `document/transfer`: Provides functions that handle downloading and uploading area data.
 
 # Unused Properties
 - `area.DOCTYPE` (string = `AREAS_MAP`)
