@@ -1,3 +1,6 @@
+# 1.0.5
+- Added the ability to set the location of a connection/icon/landmark by left clicking without holding it down.
+
 # 1.0.4
 - Added type checking before iterating through arrays (loading in an existing floor).
 - Reordered `icons` and `handle` in the `Floor` structure.

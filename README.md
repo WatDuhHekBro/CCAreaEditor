@@ -3,8 +3,8 @@ A CrossCode modding tool that allows you to graphically edit areas.
 
 # Controls
 [T] = Tile, [C] = Connection, [I] = Icon, [L] = Landmark
-- Left Click: Draw [T] / Move [CIL]
-- Shift + Left Click: Draw Box / Rotate [C] / Extend [C]
+- Left Click: Draw [T] / Rotate [C] / Move [CIL] / Set Location [CIL]
+- Shift + Left Click: Draw Box / Extend [C]
 - Middle Click: Pan
 - Right Click: Select/Inspect
 - Shift + Right Click: Link Selected [CIL] to Map (Alternates for [C] for both maps)

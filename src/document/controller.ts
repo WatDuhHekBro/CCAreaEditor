@@ -10,6 +10,7 @@ let boxStartY = 0;
 let lastBoxX = 0;
 let lastBoxY = 0;
 let hasMovedLeft = false;
+let previousSelected = 0;
 
 export function bindController(element: HTMLElement)
 {
@@ -68,6 +69,7 @@ function mouseEventStart(event: MouseEvent)
 	// Left Click //
 	if(event.button === 0)
 	{
+		previousSelected = Gateway.selected;
 		Gateway.select(x, y, VIEWS.CONNECTIONS);
 		Gateway.select(x, y, VIEWS.RESULT);
 		
@@ -165,8 +167,18 @@ function mouseEventStop(event: MouseEvent)
 	{
 		if(shift)
 			Gateway.setBox(boxStartX, boxStartY, tx, ty);
+		
 		if(!hasMovedLeft)
-			Gateway.rotateConnection();
+		{
+			if(Gateway.selected !== -1)
+				Gateway.rotateConnection();
+			else
+			{
+				Gateway.selectByIndex(previousSelected);
+				Gateway.moveConnection(tx, ty);
+				Gateway.moveIcon(x, y);
+			}
+		}
 	}
 	if(middleActive)
 		MiddleButtonController.stop(x, y);
