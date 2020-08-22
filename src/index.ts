@@ -39,7 +39,7 @@ window.onerror = (message, source, line, column, error) => {
 		source: source,
 		line: line,
 		column: column,
-		error: error?.stack
+		error: error?.stack ?? error
 	});
 };
 

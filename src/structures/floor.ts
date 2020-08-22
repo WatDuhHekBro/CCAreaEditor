@@ -7,16 +7,17 @@ import {GenericJSON, addGeneric, moveGeneric, removeGeneric, swapGeneric} from "
 export class Floor
 {
 	public level: number; // The level property only determines the display of that level. So you can have -2 then -4, which will show up in that order. A defaultFloor property that doesn't match anything will just show a blank screen until you select a floor.
+	public handle?: LangLabel; // new LangLabel(), overrides default F#
 	private tiles: Matrix;
-	public readonly icons: Icon[];
 	public readonly maps: Map[]; // maps[0] describes tiles with a value of 1, as tiles with a value of 0 indicate that there is no map there.
 	public readonly connections: Connection[];
+	public readonly icons: Icon[];
 	public readonly landmarks: Landmark[];
-	public handle?: LangLabel; // new LangLabel(), overrides default F#
 	
 	constructor(level: number, widthOrGrid: number|Matrix, height?: number)
 	{
 		this.level = level;
+		this.handle = undefined;
 		
 		if(widthOrGrid.constructor === Matrix)
 			this.tiles = widthOrGrid;
@@ -25,9 +26,9 @@ export class Floor
 		else
 			throw `Invalid constructor call to Floor! new Floor(${level}, ${widthOrGrid}, ${height})`;
 		
-		this.icons = [];
 		this.maps = [];
 		this.connections = [];
+		this.icons = [];
 		this.landmarks = [];
 	}
 	
@@ -38,14 +39,18 @@ export class Floor
 		if(data.handle)
 			floor.handle = new LangLabel(data.handle);
 		
-		for(const map of data.maps)
-			floor.maps.push(new Map(map));
-		for(const connection of data.connections)
-			floor.connections.push(new Connection(connection));
-		for(const icon of data.icons)
-			floor.icons.push(new Icon(icon));
-		for(const landmark of data.landmarks)
-			floor.landmarks.push(new Landmark(landmark));
+		if(data.maps)
+			for(const map of data.maps)
+				floor.maps.push(new Map(map));
+		if(data.connections)
+			for(const connection of data.connections)
+				floor.connections.push(new Connection(connection));
+		if(data.icons)
+			for(const icon of data.icons)
+				floor.icons.push(new Icon(icon));
+		if(data.landmarks)
+			for(const landmark of data.landmarks)
+				floor.landmarks.push(new Landmark(landmark));
 		
 		return floor;
 	}

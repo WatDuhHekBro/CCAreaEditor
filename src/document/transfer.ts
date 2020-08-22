@@ -5,8 +5,9 @@ let currentFileName = "area.json";
 
 function parseAndSendToEditor(data: string)
 {
-	try {setCurrentArea(new Area(JSON.parse(data)))}
-	catch {setCurrentArea(new Area())}
+	// This is one of those things that should not fail silently.
+	// I need to know if there's a conflict of data.
+	setCurrentArea(new Area(JSON.parse(data)));
 }
 
 export function inputViaDragAndDrop(event: DragEvent)

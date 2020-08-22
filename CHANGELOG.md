@@ -1,3 +1,8 @@
+# 1.0.4
+- Added type checking before iterating through arrays (loading in an existing floor).
+- Reordered `icons` and `handle` in the `Floor` structure.
+- Removed silently failing errors when loading in an area that causes an error.
+
 # 1.0.3
 - Fixed a bug which prevented users from drawing tiles on the left and top edges.
 

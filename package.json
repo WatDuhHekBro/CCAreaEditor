@@ -1,6 +1,6 @@
 {
 	"name": "ccareaeditor",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "A CrossCode modding tool that allows you to graphically edit areas.",
 	"dependencies": {},
 	"devDependencies": {
