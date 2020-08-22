@@ -67,8 +67,6 @@ The entry point to the program is `src/index` which pretty much calls everything
 - Optimize rendering to no longer be horribly inefficient, especially with moving operations
 - Hover effect for tile editor
 - Floor Buttons
-- Error Bubble (expand it to show errors)
-- Help Bubble
 - Auto-saving
 - History
 - Custom Palette

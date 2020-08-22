@@ -7,8 +7,7 @@ const languages = create("select", {
 		change() {
 			setLanguage(this.value);
 		}
-	},
-	append: create("option")
+	}
 });
 
 const status = create("div", {
@@ -19,7 +18,7 @@ const input = create("input", {
 	attributes: {
 		type: "text",
 		style: "width: 50px",
-		placeholder: "en_US"
+		placeholder: Settings.language
 	}
 });
 
@@ -34,6 +33,19 @@ for(const tag of supportedLanguages)
 }
 
 languages.value = Settings.language;
+
+const closeConfirmCheckbox = create("input", {
+	attributes: {
+		type: "checkbox"
+	},
+	events: {
+		change() {
+			Settings.confirmClose = this.checked;
+		}
+	}
+});
+
+closeConfirmCheckbox.checked = Settings.confirmClose;
 
 export default create("div", {
 	classes: ["ui", "sidebar"],
@@ -64,6 +76,24 @@ export default create("div", {
 					]
 				})
 			]
+		}),
+		create("h2", {
+			text: lang("preferences.confirmClose")
+		}),
+		create("div", {
+			append: [
+				create("div", {
+					text: lang("preferences.confirmClose.note")
+				}),
+				create("div", {
+					append: [
+						create("span", {
+							text: lang("preferences.confirmClose.option") + ' '
+						}),
+						closeConfirmCheckbox
+					]
+				})
+			]
 		})
 	],
 	events: {
@@ -74,11 +104,11 @@ export default create("div", {
 
 function setLanguage(code: string)
 {
-	const success = Settings.set("language", code);
-	const message = parseVars(success ? lang("preferences.language.success") : lang("preferences.language.failure"), {
+	Settings.language = code;
+	input.placeholder = code;
+	status.innerText = parseVars(lang("preferences.language.success"), {
 		language_name: getLanguageNameByTag(code),
 		language_tag: code
 	});
-	status.innerText = message;
 	setTimeout(() => status.innerText = lang("preferences.language.note"), 3000);
 }

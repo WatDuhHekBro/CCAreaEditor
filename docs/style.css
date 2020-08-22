@@ -6,6 +6,11 @@ html, body
 	background-color: linen;
 }
 
+*::selection
+{
+	background-color: rgba(0, 0, 0, 0);
+}
+
 canvas
 {
 	image-rendering: pixelated;
@@ -166,11 +171,12 @@ table.reverse tbody
 	right: 0;
 	color: white;
 	text-shadow: 0 0 5px black;
-	font-size: larger;
+	font-size: x-large;
 	background-color: #c8c8c8;
 	border: 1px solid black;
 	border-radius: 5px;
 	padding: 5px;
+	text-decoration: none;
 }
 
 .error

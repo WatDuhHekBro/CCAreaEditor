@@ -329,8 +329,24 @@
 	{
 		"en_US": "Successfully set your language to %language_name% (%language_tag%)! Reload the page for these changes to take place."
 	},
-	"preferences.language.failure":
+	"preferences.confirmClose":
 	{
-		"en_US": "Failed to set your language to %language_name% (%language_tag%)! Your browser most likely doesn't support the local storage module."
+		"en_US": "Confirm Close?"
+	},
+	"preferences.confirmClose.note":
+	{
+		"en_US": "When enabled, this setting will ask the user whether or not they want to close the tab to prevent accidentally losing all their progress."
+	},
+	"preferences.confirmClose.option":
+	{
+		"en_US": "Prevent accidentally closing this tab?"
+	},
+	"error.message":
+	{
+		"en_US": "Welp, looks like the program dun goof'd! Sorry about that. In the meantime, click this bubble to copy the error message(s) and send it to me or open an issue on GitHub."
+	},
+	"error.copy":
+	{
+		"en_US": "You've now copied your error messages to your clipboard. Send it to me or open an issue on GitHub."
 	}
 }

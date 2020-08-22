@@ -2,16 +2,17 @@ import Renderer from "./display/renderer";
 import {inputViaDragAndDrop} from "./document/transfer";
 import Inspector from "./document/inspector";
 import Preferences from "./document/preferences";
+import Settings from "./modules/config";
 import {create} from "./modules/common";
 import {version} from "../package.json";
+import lang from "./modules/lang";
 
 const errors: object[] = [];
-const errorBubbleMessage = "Welp, looks like the program dun goof'd! Sorry about that. In the meantime, click this bubble to copy the error message(s) and send it to me or open an issue on GitHub.";
 const errorBubble = create("div", {
 	text: "⚠️",
 	classes: ["error"],
 	attributes: {
-		title: errorBubbleMessage
+		title: lang("error.message")
 	},
 	events: {
 		click() {
@@ -26,12 +27,13 @@ const errorBubble = create("div", {
 			document.execCommand("copy");
 			element.blur();
 			element.remove();
-			alert("You've now copied your error messages to your clipboard. Send it to me or open an issue on GitHub.");
+			alert(lang("error.copy"));
 		}
 	}
 });
 
 window.onerror = (message, source, line, column, error) => {
+	errorBubble.style.display = "block";
 	errors.push({
 		message: message,
 		source: source,
@@ -39,16 +41,27 @@ window.onerror = (message, source, line, column, error) => {
 		column: column,
 		error: error?.stack
 	});
-	errorBubble.style.display = "block";
 };
 
+window.onbeforeunload = () => {
+	if(Settings.confirmClose)
+		return "yeetus deletus find salvation from jesus";
+	else
+		return;
+};
+
+// Document Initialization //
 Renderer.attach();
 document.body.appendChild(Inspector);
 document.body.appendChild(Preferences);
 document.body.ondrop = inputViaDragAndDrop;
 document.body.ondragover = event => event.preventDefault();
-document.body.appendChild(create("span", {
-	text: `v${version}`,
-	classes: ["version"]
-}));
 document.body.appendChild(errorBubble);
+document.body.appendChild(create("a", {
+	text: `v${version}`,
+	classes: ["version"],
+	attributes: {
+		href: "https://github.com/WatDuhHekBro/CCAreaEditor/blob/master/CHANGELOG.md",
+		target: "_blank"
+	}
+}));

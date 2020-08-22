@@ -303,7 +303,8 @@ export default [
 			append: create("a", {
 				text: lang("inspector.selection.none"),
 				attributes: {
-					href: "https://github.com/WatDuhHekBro/CCAreaEditor#controls"
+					href: "https://github.com/WatDuhHekBro/CCAreaEditor#controls",
+					target: "_blank"
 				}
 			})
 		})),

@@ -1,7 +1,14 @@
+interface Storage
+{
+	language: string;
+	confirmClose: boolean;
+}
+
 class Settings
 {
-	[key: string]: any;
-	public language: string;
+	// All properties will automatically save by using a custom setter.
+	// This helps avoid forgetting to do Settings.save() while also avoiding dynamic indexing for type safety.
+	private readonly storage: Storage;
 	
 	constructor()
 	{
@@ -11,28 +18,25 @@ class Settings
 		catch(error) {data = {}}
 		
 		// Set properties and discard the rest //
-		this.language = data.language ?? "en_US";
+		this.storage = {
+			language: data.language ?? "en_US",
+			confirmClose: data.confirmClose ?? true
+		};
 		
 		// Overwrite malformed settings //
 		this.save();
 	}
 	
-	public set(key: string, value: any): boolean
+	private save()
 	{
-		if(key in this)
-		{
-			this[key] = value;
-			this.save();
-			return true;
-		}
-		else
-			return false;
+		window.localStorage.setItem("CCAE", JSON.stringify(this.storage));
 	}
 	
-	public save()
-	{
-		window.localStorage.setItem("CCAE", JSON.stringify(this));
-	}
+	// Custom Accessors //
+	get language() {return this.storage.language;}
+	set language(value: string) {this.storage.language = value; this.save();}
+	get confirmClose() {return this.storage.confirmClose;}
+	set confirmClose(value: boolean) {this.storage.confirmClose = value; this.save();}
 }
 
 export default new Settings();
