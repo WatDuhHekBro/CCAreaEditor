@@ -1,3 +1,7 @@
+# 1.0.6
+- Fixed pixel interpolation for other browsers.
+- Updated dependencies.
+
 # 1.0.5
 - Added the ability to set the location of a connection/icon/landmark by left clicking without holding it down.
 

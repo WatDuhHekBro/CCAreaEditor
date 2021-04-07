@@ -4,7 +4,7 @@ import Inspector from "./document/inspector";
 import Preferences from "./document/preferences";
 import Settings from "./modules/config";
 import {create} from "./modules/common";
-import {version} from "../package.json";
+import pkg from "../package.json";
 import lang from "./modules/lang";
 
 const errors: object[] = [];
@@ -58,7 +58,7 @@ document.body.ondrop = inputViaDragAndDrop;
 document.body.ondragover = event => event.preventDefault();
 document.body.appendChild(errorBubble);
 document.body.appendChild(create("a", {
-	text: `v${version}`,
+	text: `v${pkg.version}`,
 	classes: ["version"],
 	attributes: {
 		href: "https://github.com/WatDuhHekBro/CCAreaEditor/blob/master/CHANGELOG.md",

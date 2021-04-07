@@ -5,17 +5,17 @@ import lexiconJSON from "./lexicon.json";
 export class LangLabel
 {
 	public languages: {[language: string]: string};
-	
+
 	constructor(data?: GenericJSON)
 	{
 		this.languages = {en_US: ""};
-		
+
 		if(data)
 			for(const lang in data)
 				if(lang !== "langUid")
 					this.languages[lang] = data[lang];
 	}
-	
+
 	public get(language = Settings.language): string
 	{
 		if(language in this.languages)
@@ -23,12 +23,12 @@ export class LangLabel
 		else
 			return this.languages.en_US ?? "";
 	}
-	
+
 	public getClean(language = Settings.language): string
 	{
 		return getCleanText(this.get(language));
 	}
-	
+
 	public toJSON()
 	{
 		return this.languages;
@@ -56,7 +56,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 	private menu: HTMLSelectElement;
 	private langlabel: LangLabel;
 	private tag: string;
-	
+
 	constructor(options?: HTMLLangLabelOptions)
 	{
 		super(document.createElement("div"));
@@ -87,22 +87,22 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 		this.element.appendChild(this.menu);
 		this.createMenu();
 	}
-	
+
 	public setLangLabel(langlabel: LangLabel)
 	{
 		this.langlabel = langlabel;
-		
+
 		while(this.menu.firstChild)
 			this.menu.removeChild(this.menu.firstChild);
-		
+
 		this.input.value = "";
 		this.createMenu();
 	}
-	
+
 	private createMenu()
 	{
 		let found = false;
-		
+
 		// A generated LangLabel will show the existing language tags plus the user's current language.
 		for(const tag in this.langlabel.languages)
 		{
@@ -112,17 +112,17 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 					value: tag
 				}
 			});
-			
+
 			if(tag === Settings.language)
 			{
 				this.input.value = this.langlabel.get(tag);
 				element.selected = true;
 				found = true;
 			}
-			
+
 			this.menu.appendChild(element);
 		}
-		
+
 		if(!found)
 		{
 			const tag = Settings.language;
@@ -136,7 +136,7 @@ export class HTMLLangLabel extends HTMLWrapper<HTMLDivElement>
 			this.menu.appendChild(element);
 		}
 	}
-	
+
 	public getElement()
 	{
 		return this.element;
@@ -150,6 +150,8 @@ export function getLanguageNameByTag(tag: string): string
 
 // Initialize the lexicon into an indexable format //
 export const supportedLanguages = lexiconJSON.supportedLanguages;
+// Definitely change this into the future.
+// @ts-ignore
 delete lexiconJSON.supportedLanguages;
 
 export const lexicon: {[key: string]: LangLabel} = {};
@@ -159,7 +161,7 @@ for(const key in lexiconJSON)
 export default function lang(tag: string, language?: string): string
 {
 	const label = lexicon[tag];
-	
+
 	if(label)
 		return label.get(language);
 	else
