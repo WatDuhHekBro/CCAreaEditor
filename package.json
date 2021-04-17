@@ -1,6 +1,6 @@
 {
 	"name": "ccareaeditor",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"description": "A CrossCode modding tool that allows you to graphically edit areas.",
 	"devDependencies": {
 		"ts-loader": "^8.1.0",
